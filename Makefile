@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/04/11 13:52:19 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/04/11 15:49:06 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,6 +26,7 @@ SRC = main.c \
       parser/tokenizer.c \
 	  parser/tokenizer_utils.c \
       parser/parser_utils.c \
+	  parser/parser.c \
       executor/exec_cmd.c \
       executor/redirection.c \
       builtins/echo.c \

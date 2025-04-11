@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:52 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/11 15:20:40 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/11 15:44:34 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,9 @@
 
 int main(void)
 {
-    char    *input;
-    char    **tokens;
+    char        *input;
+    char        **tokens;
+    t_command   *cmd;
 
     rl_catch_signals = 0;
     setup_signals();
@@ -32,12 +33,11 @@ int main(void)
             add_history(input);
         tokens = tokenize(input);
 
-        for (int i = 0; tokens && tokens[i]; i++)
-        {
-            char *clean = strip_quotes(tokens[i]);
-            printf("token[%d]: '%s'\n", i, clean);
-            free(clean);
-        }
+        cmd = parse_tokens(tokens);
+        for (int i = 0; cmd->args[i]; i++)
+            printf("arg[%d]: %s\n", i, cmd->args[i]);
+        if (cmd->outfile)
+            printf("outfile: %s (append = %d)\n", cmd->outfile, cmd->append);
 
 
         // Free tokens

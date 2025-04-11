@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/11 11:36:01 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/11 12:57:19 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@
 # include <stdlib.h>
 # include <unistd.h>
 
+
+// Signal handling
 extern int g_signal_status;
 
 void	setup_signals(void);

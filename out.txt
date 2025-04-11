@@ -1,54 +1,36 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
+        if (!input) // If user input Ctrl+D
+        if (*input) // If user types anything but enter
+        if (tokens)
+    while (1)
 /*   main.c                                             :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:52 by tpinarli          #+#    #+#             */
 /*   Updated: 2025/04/11 15:20:40 by tpinarli         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "minishell.h"
-
 int main(void)
-{
     char    *input;
-    char    **tokens;
-
     rl_catch_signals = 0;
     setup_signals();
     while (1)
-    {
         input = readline("minishell$ ");
         if (!input) // If user input Ctrl+D
-        {
             rl_clear_history();
             printf("exit\n");
-            break;
-        }
         if (*input) // If user types anything but enter
             add_history(input);
         tokens = tokenize(input);
-
         for (int i = 0; tokens && tokens[i]; i++)
-        {
             char *clean = strip_quotes(tokens[i]);
             printf("token[%d]: '%s'\n", i, clean);
-            free(clean);
-        }
-
-
-        // Free tokens
         if (tokens)
-        {
             for (int i = 0; tokens[i]; i++)
                 free(tokens[i]);
-            free(tokens);
-        }
         free(input);
-    }
     rl_clear_history();
-    return 0;
-}
+/*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
+/*   Created: 2025/04/11 10:27:52 by tpinarli          #+#    #+#             */
+/*   Updated: 2025/04/11 15:20:40 by tpinarli         ###   ########.fr       */
+tpinarli
+/*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
+/*   Created: 2025/04/11 10:27:52 by tpinarli          #+#    #+#             */
+/*   Updated: 2025/04/11 15:20:40 by tpinarli         ###   ########.fr       */

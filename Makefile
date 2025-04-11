@@ -6,14 +6,14 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/04/11 11:20:19 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/04/11 11:46:04 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 NAME = minishell
 
 CC = cc
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g
 INCLUDES = -I. -Ilibft
 
 # Directories

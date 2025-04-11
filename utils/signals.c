@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:51 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/11 11:35:39 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/11 12:08:50 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,12 +29,20 @@ void	handle_sigquit(int sig)
 {
 	(void)sig;
 	g_signal_status = 131;
-	// Do nothing (as required by the subject)
 }
 
 void	setup_signals(void)
 {
-    
-	signal(SIGINT, handle_sigint);
-	signal(SIGQUIT, handle_sigquit);
+	struct sigaction sa_int;
+	struct sigaction sa_quit;
+
+	sa_int.sa_handler = handle_sigint;
+	sigemptyset(&sa_int.sa_mask);
+	sa_int.sa_flags = SA_RESTART;
+	sigaction(SIGINT, &sa_int, NULL);
+
+	sa_quit.sa_handler = handle_sigquit;
+	sigemptyset(&sa_quit.sa_mask);
+	sa_quit.sa_flags = SA_RESTART;
+	sigaction(SIGQUIT, &sa_quit, NULL);
 }

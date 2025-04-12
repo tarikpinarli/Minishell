@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/04/11 15:49:06 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/04/12 17:53:11 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,6 +27,7 @@ SRC = main.c \
 	  parser/tokenizer_utils.c \
       parser/parser_utils.c \
 	  parser/parser.c \
+	  parser/expand.c \
       executor/exec_cmd.c \
       executor/redirection.c \
       builtins/echo.c \
@@ -34,7 +35,8 @@ SRC = main.c \
       builtins/env.c \
       utils/signals.c \
       utils/env_utils.c \
-      utils/memory.c
+      utils/memory.c \
+	  utils/status.c \
 
 # Object files with path redirected to obj/
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 13:07:24 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/11 14:49:18 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/12 12:37:33 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,8 +40,8 @@ int	count_tokens(const char *str)
             else 
             {
                 // In bash shel dquote something is happennig check it out.
-                printf("QUOTE not propery closed. tokenizer_utils.c fix\n");
-                exit (1);
+                printf("Quote not propery opened or closed.\n");
+                return (1);
             }
 			count++;
 		}

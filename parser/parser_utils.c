@@ -6,11 +6,12 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:40 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/11 15:51:36 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/12 13:54:56 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
 
 int	ft_strcmp(const char *s1, const char *s2)
 {

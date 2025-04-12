@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:52 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/11 15:44:34 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/12 18:31:44 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,41 +14,62 @@
 
 int main(void)
 {
-    char        *input;
-    char        **tokens;
-    t_command   *cmd;
+	char		*input;
+	t_token		*tokens;
+	t_command	*cmd;
 
-    rl_catch_signals = 0;
-    setup_signals();
-    while (1)
-    {
-        input = readline("minishell$ ");
-        if (!input) // If user input Ctrl+D
-        {
-            rl_clear_history();
-            printf("exit\n");
-            break;
-        }
-        if (*input) // If user types anything but enter
-            add_history(input);
-        tokens = tokenize(input);
+	rl_catch_signals = 0;
+	setup_signals();
 
-        cmd = parse_tokens(tokens);
-        for (int i = 0; cmd->args[i]; i++)
-            printf("arg[%d]: %s\n", i, cmd->args[i]);
-        if (cmd->outfile)
-            printf("outfile: %s (append = %d)\n", cmd->outfile, cmd->append);
+	while (1)
+	{
+		input = readline("minishell$ ");
+		if (!input)
+		{
+			printf("exit\n");
+			break;
+		}
+		if (*input)
+			add_history(input);
+
+		tokens = tokenize(input);
+		if (!tokens)
+		{
+			free(input);
+			continue;
+		}
+		cmd = parse_tokens(tokens);
+        if (cmd && cmd->next) // pipe varsa
+            execute_pipeline(cmd);
+        else
+            exec_command(cmd); // tek komutsa eski sistem
 
 
-        // Free tokens
-        if (tokens)
-        {
-            for (int i = 0; tokens[i]; i++)
-                free(tokens[i]);
-            free(tokens);
-        }
-        free(input);
-    }
-    rl_clear_history();
-    return 0;
+		// Memory cleanup
+		for (int i = 0; tokens[i].str; i++)
+			free(tokens[i].str);
+		free(tokens);
+		free(input);
+		for (int i = 0; cmd->argv && cmd->argv[i]; i++)
+			free(cmd->argv[i]);
+		free(cmd->argv);
+		while (cmd->in_redir)
+		{
+			t_redir *tmp = cmd->in_redir;
+			cmd->in_redir = cmd->in_redir->next;
+			free(tmp->filename);
+			free(tmp);
+		}
+		while (cmd->out_redir)
+		{
+			t_redir *tmp = cmd->out_redir;
+			cmd->out_redir = cmd->out_redir->next;
+			free(tmp->filename);
+			free(tmp);
+		}
+		free(cmd);
+	}
+	rl_clear_history();
+	return 0;
 }
+

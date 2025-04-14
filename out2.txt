@@ -1,0 +1,9 @@
+-rw-r--r-- 1 tpinarli 2020    31 Apr 12 18:46 input.txt
+-rw-r--r-- 1 tpinarli 2020     0 Apr 14 12:48 out2.txt
+-rw-r--r-- 1 tpinarli 2020     8 Apr 12 12:42 outfile.txt
+-rw-r--r-- 1 tpinarli 2020   455 Apr 14 12:44 out.txt
+-rw-r--r-- 1 tpinarli 2020    66 Apr 12 18:51 result.txt
+-rw-r--r-- 1 tpinarli 2020     6 Apr 12 18:49 test.txt
+-rw-r--r-- 1 tpinarli 2020    34 Apr 12 13:16 yeni2.txt
+-rw-r--r-- 1 tpinarli 2020    31 Apr 12 13:16 yeni3.txt
+-rw-r--r-- 1 tpinarli 2020    31 Apr 12 13:16 yeni.txt

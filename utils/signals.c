@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:51 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/11 12:33:01 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/14 14:36:02 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,14 @@
 
 int	g_signal_status = 0;
 
-
 void	handle_sigint(int sig)
 {
 	(void)sig;
 	g_signal_status = 130;
-	rl_replace_line("", 0);
-	write(1, "\n", 1);
-	rl_on_new_line();
-	rl_redisplay();
+	rl_replace_line("", 0); // Clear current line
+	write(1, "\n", 1);		// Move to next line
+	rl_on_new_line();		// Prepare readline for new input
+	rl_redisplay();			// Redraw the prompt
 }
 
 void	handle_sigquit(int sig)
@@ -40,6 +39,7 @@ void	setup_signals(void)
 	sigemptyset(&sa_int.sa_mask);
 	sa_int.sa_flags = SA_RESTART;
 	sigaction(SIGINT, &sa_int, NULL);
+
 	sa_quit.sa_handler = handle_sigquit;
 	sigemptyset(&sa_quit.sa_mask);
 	sa_quit.sa_flags = SA_RESTART;

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:52 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/12 18:31:44 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/14 14:32:21 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,8 @@ int main(void)
 	t_token		*tokens;
 	t_command	*cmd;
 
-	rl_catch_signals = 0;
+	rl_catch_signals = 0; // Disabling read_line()s default signal handling. Check if it violates the subject.
 	setup_signals();
-
 	while (1)
 	{
 		input = readline("minishell$ ");
@@ -29,8 +28,13 @@ int main(void)
 			printf("exit\n");
 			break;
 		}
-		if (*input)
+		if (input[0])
 			add_history(input);
+		else
+		{
+			free(input);
+			continue;
+		}
 
 		tokens = tokenize(input);
 		if (!tokens)
@@ -42,7 +46,7 @@ int main(void)
         if (cmd && cmd->next) // pipe varsa
             execute_pipeline(cmd);
         else
-            exec_command(cmd); // tek komutsa eski sistem
+            exec_command(cmd); // tek komutsa
 
 
 		// Memory cleanup
@@ -70,6 +74,7 @@ int main(void)
 		free(cmd);
 	}
 	rl_clear_history();
+	clear_history();
 	return 0;
 }
 

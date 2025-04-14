@@ -6,13 +6,13 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:43 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/12 14:04:16 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/14 17:19:01 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static t_token	extract_quoted_token(const char **str, char quote)
+t_token	extract_quoted_token(char **str, char quote)
 {
 	const char	*start;
 	size_t		len;
@@ -25,7 +25,6 @@ static t_token	extract_quoted_token(const char **str, char quote)
 		(*str)++;
 
 	len = *str - start;
-
 	token.str = malloc(len + 3); // +2 tırnaklar için, +1 null
 	if (!token.str)
 	{
@@ -33,30 +32,29 @@ static t_token	extract_quoted_token(const char **str, char quote)
 		token.quote = QUOTE_NONE;
 		return (token);
 	}
-
-	token.str[0] = quote;
-	ft_strncpy(token.str + 1, start, len);
-	token.str[len + 1] = quote;
-	token.str[len + 2] = '\0';
-	token.quote = (quote == '\'') ? QUOTE_SINGLE : QUOTE_DOUBLE;
-
+	ft_strncpy(token.str, start, len);
+	token.str[len] = '\0';
+	if (quote == '\'')
+		token.quote = QUOTE_SINGLE;
+	else
+		token.quote = QUOTE_DOUBLE;
 	if (**str == quote)
 		(*str)++; // kapanan tırnağı atla
 
 	return (token);
 }
 
-static t_token	extract_simple_token(const char **str)
+t_token	extract_simple_token(char **str)
 {
-	const char	*start = *str;
-	size_t		len;
-	t_token		token;
+	char	*start;
+	int		len;
+	t_token	token;
 
+	start = *str;
 	while (**str && !ft_isspace(**str) && **str != '\'' && **str != '"')
 		(*str)++;
 
 	len = *str - start;
-
 	token.str = malloc(len + 1);
 	if (!token.str)
 	{
@@ -72,27 +70,29 @@ static t_token	extract_simple_token(const char **str)
 	return (token);
 }
 
-static t_token	next_token(const char **str)
+t_token	next_token(char **str)
 {
+	t_token empty;
+	
 	while (**str && ft_isspace(**str))
 		(*str)++;
 
 	if (**str == '\'' || **str == '"')
-		return extract_quoted_token(str, **str);
+		return (extract_quoted_token(str, **str));
 	else if (**str)
-		return extract_simple_token(str);
-
-	t_token empty = {NULL, QUOTE_NONE};
-	return empty;
+		return (extract_simple_token(str));
+	empty.str = NULL;
+	empty.quote = QUOTE_NONE;
+	return (empty);
 }
 
 
-t_token	*tokenize(const char *input)
+t_token	*tokenize(char *input)
 {
 	int			i;
 	int			count;
 	t_token		*tokens;
-	const char	*ptr;
+	char		*ptr;
 
 	if (!input)
 		return (NULL);

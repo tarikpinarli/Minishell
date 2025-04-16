@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:52 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/14 14:32:21 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/15 15:23:30 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,9 +43,17 @@ int main(void)
 			continue;
 		}
 		cmd = parse_tokens(tokens);
+		if (!cmd)
+		{
+			free(cmd);
+			free(tokens);
+			printf("Parcing failed.\n");
+			continue;
+		}
+			
         if (cmd && cmd->next) // pipe varsa
             execute_pipeline(cmd);
-        else
+        else if (cmd)
             exec_command(cmd); // tek komutsa
 
 

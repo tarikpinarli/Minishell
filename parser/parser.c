@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 15:16:33 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/14 17:17:56 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/16 11:27:57 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,8 @@
 
 t_redir	*create_redir(t_redir_type type, char *filename)
 {
-	t_redir *redir = malloc(sizeof(t_redir));
+	t_redir *redir;
+	redir = malloc(sizeof(t_redir));
 	if (!redir)
 		return (NULL);
 	redir->type = type;
@@ -25,11 +26,13 @@ t_redir	*create_redir(t_redir_type type, char *filename)
 
 void append_redir(t_redir **redir_list, t_redir *new_redir)
 {
+	t_redir *last;
+
 	if (!*redir_list)
 		*redir_list = new_redir;
 	else
 	{
-		t_redir *last = *redir_list;
+		last = *redir_list;
 		while (last->next)
 			last = last->next;
 		last->next = new_redir;
@@ -63,11 +66,15 @@ char **argv_add(char **argv, char *new_arg)
 
 t_command *parse_tokens(t_token *tokens)
 {
-	t_command	*head = NULL;
-	t_command	*current = NULL;
+	t_command	*head;
+	t_command	*current;
 	t_command	*new_cmd;
-	int			i = 0;
+	char		*expanded;
+	int			i;
 
+	head = NULL;
+	current = NULL;
+	i = 0;
 	while (tokens[i].str)
 	{
 		// Pipe görürsek → yeni komuta geç
@@ -82,17 +89,17 @@ t_command *parse_tokens(t_token *tokens)
 			current->next = new_cmd;
 			current = new_cmd;
 			i++;
-			continue;
+			continue; // contnue with next tokens[i].str
 		}
 
-		// Komut zincirinin başlangıcı
+		// start of chain
 		if (!current)
 		{
 			current = ft_calloc(1, sizeof(t_command));
 			head = current;
 		}
 
-		// Redirection kontrolü
+		// Redirection control
 		if (!ft_strcmp(tokens[i].str, "<") && tokens[i + 1].str)
 			append_redir(&current->in_redir, create_redir(REDIR_IN, tokens[++i].str));
 		else if (!ft_strcmp(tokens[i].str, "<<") && tokens[i + 1].str)
@@ -107,7 +114,7 @@ t_command *parse_tokens(t_token *tokens)
 				current->argv = argv_add(current->argv, tokens[i].str);
 			else
 			{
-				char *expanded = expand_variables(tokens[i].str);
+				expanded = expand_variables(tokens[i].str);
 				current->argv = argv_add(current->argv, expanded);
 				free(expanded);
 			}

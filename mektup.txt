@@ -1,0 +1,5 @@
+yaz
+babam
+yazz
+bu mektuptur
+EOD

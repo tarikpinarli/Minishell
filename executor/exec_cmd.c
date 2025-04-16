@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/12 18:45:55 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/16 12:05:45 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,9 @@
 
 extern char **environ;
 
-extern char **environ;
-
 void	execute_pipeline(t_command *cmd)
 {
-	int		pipefd[2];
+	int		pipefd[2];		//this int array will hold two end of the createdd pipe
 	int		prev_fd = -1; // önceki pipe'ın read ucu
 	pid_t	pid;
 	char	*path;

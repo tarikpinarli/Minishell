@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:52 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/23 12:46:23 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/23 16:26:50 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,8 @@ int main(void)
 			printf("Parcing failed.\n");
 			continue;
 		}
+		//if (is_builtin(cmd->arg[0]))
+			// if its a builtin command execute.	
         if (cmd && cmd->next) // If there is pipe cmd->next exists
             execute_pipeline(cmd);
         else if (cmd)

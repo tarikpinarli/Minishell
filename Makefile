@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/04/12 17:53:11 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/04/20 15:59:29 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,12 +16,14 @@ CC = cc
 CFLAGS = -Wall -Wextra -Werror -g
 INCLUDES = -I. -Ilibft
 
-# Directories
+GREEN = \033[0;32m
+YELLOW = \033[1;33m
+RESET = \033[0m
+
 SRC_DIR = .
 OBJ_DIR = obj
 LIBFT_DIR = libft
 
-# Source files
 SRC = main.c \
       parser/tokenizer.c \
 	  parser/tokenizer_utils.c \
@@ -38,33 +40,35 @@ SRC = main.c \
       utils/memory.c \
 	  utils/status.c \
 
-# Object files with path redirected to obj/
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 
-# Libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
-# Rules
 all: $(NAME)
 
 $(NAME): $(LIBFT) $(OBJ)
-	$(CC) $(CFLAGS) $(INCLUDES) $(OBJ) $(LIBFT) -lreadline -lncurses -o $(NAME)
+	@echo "$(YELLOW)[Linking]$(RESET) $(NAME)"
+	@$(CC) $(CFLAGS) $(INCLUDES) $(OBJ) $(LIBFT) -lreadline -lncurses -o $(NAME)
+	@echo "$(GREEN)✅ Build complete!$(RESET)"
 
 $(LIBFT):
-	make -C $(LIBFT_DIR)
+	@echo "$(YELLOW)[Libft]$(RESET) Building libft..."
+	@make -C $(LIBFT_DIR)
 
-# Compile source files into obj/
 $(OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	@echo "$(YELLOW)[Compiling]$(RESET) $<"
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	make clean -C $(LIBFT_DIR)
-	rm -rf $(OBJ_DIR)
+	@echo "$(YELLOW)[Cleaning]$(RESET) object files..."
+	@make clean -C $(LIBFT_DIR)
+	@rm -rf $(OBJ_DIR)
 
 fclean: clean
-	make fclean -C $(LIBFT_DIR)
-	rm -f $(NAME)
+	@echo "$(YELLOW)[Cleaning]$(RESET) executable..."
+	@make fclean -C $(LIBFT_DIR)
+	@rm -f $(NAME)
 
 re: fclean all
 

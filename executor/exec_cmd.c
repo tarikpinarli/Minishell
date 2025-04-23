@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/16 12:05:45 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/20 15:54:09 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,14 @@ extern char **environ;
 
 void	execute_pipeline(t_command *cmd)
 {
-	int		pipefd[2];		//this int array will hold two end of the createdd pipe
-	int		prev_fd = -1; // önceki pipe'ın read ucu
-	pid_t	pid;
 	char	*path;
+	int		pipefd[2];		//this int array will hold two end of the created pipe 0 for stdin 1 for stdout
+	int		prev_fd;
+	int		pid;
+	int 	status;
+    int 	wpid;
 
+	prev_fd = -1; // önceki pipe'ın read ucu
 	while (cmd)
 	{
 		if (cmd->next && pipe(pipefd) == -1)
@@ -41,7 +44,6 @@ void	execute_pipeline(t_command *cmd)
 		if (pid == 0)
 		{
 			// Child process
-
 			if (prev_fd != -1)
 			{
 				dup2(prev_fd, STDIN_FILENO);
@@ -65,7 +67,6 @@ void	execute_pipeline(t_command *cmd)
 				fprintf(stderr, "%s: command not found\n", cmd->argv[0]);
 				exit(127);
 			}
-
 			execve(path, cmd->argv, environ);
 			perror("execve failed");
 			free(path);
@@ -80,18 +81,14 @@ void	execute_pipeline(t_command *cmd)
 			close(pipefd[1]);
 			prev_fd = pipefd[0];
 		}
-
 		cmd = cmd->next;
 	}
-
-    int status;
-    pid_t wpid;
-
     while ((wpid = wait(&status)) > 0)
-        ;
-
+    {
+		
+	}
+	unlink(".heredoc.txt");
     last_exit_code(1, WEXITSTATUS(status));
-
 }
 
 
@@ -103,7 +100,6 @@ void	exec_command(t_command *cmd)
 
 	if (!cmd || !cmd->argv || !cmd->argv[0])
 		return;
-
 	pid = fork();
 	if (pid == -1)
 	{
@@ -112,22 +108,20 @@ void	exec_command(t_command *cmd)
 	}
 	if (pid == 0)
 	{
-		// Çocuk process → önce redir ayarlarını yap
 		if (!setup_redirections(cmd))
 		    exit(1);
 
-		if (cmd->argv[0][0] == '/')
+		if (cmd->argv[0][0] == '/') // If user types abslte path 
 			path = ft_strdup(cmd->argv[0]);
 		else
 			path = find_in_path(cmd->argv[0]);
-
 		if (!path)
 		{
-			fprintf(stderr, "%s: command not found\n", cmd->argv[0]);
+			write(2, cmd->argv[0], ft_strlen(cmd->argv[0]));
+			write(2, ": command not found\n", 21);
 			exit(127);
 		}
-
-		execve(path, cmd->argv, environ);
+		execve(path, cmd->argv, environ); // if its successful it terminates the child process
 		perror("execve failed");
 		free(path);
 		exit(1);
@@ -136,6 +130,7 @@ void	exec_command(t_command *cmd)
 	{
 		waitpid(pid, &status, 0);
 		last_exit_code(1, WEXITSTATUS(status));
+		unlink(".heredoc.txt");
 	}
 }
 

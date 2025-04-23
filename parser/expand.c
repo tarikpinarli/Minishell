@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 14:29:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/12 15:13:25 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/20 16:11:31 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,13 +19,14 @@ char	*expand_variables(const char *str)
 	char		*varname;
 	char		*value;
 	char		*before;
+	char 		*exit_str;
 	size_t		len;
 
 	while (*ptr)
 	{
         if (*ptr == '$' && *(ptr + 1) == '?')
         {
-            char *exit_str = ft_itoa(last_exit_code(0, 0));
+            exit_str = ft_itoa(last_exit_code(0, 0));
             before = result;
             result = ft_strjoin(result, exit_str);
             free(before);
@@ -48,7 +49,7 @@ char	*expand_variables(const char *str)
 
 		else if (*ptr == '$' && ft_isalpha(*(ptr + 1)))
 		{
-			ptr++; // $'yi geç
+			ptr++; // skip $ sign
 			len = 0;
 			while (ft_isalnum(ptr[len]) || ptr[len] == '_')
 				len++;

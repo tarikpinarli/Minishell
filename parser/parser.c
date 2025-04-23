@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 15:16:33 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/16 11:27:57 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/17 14:53:41 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,9 +42,11 @@ void append_redir(t_redir **redir_list, t_redir *new_redir)
 char **argv_add(char **argv, char *new_arg)
 {
 	int		count = 0;
+	int		i;
 	char	**new_argv;
 
 	// Count current size
+	i = 0;
 	while (argv && argv[count])
 		count++;
 
@@ -52,13 +54,16 @@ char **argv_add(char **argv, char *new_arg)
 	if (!new_argv)
 		return (NULL);
 
-	for (int i = 0; i < count; i++)
+	while (i < count)
+	{
 		new_argv[i] = argv[i];
+		i++;
+	}
 
 	new_argv[count] = ft_strdup(new_arg);
 	new_argv[count + 1] = NULL;
 
-	free(argv); // free old array pointer, not the strings
+	free(argv); // free old array pointer
 	return (new_argv);
 }
 
@@ -77,7 +82,6 @@ t_command *parse_tokens(t_token *tokens)
 	i = 0;
 	while (tokens[i].str)
 	{
-		// Pipe görürsek → yeni komuta geç
 		if (!ft_strcmp(tokens[i].str, "|"))
 		{
 			if (!current)
@@ -91,14 +95,12 @@ t_command *parse_tokens(t_token *tokens)
 			i++;
 			continue; // contnue with next tokens[i].str
 		}
-
 		// start of chain
 		if (!current)
 		{
 			current = ft_calloc(1, sizeof(t_command));
 			head = current;
 		}
-
 		// Redirection control
 		if (!ft_strcmp(tokens[i].str, "<") && tokens[i + 1].str)
 			append_redir(&current->in_redir, create_redir(REDIR_IN, tokens[++i].str));
@@ -121,5 +123,5 @@ t_command *parse_tokens(t_token *tokens)
 		}
 		i++;
 	}
-	return head;
+	return (head);
 }

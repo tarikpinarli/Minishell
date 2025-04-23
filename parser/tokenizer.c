@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:43 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/14 17:19:01 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/23 13:24:45 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,14 +18,13 @@ t_token	extract_quoted_token(char **str, char quote)
 	size_t		len;
 	t_token		token;
 
-	(*str)++; // ilk tırnağı atla
+	(*str)++; // skip first quote
 	start = *str;
-
 	while (**str && **str != quote)
 		(*str)++;
 
 	len = *str - start;
-	token.str = malloc(len + 3); // +2 tırnaklar için, +1 null
+	token.str = malloc(len + 1); // +2 tırnaklar için, +1 null
 	if (!token.str)
 	{
 		token.str = NULL;
@@ -39,7 +38,7 @@ t_token	extract_quoted_token(char **str, char quote)
 	else
 		token.quote = QUOTE_DOUBLE;
 	if (**str == quote)
-		(*str)++; // kapanan tırnağı atla
+		(*str)++; // skip closing quote
 
 	return (token);
 }
@@ -96,7 +95,7 @@ t_token	*tokenize(char *input)
 
 	if (!input)
 		return (NULL);
-	count = count_tokens(input); // bunu şimdilik aynı bırakabiliriz
+	count = count_tokens(input);
 	tokens = malloc(sizeof(t_token) * (count + 1));
 	if (!tokens)
 		return (NULL);

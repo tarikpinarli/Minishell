@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 13:07:24 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/14 17:03:21 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/23 13:25:04 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,23 +20,25 @@ int	ft_isspace(char c)
 
 int	count_tokens(const char *str)
 {
-	int	count;
-    char quote;
+	int		count;
+    char	quote;
+	int		i;
     
     count = 0;
-	while (*str)
+	i = 0;
+	while (str[i])
 	{
-		while (*str && ft_isspace(*str))
-			str++;
+		while (str[i] && ft_isspace(str[i]))
+			i++;
 
-		if (*str == '\'' || *str == '"')
+		if (str[i] == '\'' || str[i] == '"')
 		{
-			quote = *str;
-			str++; // Açılış tırnağını atla
-			while (*str && *str != quote)
-				str++;
-			if (*str == quote)
-				str++; // Kapanış tırnağını da atla
+			quote = str[i];
+			i++; // skip opening quote
+			while (str[i] && str[i] != quote)
+				i++;
+			if (str[i] == quote)
+				i++; // skip closing quote
             else 
             {
                 // In bash shel dquote something is happennig check it out.
@@ -45,10 +47,10 @@ int	count_tokens(const char *str)
             }
 			count++;
 		}
-		else if (*str)
+		else if (str[i])
 		{
-			while (*str && !ft_isspace(*str) && *str != '\'' && *str != '"')
-				str++;
+			while (str[i] && !ft_isspace(str[i]) && str[i] != '\'' && str[i] != '"')
+				i++;
 			count++;
 		}
 	}

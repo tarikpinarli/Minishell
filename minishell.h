@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/16 11:29:25 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/23 13:25:23 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,28 @@
 // Signal handling
 extern int g_signal_status;
 
-// Temel komut yapısı
+typedef enum e_quote_type
+{
+	QUOTE_NONE,
+	QUOTE_SINGLE,
+	QUOTE_DOUBLE
+}	t_quote_type;
+
+typedef enum e_redir_type
+{
+	REDIR_IN,     // <
+	REDIR_OUT,    // >
+	REDIR_APPEND, // >>
+	REDIR_HEREDOC // <<
+}	t_redir_type;
+
+typedef struct s_redir
+{
+	t_redir_type	type;
+	char			*filename;
+	struct s_redir	*next;
+}	t_redir;
+
 
 typedef struct s_token
 {
@@ -34,12 +55,6 @@ typedef struct s_token
 	t_quote_type	quote;
 }	t_token;
 
-typedef enum e_quote_type
-{
-	QUOTE_NONE,
-	QUOTE_SINGLE,
-	QUOTE_DOUBLE
-}	t_quote_type;
 
 typedef struct s_command
 {
@@ -49,20 +64,7 @@ typedef struct s_command
 	struct s_command	*next;      // Next command in pipeline
 }	t_command;
 
-typedef struct s_redir
-{
-	t_redir_type	type;
-	char			*filename;
-	struct s_redir	*next;
-}	t_redir;
 
-typedef enum e_redir_type
-{
-	REDIR_IN,     // <
-	REDIR_OUT,    // >
-	REDIR_APPEND, // >>
-	REDIR_HEREDOC // <<
-}	t_redir_type;
 
 void	setup_signals(void);
 void	handle_sigint(int sig);
@@ -73,8 +75,6 @@ t_token	*tokenize(char *input);
 int     count_tokens(const char *str);
 int	    ft_isspace(char c);
 char	*ft_strncpy(char *dst, const char *src, size_t n);
-// Remove qoutes
-char	*strip_quotes(const char *token);
 // Parser functioons
 t_command	*parse_tokens(t_token *tokens);
 int	ft_strcmp(const char *s1, const char *s2);
@@ -88,4 +88,5 @@ char	*find_in_path(char *cmd);
 void	execute_pipeline(t_command *cmd);
 // Free
 void	ft_free_split(char **arr);
+void	free_all(char *input, t_token *tokens, t_command *cmd);
 #endif

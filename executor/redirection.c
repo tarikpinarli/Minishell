@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:35 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/23 13:28:39 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/24 14:05:18 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,11 @@ int	handle_out_redir(t_command *cmd)
 {
 	t_redir	*out;
 	int		fd;
-	
+	t_redir	*last;
+
 	out = cmd->out_redir;
-	while (out && out->next)
-		out = out->next;
+	last = NULL;
+
 	while (out)
 	{
 		if (out->type == REDIR_OUT)
@@ -86,12 +87,15 @@ int	handle_out_redir(t_command *cmd)
 			perror(out->filename);
 			return (0);
 		}
-		dup2(fd, STDOUT_FILENO);
+		// If it's not the last redir, just close it
+		if (out->next == NULL)
+			dup2(fd, STDOUT_FILENO); // Only last one gets applied
 		close(fd);
 		out = out->next;
 	}
 	return (1);
 }
+
 
 int	setup_redirections(t_command *cmd)
 {

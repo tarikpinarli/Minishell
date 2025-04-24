@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/23 13:25:23 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/24 15:03:42 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,10 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
+
+# ifndef PATH_MAX
+#  define PATH_MAX 4096
+# endif
 
 
 // Signal handling

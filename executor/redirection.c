@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:35 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/24 14:05:18 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/24 14:33:46 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ int	handle_out_redir(t_command *cmd)
 			perror(out->filename);
 			return (0);
 		}
-		// If it's not the last redir, just close it
+		// If it's not the last redir just close it
 		if (out->next == NULL)
 			dup2(fd, STDOUT_FILENO); // Only last one gets applied
 		close(fd);

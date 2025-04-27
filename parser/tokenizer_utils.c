@@ -23,7 +23,7 @@ int	count_tokens(const char *str)
 	int		count;
     char	quote;
 	int		i;
-    
+
     count = 0;
 	i = 0;
 	while (str[i])
@@ -42,8 +42,10 @@ int	count_tokens(const char *str)
             else 
             {
                 // In bash shel dquote something is happennig check it out.
+				// Update: no need to take care of that, enough to return error
+				// if a quotation was left open.
                 printf("Quote not propery opened or closed.\n");
-                return (1);
+                return (-1);
             }
 			count++;
 		}

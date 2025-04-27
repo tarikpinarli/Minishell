@@ -13,7 +13,7 @@
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-#include "libft/libft.h"
+# include "libft/libft.h"
 # include <signal.h>
 # include <stdio.h>
 # include <readline/readline.h>
@@ -77,7 +77,7 @@ void	handle_sigquit(int sig);
 
 // tokenizer functions
 t_token	*tokenize(char *input);
-int     count_tokens(const char *str);
+int		count_tokens(const char *str);
 int	    ft_isspace(char c);
 char	*ft_strncpy(char *dst, const char *src, size_t n);
 // Parser functioons
@@ -104,4 +104,5 @@ int builtin_pwd(void);
 //int builtin_env(void);
 //int builtin_exit(char **argv);
 //int builtin_echo(char **argv);
+
 #endif

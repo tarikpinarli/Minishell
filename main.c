@@ -52,7 +52,7 @@ int main(void)
 		int	i = 0;
 		while (tokens[i].str)
 		{
-			printf("token[%d] = %s----line_id = %d\n", i, tokens[i].str, tokens[i].line_id);
+			printf("token[%d] = %s----quote type: %d----line_id = %d\n", i, tokens[i].str, tokens[i].quote, tokens[i].line_id);
 			i++;
 		}
 		
@@ -65,7 +65,6 @@ int main(void)
 		free_all(input, tokens, cmd);
 	}
 	rl_clear_history();
-	clear_history();
+	clear_history(); // WARN: this function is not allowed by the subject, should we remove it? is it for running on mac()?
 	return 0;
 }
-

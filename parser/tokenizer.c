@@ -12,7 +12,7 @@
 
 #include "../minishell.h"
 
-t_token	extract_quoted_token(char **str, char quote, int line_id)
+static t_token	extract_quoted_token(char **str, char quote, int *line_id)
 {
 	const char	*start;
 	size_t		len;
@@ -37,14 +37,14 @@ t_token	extract_quoted_token(char **str, char quote, int line_id)
 		token.quote = QUOTE_SINGLE;
 	else
 		token.quote = QUOTE_DOUBLE;
-	token.line_id = line_id;
+	token.line_id = *line_id;
 	if (**str == quote)
 		(*str)++; // skip closing quote
 
 	return (token);
 }
 
-t_token	extract_simple_token(char **str, int line_id)
+static t_token	extract_simple_token(char **str, int *line_id)
 {
 	char	*start;
 	int		len;
@@ -66,18 +66,17 @@ t_token	extract_simple_token(char **str, int line_id)
 	ft_strncpy(token.str, start, len);
 	token.str[len] = '\0';
 	token.quote = QUOTE_NONE;
-	token.line_id = line_id;
+	token.line_id = *line_id;
 	return (token);
 }
 
-t_token	next_token(char **str)
+static t_token	next_token(char **str, int *line_id)
 {
-	t_token empty;
-	static int		line_id = 0;
+	t_token		empty;
 	
 	if (ft_isspace(**str))
 	{
-		line_id++;
+		(*line_id)++;
 		while (**str && ft_isspace(**str))
 			(*str)++;
 	}
@@ -90,17 +89,19 @@ t_token	next_token(char **str)
 	return (empty);
 }
 
-
 t_token	*tokenize(char *input)
 {
 	int			i;
 	int			count;
 	t_token		*tokens;
 	char		*ptr;
+	static int	line_id;
 
 	if (!input)
 		return (NULL);
 	count = count_tokens(input);
+	if (count < 0)
+		return (NULL);
 	tokens = malloc(sizeof(t_token) * (count + 1));
 	if (!tokens)
 		return (NULL);
@@ -108,9 +109,10 @@ t_token	*tokenize(char *input)
 	i = 0;
 	while (i < count)
 	{
-		tokens[i] = next_token(&ptr);
+		tokens[i] = next_token(&ptr, &line_id);
 		if (!tokens[i].str)
 		{
+			line_id = 0;
 			while (--i >= 0)
 				free(tokens[i].str);
 			free(tokens);
@@ -118,7 +120,8 @@ t_token	*tokenize(char *input)
 		}
 		i++;
 	}
+	line_id = 0;
 	tokens[count].str = NULL;
 	tokens[count].quote = QUOTE_NONE;
-	return tokens;
+	return (tokens);
 }

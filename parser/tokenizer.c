@@ -6,13 +6,13 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:43 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/23 13:24:45 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/27 17:07:35 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-t_token	extract_quoted_token(char **str, char quote)
+t_token	extract_quoted_token(char **str, char quote, int line_id)
 {
 	const char	*start;
 	size_t		len;
@@ -37,13 +37,14 @@ t_token	extract_quoted_token(char **str, char quote)
 		token.quote = QUOTE_SINGLE;
 	else
 		token.quote = QUOTE_DOUBLE;
+	token.line_id = line_id;
 	if (**str == quote)
 		(*str)++; // skip closing quote
 
 	return (token);
 }
 
-t_token	extract_simple_token(char **str)
+t_token	extract_simple_token(char **str, int line_id)
 {
 	char	*start;
 	int		len;
@@ -65,21 +66,25 @@ t_token	extract_simple_token(char **str)
 	ft_strncpy(token.str, start, len);
 	token.str[len] = '\0';
 	token.quote = QUOTE_NONE;
-
+	token.line_id = line_id;
 	return (token);
 }
 
 t_token	next_token(char **str)
 {
 	t_token empty;
+	static int		line_id = 0;
 	
-	while (**str && ft_isspace(**str))
-		(*str)++;
-
+	if (ft_isspace(**str))
+	{
+		line_id++;
+		while (**str && ft_isspace(**str))
+			(*str)++;
+	}
 	if (**str == '\'' || **str == '"')
-		return (extract_quoted_token(str, **str));
+		return (extract_quoted_token(str, **str, line_id));
 	else if (**str)
-		return (extract_simple_token(str));
+		return (extract_simple_token(str, line_id));
 	empty.str = NULL;
 	empty.quote = QUOTE_NONE;
 	return (empty);

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/20 15:54:09 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/27 13:25:20 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,6 +100,13 @@ void	exec_command(t_command *cmd)
 
 	if (!cmd || !cmd->argv || !cmd->argv[0])
 		return;
+	if (is_builtin(cmd->argv[0]) && !cmd->next)
+	{
+		setup_redirections(cmd);
+		execute_builtin(cmd);
+		unlink(".heredoc.txt");
+		return;
+	}
 	pid = fork();
 	if (pid == -1)
 	{

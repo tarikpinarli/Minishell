@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:35 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/24 14:33:46 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/27 13:30:56 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,11 +71,8 @@ int	handle_out_redir(t_command *cmd)
 {
 	t_redir	*out;
 	int		fd;
-	t_redir	*last;
 
 	out = cmd->out_redir;
-	last = NULL;
-
 	while (out)
 	{
 		if (out->type == REDIR_OUT)

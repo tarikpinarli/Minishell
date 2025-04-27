@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/04/20 15:59:29 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/04/27 13:47:42 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,9 +32,14 @@ SRC = main.c \
 	  parser/expand.c \
       executor/exec_cmd.c \
       executor/redirection.c \
-      builtins/echo.c \
-      builtins/cd.c \
-      builtins/env.c \
+	  builtins/builtin.c \
+      builtins/builtin_echo.c \
+      builtins/builtin_cd.c \
+      builtins/builtin_env.c \
+	  builtins/builtin_exit.c \
+	  builtins/builtin_export.c \
+	  builtins/builtin_pwd.c \
+	  builtins/builtin_unset.c \
       utils/signals.c \
       utils/env_utils.c \
       utils/memory.c \

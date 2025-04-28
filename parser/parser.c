@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 15:16:33 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/17 14:53:41 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/28 16:35:02 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,6 @@ t_command *parse_tokens(t_token *tokens)
 	t_command	*head;
 	t_command	*current;
 	t_command	*new_cmd;
-	char		*expanded;
 	int			i;
 
 	head = NULL;
@@ -111,16 +110,7 @@ t_command *parse_tokens(t_token *tokens)
 		else if (!ft_strcmp(tokens[i].str, ">>") && tokens[i + 1].str)
 			append_redir(&current->out_redir, create_redir(REDIR_APPEND, tokens[++i].str));
 		else
-		{
-			if (tokens[i].quote == QUOTE_SINGLE)
-				current->argv = argv_add(current->argv, tokens[i].str);
-			else
-			{
-				expanded = expand_variables(tokens[i].str);
-				current->argv = argv_add(current->argv, expanded);
-				free(expanded);
-			}
-		}
+			current->argv = argv_add(current->argv, tokens[i].str);
 		i++;
 	}
 	return (head);

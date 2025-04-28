@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/27 16:38:36 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/28 16:39:06 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,6 +84,8 @@ char	*ft_strncpy(char *dst, const char *src, size_t n);
 t_command	*parse_tokens(t_token *tokens);
 int	ft_strcmp(const char *s1, const char *s2);
 char	*expand_variables(const char *str);
+// new from tarik2
+void expand_tokens(t_token *tokens);
 // exit code
 int	last_exit_code(int set, int value);
 //executor functioms

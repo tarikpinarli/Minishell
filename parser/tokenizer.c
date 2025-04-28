@@ -74,6 +74,7 @@ static t_token	next_token(char **str, int *line_id)
 {
 	t_token		empty;
 	
+	ft_bzero(&empty, sizeof(t_token));
 	if (ft_isspace(**str))
 	{
 		(*line_id)++;
@@ -94,7 +95,6 @@ t_token	*tokenize(char *input)
 	int			i;
 	int			count;
 	t_token		*tokens;
-	char		*ptr;
 	static int	line_id;
 
 	if (!input)
@@ -105,17 +105,18 @@ t_token	*tokenize(char *input)
 	tokens = malloc(sizeof(t_token) * (count + 1));
 	if (!tokens)
 		return (NULL);
-	ptr = input;
+	while (ft_isspace(*input))
+		input++;
 	i = 0;
 	while (i < count)
 	{
-		tokens[i] = next_token(&ptr, &line_id);
+		tokens[i] = next_token(&input, &line_id);
 		if (!tokens[i].str)
 		{
-			line_id = 0;
 			while (--i >= 0)
 				free(tokens[i].str);
 			free(tokens);
+			line_id = 0;
 			return (NULL);
 		}
 		i++;

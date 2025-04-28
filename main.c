@@ -39,6 +39,8 @@ int main(void)
 			continue;
 		}
 		tokens = tokenize(input);
+		//tokens = expand_tokens(tokens);
+		//tokens = merge_tokens(tokens);
 		if (!tokens)
 		{
 			free(input);

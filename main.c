@@ -19,6 +19,9 @@ int main(void)
 	t_command	*cmd;
 
 	//rl_catch_signals = 0; // Disabling read_line()s default signal handling. Check if it violates the subject.
+	input = NULL;
+	tokens = NULL;
+	cmd = NULL;
 	setup_signals();
 	while (1)
 	{
@@ -36,6 +39,8 @@ int main(void)
 			continue;
 		}
 		tokens = tokenize(input);
+		//tokens = expand_tokens(tokens);
+		//tokens = merge_tokens(tokens);
 		if (!tokens)
 		{
 			free(input);
@@ -52,7 +57,7 @@ int main(void)
 		int	i = 0;
 		while (tokens[i].str)
 		{
-			printf("token[%d] = %s----line_id = %d\n", i, tokens[i].str, tokens[i].line_id);
+			printf("token[%d] =	<%s>	---- quote type:	<%d>	---- line_id =	<%d>\n", i, tokens[i].str, tokens[i].quote, tokens[i].line_id);
 			i++;
 		}
 		
@@ -65,7 +70,6 @@ int main(void)
 		free_all(input, tokens, cmd);
 	}
 	rl_clear_history();
-	clear_history();
+	clear_history(); // WARN: this function is not allowed by the subject, should we remove it? is it for running on mac()?
 	return 0;
 }
-

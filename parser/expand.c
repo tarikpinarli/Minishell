@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 14:29:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/20 16:11:31 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/04/28 16:48:13 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,19 +34,6 @@ char	*expand_variables(const char *str)
             ptr += 2;
             continue;
         }
-        else if (*ptr == '$' && *(ptr + 1) == '-')
-        {
-            // Bash mode flags – örnek sabit değer (taklit)
-            char *dash_flags = ft_strdup("himBHs");
-
-            before = result;
-            result = ft_strjoin(result, dash_flags);
-            free(before);
-            free(dash_flags);
-            ptr += 2;
-            continue;
-        }
-
 		else if (*ptr == '$' && ft_isalpha(*(ptr + 1)))
 		{
 			ptr++; // skip $ sign

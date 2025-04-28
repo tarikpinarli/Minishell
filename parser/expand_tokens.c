@@ -19,10 +19,10 @@ void expand_tokens(t_token *tokens)
     i = 0;
     while (tokens[i].str)
     {
+        printf("in expand_tokens(), tokens[%d].str is:  <%s>\n", i, tokens[i].str);
         if (tokens[i].quote == QUOTE_DOUBLE || tokens[i].quote == QUOTE_NONE)
             tokens[i].str = expand_variables(tokens[i].str);
         i++;
     }
-    // cat_strings
+    cat_adjacent_strings(tokens, tokens[i - 1].line_id);
 }
-

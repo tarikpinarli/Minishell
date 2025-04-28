@@ -89,7 +89,7 @@ void expand_tokens(t_token *tokens);
 // exit code
 int	last_exit_code(int set, int value);
 //executor functioms
-int	setup_redirections(t_command *cmd);
+int		setup_redirections(t_command *cmd);
 void	exec_command(t_command *cmd);
 char	*find_in_path(char *cmd);
 void	execute_pipeline(t_command *cmd);
@@ -97,9 +97,9 @@ void	execute_pipeline(t_command *cmd);
 void	ft_free_split(char **arr);
 void	free_all(char *input, t_token *tokens, t_command *cmd);
 // Builtin commands
-int	is_builtin(char *cmd);
-int execute_builtin(t_command *cmd);
-int builtin_pwd(void);
+int		is_builtin(char *cmd);
+int		execute_builtin(t_command *cmd);
+int		builtin_pwd(void);
 //int builtin_cd(char **argv);
 //int builtin_export(char **argv);
 //int builtin_unset(char **argv);

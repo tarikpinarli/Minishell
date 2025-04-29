@@ -37,6 +37,7 @@ SRC = main.c \
 	parser/parser.c \
 	parser/expand.c \
 	parser/expand_tokens.c \
+	parser/merge_tokens.c \
 	executor/exec_cmd.c \
 	executor/redirection.c \
 	builtins/builtin.c \

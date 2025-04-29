@@ -21,6 +21,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
+# include <stdint.h>
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
@@ -86,6 +87,8 @@ int	ft_strcmp(const char *s1, const char *s2);
 char	*expand_variables(const char *str);
 // new from tarik2
 void expand_tokens(t_token *tokens);
+// new from yonatan_3
+t_token	*merge_tokens(t_token *tokens);
 // exit code
 int	last_exit_code(int set, int value);
 //executor functioms

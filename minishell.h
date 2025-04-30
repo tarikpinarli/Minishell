@@ -76,7 +76,8 @@ void	handle_sigint(int sig);
 void	handle_sigquit(int sig);
 
 // tokenizer functions
-t_token	*tokenize(char *input);
+int		tokenize(char *input, t_token **tokens);
+//t_token	*tokenize(char *input); // older version? modified in order to avoid leaks
 int		count_tokens(const char *str);
 int	    ft_isspace(char c);
 char	*ft_strncpy(char *dst, const char *src, size_t n);

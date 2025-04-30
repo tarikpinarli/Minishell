@@ -90,6 +90,8 @@ static t_token	next_token(char **str, int *line_id)
 	return (empty);
 }
 
+/*
+ * older version: modified in order to avoid leaks and handle more cases!
 t_token	*tokenize(char *input)
 {
 	int			i;
@@ -126,6 +128,7 @@ t_token	*tokenize(char *input)
 	tokens[count].quote = QUOTE_NONE;
 	return (tokens);
 }
+*/
 
 /*
 * return values:
@@ -135,8 +138,7 @@ t_token	*tokenize(char *input)
 * ◦ -2: on malloc failure
 * ◦ -3: if the input passed to this function is NULL. WARN: unnecessary check?
 */
-/*
-int	tokenize(char *input, t_token *tokens)
+int	tokenize(char *input, t_token **tokens)
 {
 	int			i;
 	int			count;
@@ -153,28 +155,28 @@ int	tokenize(char *input, t_token *tokens)
 		free(input);
 		return (-1); // same as the return value of count_tokens()
 	}
-	tokens = malloc(sizeof(t_token) * (count + 1));
-	if (!tokens)
+	*tokens = malloc(sizeof(t_token) * (count + 1));
+	if (!*tokens)
 		return (-2);
 	while (ft_isspace(*input))
 		input++;
 	i = 0;
 	while (i < count)
 	{
-		tokens[i] = next_token(&input, &line_id);
-		if (!tokens[i].str)
+		(*tokens)[i] = next_token(&input, &line_id);
+		if (!(*tokens)[i].str)
 		{
 			while (--i >= 0)
-				free(tokens[i].str);
-			free(tokens);
+				free((*tokens)[i].str);
+			free(*tokens);
+			*tokens = NULL;
 			line_id = 0;
 			return (-2);
 		}
 		i++;
 	}
 	line_id = 0;
-	tokens[count].str = NULL;
-	tokens[count].quote = QUOTE_NONE;
+	(*tokens)[count].str = NULL;
+	(*tokens)[count].quote = QUOTE_NONE;
 	return (count);
 }
-*/

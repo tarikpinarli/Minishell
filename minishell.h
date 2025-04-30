@@ -21,7 +21,6 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
-# include <stdint.h>
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096

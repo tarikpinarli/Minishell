@@ -10,12 +10,12 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "tokenizer.h"
+#include "../minishell.h"
 
 // NOTE: *ptr is called as such because it is not the same as *tokens;
 // rather, it is a pointer to the token struct containing the first string
 // we are about to join with other ones.
-static char	*join_multiple_strs(t_token *ptr, uint32_t n_strs_to_join, size_t len)
+static char	*join_multiple_strs(t_token *ptr, size_t n_strs_to_join, size_t len)
 {
 	char	*result;
 	size_t	i;
@@ -43,20 +43,17 @@ static char	*join_multiple_strs(t_token *ptr, uint32_t n_strs_to_join, size_t le
 		ptr[i].str = NULL;
 		i++;
 	}
-
-
 	return (result);
 }
 
 // this function returns 0 upon failure.
 // 1 upton success.
-// FIXME: just change the uint32_t into size_t.... to be coherent with the above function
 t_token	*merge_tokens(t_token *tokens)
 {
-	uint32_t	i;
-	uint32_t	j;
-	uint32_t	k;
-	size_t		len;
+	size_t	i;
+	size_t	j;
+	size_t	k;
+	size_t	len;
 	
 	if (!tokens)
 		return (NULL);
@@ -92,11 +89,6 @@ t_token	*merge_tokens(t_token *tokens)
 		}
 		else if (k != i)
 		{
-			if (tokens[k].str)
-			{
-				free(tokens[k].str);
-				tokens[k].str = NULL;
-			}
 			tokens[k].str = ft_strdup(tokens[i].str);
 			if (!tokens[k].str) // this is the exact same freeing block as you have a little bit earlier.
 			{

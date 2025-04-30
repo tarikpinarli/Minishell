@@ -39,6 +39,16 @@ int main(void)
 			continue;
 		}
 		tokens = tokenize(input);
+		if (!tokens)
+		{
+			free(input);
+			continue ;
+			// WARN: we have an issue here: if we do not handle the NULL return
+			// value of tokenize(), we are in trouble.
+			// It returns NULL if:
+			// 1. unclosed quotes were found ---> this should rather be causing a continue().
+			// 2: malloc() failure ---> this should exit, perhaps with a specific exit status?
+		}
 		expand_tokens(tokens);
 		tokens = merge_tokens(tokens);
 		if (!tokens)
@@ -71,6 +81,6 @@ int main(void)
 		free_all(input, tokens, cmd);
 	}
 	rl_clear_history();
-	clear_history(); // WARN: this function is not allowed by the subject, should we remove it? is it for running on mac()?
+//	clear_history(); // WARN: this function is not allowed by the subject, should we remove it? is it for running on mac()?
 	return 0;
 }

@@ -21,6 +21,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
+# include <stdint.h> // necessary if we use size specific data types (such as int32_t, uint32_t and so forth)
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
@@ -84,7 +85,7 @@ char	*ft_strncpy(char *dst, const char *src, size_t n);
 // Parser functioons
 t_command	*parse_tokens(t_token *tokens);
 int	ft_strcmp(const char *s1, const char *s2);
-char	*expand_variables(char *str); // we have to free this 'str' inside the function, so "const" is not a good thing here.
+int32_t	expand_variables(t_token *tokens, int i);
 // new from tarik2
 void    expand_tokens(t_token *tokens, char *input, t_command *cmd);
 // new from yonatan_3

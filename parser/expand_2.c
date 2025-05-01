@@ -6,13 +6,16 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 14:29:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/01 17:47:43 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/01 18:54:11 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static int32_t	expand_dollar_alpha(char **ptr);
+static int32_t	expand_dollar_question_mark(char **result);
+static int32_t	expand_dollar_alpha(char **ptr, char **result);
+static int32_t	append_character(char **ptr, char **result);
+static int32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_heap);
 
 /*
 * working version: It doesn't leak, but it would leak on any of the malloc()
@@ -80,90 +83,180 @@ char	*expand_variables(char *str)
 // .str member until i is 0!
 // Otherwise, if we free from the first struct in the array until we hit a
 // NULL .str member, we risk missing some members, since we have freed some.
-int32_t	expand_variables(char *str)
+/*
+* ◦ returns -1 if any call to malloc() has failed
+* ◦ otherwise, returns 0
+*/
+int32_t	expand_variables(t_token *tokens, int i)
 {
 	char	*ptr;
 	char	*result;
 	int32_t	flag;
 
-	ptr = str;
+	ptr = tokens[i].str;
 	result = NULL;
 	flag = 0;
 	while (*ptr)
 	{
 		if (*ptr == '$' && *(ptr + 1) == '?')
 		{
-			expand_dollar_question(&ptr, ???);
-
-
-
-
+			flag = expand_dollar_question_mark(&result);
+			if (flag == -1)
+				return (-1);
+			ptr += 2;
+			continue;
 		}
 		else if (*ptr == '$' && ft_isalpha(*(ptr + 1)))
 		{
-			flag = expand_dollar_alpha(&ptr);
+			flag = expand_dollar_alpha(&ptr, &result);
 			if (flag == -1)
 				return (-1);
 		}
 		else
 		{
-			flag = expand_dollar_nonalpha();
+			flag = append_character_to_result(&ptr, &result);
+			flag = ();
 			if (flag == -1)
 				return (-1);
 		}
 	}
-	free (str);
-	return (result);
+	free(tokens[i].str);
+	tokens[i].str = NULL;
+	tokens[i].str = result;
+	free (result);
+	return (0);
 }
 
-int32_t	expand_dollar_question(char **ptr, 
+/*
+* ◦ returns -1 if any call to malloc() has failed
+* ◦ otherwise, returns 0
+*/
+static int32_t	expand_dollar_question_mark(char **result)
 {
+	char	*exit_str;
+	char	*temp;
+
+	exit_str = NULL;
+	temp = NULL;
+	exit_str = ft_itoa(last_exit_code(0, 0));
+	if (!exit_str)
+		return (-1);
 
 
+	return (strjoin_and_replace(result, exit_str, 1));
+	
 
-// returns -1 if any call to malloc() has failed
-// returns 0 otherwise
-static int32_t	expand_dollar_alpha(char **ptr)
+/*
+* inlined version:
+	if (!*result)
+		*result = ft_strdup(exit_str);
+	else
+	{
+		temp = *result;
+		*result = NULL;
+		*result = ft_strjoin(temp, exit_str);
+		free(temp);
+		temp = NULL;
+	}
+	free(exit_str);
+	exit_str = NULL;
+	if (!*result)
+		return (-1);
+	return (0);
+*/
+}
+
+/*
+* ◦ returns -1 if any call to malloc() has failed
+* ◦ otherwise, returns 0
+* NOTE: Do NOT free() the 'value' pointer! It would lead to undefined behaviour.
+* The return value of getenv() (which is assigned to 'value') is static memory,
+* that one should not free().
+*/
+static int32_t	expand_dollar_alpha(char **ptr, char **result)
 {
-	char	*varname;
+	char	*temp;
 	char	*value;
 	size_t	len;
 
-	varname = NULL;
+	temp = NULL;
 	value = NULL;
 	len = 0;
 	(*ptr)++;
 	while (ft_isalnum((*ptr)[len]) || (*ptr)[len] == '_')
 		len++;
 
-	varname = ft_substr(ptr, 0, len);
-	if (!varname)
+	temp = ft_substr(ptr, 0, len);
+	if (!temp)
 		return (-1);
-	value = getenv(varname);
-	// NOTE: do NOT free() this 'vaue' pointer! It would lead to undefined behaviour.
-	// The return value of getenv() is static memory, that you should not free().
-	free(varname);
-	varname = NULL;
+	value = getenv(temp);
+	free(temp);
+	temp = NULL;
 	if (value)
 	{
-		if (!result)
-			result = ft_strdup(value);
+		if (strjoin_and_replace(result, exit_str, 1) == -1)
+			return (-1);
+		/*
+		 * inlined version:
+		if (!*result)
+			*result = ft_strdup(value);
 		else
 		{
-			varname = result;
-			result = NULL;
-			result = ft_strjoin(varname, value);
-			free(varname);
-			varname = NULL;
+			temp = *result;
+			*result = NULL;
+			*result = ft_strjoin(temp, value);
+			free(temp);
+			temp = NULL;
 		}
-		if (!result)
+		if (!*result)
 			return (-1);
+		*/
 	}
 	(*ptr) += len;
 	return (0);
 }
 
-int32_t	expand_dollar_nonalpha(
+// TODO: what is this function doing? check if it is to append each character.
+/*
+* ◦ returns -1 if any call to malloc() has failed
+* ◦ otherwise, returns 0
+*/
+static int32_t	append_character_to_result(char **ptr, char **result)
+{
+	char	tmp[2] = {**ptr, '\0'};
+	char	*before;
+
+	before = *result;
+	*result = ft_strjoin(result, tmp);
+	free(before);
+	(*ptr)++;
 
 
 
+}
+
+
+static int32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_heap)
+{
+	char	*temp;
+
+	temp = NULL;
+	if (!*s1)
+		*s1 = ft_strdup(s2);
+	else
+	{
+		temp = *s1;
+		*s1 = NULL;
+		*s1 = ft_strjoin(temp, *s2);
+		free(temp);
+		temp = NULL;
+	}
+	if (is_heap)
+	{
+		free(*s2);
+		*s2 = NULL;
+	}
+	if (!*s1)
+		return (-1);
+	return (0);
+}

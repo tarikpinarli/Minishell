@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 15:58:09 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/01 17:47:51 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/01 18:54:13 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void    expand_tokens(t_token *tokens, char *input, t_command *cmd)
         printf("in expand_tokens(), tokens[%d].str is:  <%s>\n", i, tokens[i].str);
         if (tokens[i].quote == QUOTE_DOUBLE || tokens[i].quote == QUOTE_NONE)
         {
-            flag = expand_variables(tokens[i].str);
+            flag = expand_variables(tokens, i);
             if (flag == -1)
             {
                 free_all(input, tokens, cmd);

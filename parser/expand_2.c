@@ -12,15 +12,14 @@
 
 #include "../minishell.h"
 
-static int32_t	expand_dollar_question_mark(char **result);
-static int32_t	expand_dollar_alpha(char **ptr, char **result);
+static int32_t	expand_last_exit_status(char **result);
+static int32_t	expand_enviornment_variable(char **ptr, char **result);
 static int32_t	append_character(char **ptr, char **result);
-static int32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_heap);
+static int32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 
 /*
 * working version: It doesn't leak, but it would leak on any of the malloc()
-* failures, which are happenning within this function! Even if you would return
-* NULL.
+* failures, and there are quite a few of them taking place within this function!
 char	*expand_variables(char *str)
 {
 	const char	*ptr = str;
@@ -131,13 +130,13 @@ int32_t	expand_variables(t_token *tokens, int i)
 * ◦ returns -1 if any call to malloc() has failed
 * ◦ otherwise, returns 0
 */
-static int32_t	expand_dollar_question_mark(char **result)
+static int32_t	expand_last_exit_status(char **result)
 {
 	char	*exit_str;
-	char	*temp;
+//	char	*temp;
 
 	exit_str = NULL;
-	temp = NULL;
+//	temp = NULL;
 	exit_str = ft_itoa(last_exit_code(0, 0));
 	if (!exit_str)
 		return (-1);
@@ -147,7 +146,7 @@ static int32_t	expand_dollar_question_mark(char **result)
 	
 
 /*
-* inlined version:
+* inlined version of strjoin_and_replace():
 	if (!*result)
 		*result = ft_strdup(exit_str);
 	else
@@ -173,7 +172,7 @@ static int32_t	expand_dollar_question_mark(char **result)
 * The return value of getenv() (which is assigned to 'value') is static memory,
 * that one should not free().
 */
-static int32_t	expand_dollar_alpha(char **ptr, char **result)
+static int32_t	expand_enviornment_variable(char **ptr, char **result)
 {
 	char	*temp;
 	char	*value;
@@ -194,10 +193,10 @@ static int32_t	expand_dollar_alpha(char **ptr, char **result)
 	temp = NULL;
 	if (value)
 	{
-		if (strjoin_and_replace(result, exit_str, 1) == -1)
+		if (strjoin_and_replace(result, value, 0) == -1)
 			return (-1);
 		/*
-		 * inlined version:
+		 * inlined version of strjoin_and_replace():
 		if (!*result)
 			*result = ft_strdup(value);
 		else
@@ -221,7 +220,7 @@ static int32_t	expand_dollar_alpha(char **ptr, char **result)
 * ◦ returns -1 if any call to malloc() has failed
 * ◦ otherwise, returns 0
 */
-static int32_t	append_character_to_result(char **ptr, char **result)
+static int32_t	append_character(char **ptr, char **result)
 {
 	char	tmp[2] = {**ptr, '\0'};
 	char	*before;
@@ -231,12 +230,25 @@ static int32_t	append_character_to_result(char **ptr, char **result)
 	free(before);
 	(*ptr)++;
 
+	// FIXME: this function needs work
 
 
 }
 
-
-static int32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_heap)
+/*
+* Performs a regular strjoin of s1 and s2, but with a twist:
+* - the joined result is assigned to s1 (since it is a double pointer, there is
+*   no need to assign the call of this function in the caller.
+* - s1 is dynamically allocated: therefore, assigning a different string to it
+*   requires freeing of its memory first - which this function takes care of.
+* - the last parameter 'is_s2_heap' lets this function know if the 2nd argument,
+*   s2, is allocated on the heap as well and needs freeing before the function's
+*   end. This is particularly useful here since s2 is the return value of
+*   getenv(), this pointer should NOT be freed.
+*
+*   Return values: 0 upon success, 1 upon malloc() failure
+*/
+static int32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap)
 {
 	char	*temp;
 

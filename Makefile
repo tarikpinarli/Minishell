@@ -35,8 +35,8 @@ SRC = main_2.c \
 	parser/tokenizer_utils.c \
 	parser/parser_utils.c \
 	parser/parser.c \
-	parser/expand.c \
-	parser/expand_tokens.c \
+	parser/expand_2.c \
+	parser/expand_tokens_2.c \
 	parser/merge_tokens.c \
 	executor/exec_cmd.c \
 	executor/redirection.c \
@@ -92,9 +92,9 @@ fclean: clean
 re: fclean all
 
 valgrind: CFLAGS += $(VALGRIND)
-valgrind: re
+valgrind: all
 
 fsanitize: CFLAGS += $(FSANITIZE)
-fsanitize: re
+fsanitize: all
 
 .PHONY: all clean fclean re libft valgrind fsanitize

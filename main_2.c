@@ -24,13 +24,16 @@ int main(void)
 	t_token		*tokens;
 	t_command	*cmd;
 
-	input = NULL;
-	tokens = NULL;
-	cmd = NULL;
-	//rl_catch_signals = 0; // Disabling read_line()s default signal handling. Check if it violates the subject.
+	// FIXME:
+	//	rl_catch_signals = 0; // Disabling read_line()s default signal handling. It violates the subject;
+	// but it resolves the issue of SIGQUIT signal Ctrl+\, which is not supposed to do anything, but
+	// now it prints that and brings the cursor back to the start of the line...
 	setup_signals();
 	while (1)
 	{
+		input = NULL;
+		tokens = NULL;
+		cmd = NULL;
 		input = readline("minishell$ ");
 		if (!input)
 		{
@@ -51,7 +54,8 @@ int main(void)
 			free(input);
 			return (1);
 		}
-		expand_tokens(tokens);
+		expand_tokens(tokens, input, cmd);
+//		expand_tokens(tokens);
 		tokens = merge_tokens(tokens);
 		if (!tokens)
 		{

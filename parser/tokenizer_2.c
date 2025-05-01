@@ -18,6 +18,7 @@ static t_token	extract_quoted_token(char **str, char quote, int *line_id)
 	size_t		len;
 	t_token		token;
 
+	ft_bzero(&token, sizeof(t_token));
 	(*str)++; // skip first quote
 	start = *str;
 	while (**str && **str != quote)
@@ -50,6 +51,7 @@ static t_token	extract_simple_token(char **str, int *line_id)
 	int		len;
 	t_token	token;
 
+	ft_bzero(&token, sizeof(t_token));
 	start = *str;
 	while (**str && !ft_isspace(**str) && **str != '\'' && **str != '"')
 		(*str)++;
@@ -155,7 +157,8 @@ int	tokenize(char *input, t_token **tokens)
 		free(input);
 		return (-1); // same as the return value of count_tokens()
 	}
-	*tokens = malloc(sizeof(t_token) * (count + 1));
+//	*tokens = malloc(sizeof(t_token) * (count + 1));
+	*tokens = ft_calloc((count + 1), sizeof(t_token));
 	if (!*tokens)
 		return (-2);
 	while (ft_isspace(*input))

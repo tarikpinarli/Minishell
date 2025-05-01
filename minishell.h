@@ -84,9 +84,9 @@ char	*ft_strncpy(char *dst, const char *src, size_t n);
 // Parser functioons
 t_command	*parse_tokens(t_token *tokens);
 int	ft_strcmp(const char *s1, const char *s2);
-char	*expand_variables(const char *str);
+char	*expand_variables(char *str); // we have to free this 'str' inside the function, so "const" is not a good thing here.
 // new from tarik2
-void expand_tokens(t_token *tokens);
+void    expand_tokens(t_token *tokens, char *input, t_command *cmd);
 // new from yonatan_3
 t_token	*merge_tokens(t_token *tokens);
 // exit code

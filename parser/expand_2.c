@@ -13,8 +13,8 @@
 #include "../minishell.h"
 
 static int32_t	expand_last_exit_status(char **result);
-static int32_t	expand_enviornment_variable(char **ptr, char **result);
-static int32_t	append_character(char **ptr, char **result);
+static int32_t	expand_environment_variable(char **ptr, char **result);
+static int32_t	append_non_expandable_str(char **ptr, char **result);
 static int32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 
 /*
@@ -90,34 +90,39 @@ int32_t	expand_variables(t_token *tokens, int i)
 {
 	char	*ptr;
 	char	*result;
-	int32_t	flag;
+	int32_t	failure_flag;
 
 	ptr = tokens[i].str;
 	result = NULL;
-	flag = 0;
+	failure_flag = 0;
 	while (*ptr)
 	{
 		if (*ptr == '$' && *(ptr + 1) == '?')
 		{
-			flag = expand_dollar_question_mark(&result);
-			if (flag == -1)
-				return (-1);
+			failure_flag = expand_last_exit_status(&result);
+//			if (failure_flag == -1)
+//				return (-1);
 			ptr += 2;
-			continue;
+//			continue; // unnecessary since the next statements are 'else if'
+			//	and 'else', so they won't execute if the current 'if' statement
+			// executed. The only check the code should do before reiterating
+			// in this loop is: 'if (failure_flag == -1)
 		}
 		else if (*ptr == '$' && ft_isalpha(*(ptr + 1)))
 		{
-			flag = expand_dollar_alpha(&ptr, &result);
-			if (flag == -1)
-				return (-1);
+			failure_flag = expand_environment_variable(&ptr, &result);
+//			if (failure_flag == -1)
+//				return (-1);
 		}
 		else
 		{
-			flag = append_character_to_result(&ptr, &result);
-			flag = ();
-			if (flag == -1)
-				return (-1);
+			failure_flag = append_non_expandable_str(&ptr, &result);
+//			if (failure_flag == -1)
+//				return (-1);
 		}
+
+		if (failure_flag == -1)  // this if statement should be checked after each iteration of the loop.
+			return (-1);
 	}
 	free(tokens[i].str);
 	tokens[i].str = NULL;
@@ -142,7 +147,7 @@ static int32_t	expand_last_exit_status(char **result)
 		return (-1);
 
 
-	return (strjoin_and_replace(result, exit_str, 1));
+	return (strjoin_and_replace(result, &exit_str, 1));
 	
 
 /*
@@ -153,7 +158,7 @@ static int32_t	expand_last_exit_status(char **result)
 	{
 		temp = *result;
 		*result = NULL;
-		*result = ft_strjoin(temp, exit_str);
+		*result = ft_strjoin(temp, &exit_str);
 		free(temp);
 		temp = NULL;
 	}
@@ -172,7 +177,7 @@ static int32_t	expand_last_exit_status(char **result)
 * The return value of getenv() (which is assigned to 'value') is static memory,
 * that one should not free().
 */
-static int32_t	expand_enviornment_variable(char **ptr, char **result)
+static int32_t	expand_environment_variable(char **ptr, char **result)
 {
 	char	*temp;
 	char	*value;
@@ -185,7 +190,7 @@ static int32_t	expand_enviornment_variable(char **ptr, char **result)
 	while (ft_isalnum((*ptr)[len]) || (*ptr)[len] == '_')
 		len++;
 
-	temp = ft_substr(ptr, 0, len);
+	temp = ft_substr(*ptr, 0, len);
 	if (!temp)
 		return (-1);
 	value = getenv(temp);
@@ -193,7 +198,7 @@ static int32_t	expand_enviornment_variable(char **ptr, char **result)
 	temp = NULL;
 	if (value)
 	{
-		if (strjoin_and_replace(result, value, 0) == -1)
+		if (strjoin_and_replace(result, &value, 0) == -1)
 			return (-1);
 		/*
 		 * inlined version of strjoin_and_replace():
@@ -203,7 +208,7 @@ static int32_t	expand_enviornment_variable(char **ptr, char **result)
 		{
 			temp = *result;
 			*result = NULL;
-			*result = ft_strjoin(temp, value);
+			*result = ft_strjoin(temp, &value);
 			free(temp);
 			temp = NULL;
 		}
@@ -215,24 +220,31 @@ static int32_t	expand_enviornment_variable(char **ptr, char **result)
 	return (0);
 }
 
-// TODO: what is this function doing? check if it is to append each character.
 /*
 * ◦ returns -1 if any call to malloc() has failed
 * ◦ otherwise, returns 0
 */
-static int32_t	append_character(char **ptr, char **result)
+static int32_t	append_non_expandable_str(char **ptr, char **result)
 {
-	char	tmp[2] = {**ptr, '\0'};
-	char	*before;
+	size_t	len;
+	char	*temp;
 
-	before = *result;
-	*result = ft_strjoin(result, tmp);
-	free(before);
-	(*ptr)++;
-
-	// FIXME: this function needs work
-
-
+	// we skip the dollar sign, without modifying the original pointer
+	temp = *ptr + 1;
+	while (*temp)
+	{
+		while (*temp && *temp != '$')
+			temp++;
+		if (*temp == '$' && *(temp + 1) != '?' && !ft_isalpha(*(temp + 1)))
+			temp++;
+	}
+	len = temp - *ptr;
+	temp = NULL;
+	temp = ft_substr(*ptr, 0, len);
+	if (!temp)
+		return (-1);
+	*ptr += len;
+	return (strjoin_and_replace(result, &temp, 1));
 }
 
 /*
@@ -254,7 +266,7 @@ static int32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap)
 
 	temp = NULL;
 	if (!*s1)
-		*s1 = ft_strdup(s2);
+		*s1 = ft_strdup(*s2);
 	else
 	{
 		temp = *s1;
@@ -263,7 +275,7 @@ static int32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap)
 		free(temp);
 		temp = NULL;
 	}
-	if (is_heap)
+	if (is_s2_heap)
 	{
 		free(*s2);
 		*s2 = NULL;

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand_2.c                                         :+:      :+:    :+:   */
+/*   expand_3.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 14:29:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/02 14:05:57 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/02 14:19:39 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ int32_t	expand_variables(t_token *tokens, int i)
 	ptr = tokens[i].str;
 	result = NULL;
 	failure_flag = 0;
+	printf("entering_expand_variables()\n\t\tand tokens[i].str is currently:\n\t\t<%s>\n\n", tokens[i].str);
 	while (*ptr)
 	{
 		if (*ptr == '$' && *(ptr + 1) == '?')
@@ -110,19 +111,29 @@ int32_t	expand_variables(t_token *tokens, int i)
 		}
 		else
 		{
+			printf("entering 'else' boolean in expand_variables()...\n\t\t"
+				"and the building string 'result' is currently:\n\t\t<%s>\n\n", result);
 			failure_flag = append_non_expandable_str(&ptr, &result);
 //			if (failure_flag == -1)
 //				return (-1);
 		}
-
 		if (failure_flag == -1)  // this if statement should be checked after each iteration of the loop.
 			return (-1);
+		printf("finishing an iteration of while loop in expand_variables()...\n\t\t"
+			"the building string 'result' is currently:\n\t\t<%s>\n\n", result);
+
 	}
 	free(tokens[i].str);
 	tokens[i].str = NULL;
 	tokens[i].str = result;
 	free (result);
 	result = NULL;
+
+
+
+	printf("finishing execution of expand_variables()...\n\t\t"
+		"tokens[i].str has been supposedly replaced by building string 'result', and it is currently:\n\t\t<%s>\n\t\t"
+		"the building string 'result' is currently:\n\t\t<%s>\n\n", tokens[i].str, result);
 	return (0);
 }
 

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 15:58:09 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/01 18:54:13 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/02 14:19:40 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,7 @@ void    expand_tokens(t_token *tokens, char *input, t_command *cmd)
                 free_all(input, tokens, cmd);
                 exit (1);
             }
+            printf("in expand_tokens(), tokens[%d].str is:  <%s>\n", i, tokens[i].str);
         /*
         if (!tokens[i].str)
         {

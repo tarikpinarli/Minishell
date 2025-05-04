@@ -68,13 +68,13 @@ $(NAME): libft
 
 $(BIN_DIR)/$(NAME): $(LIBFT) $(OBJ) | $(BIN_DIR)
 	@echo "$(YELLOW)[Linking]$(RESET) $(NAME)"
-	$(CC) $(CFLAGS) $(INCLUDES) $(OBJ) $(LIBFT) $(LDFLAGS) -o $@
+	@$(CC) $(CFLAGS) $(INCLUDES) $(OBJ) $(LIBFT) $(LDFLAGS) -o $@
 	@echo "$(GREEN)✅ Build complete!$(RESET)"
 
 $(OBJ_DIR)/%.o: %.c $(HEADER)
 	@mkdir -p $(dir $@)
 	@echo "$(YELLOW)[Compiling]$(RESET) $<"
-	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
+	@$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 $(BIN_DIR):
 	@mkdir -p $@

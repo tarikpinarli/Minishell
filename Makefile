@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/04/28 16:35:50 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/05/05 16:26:39 by ykadosh          ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,9 +14,13 @@ NAME = minishell
 
 CC = cc
 CFLAGS = -Wall -Wextra -Werror
+LDFLAGS = -lreadline -lncurses
 
 VALGRIND = -g
 FSANITIZE = -fsanitize=leak -fsanitize=address -fsanitize=undefined
+
+MAC_CFLAGS = -I/opt/local/include
+MAC_LDFLAGS = -L/opt/local/lib -lreadline
 
 INCLUDES = -I. -Ilibft
 HEADER = $(NAME).h
@@ -64,7 +68,7 @@ $(NAME): libft
 
 $(BIN_DIR)/$(NAME): $(LIBFT) $(OBJ) | $(BIN_DIR)
 	@echo "$(YELLOW)[Linking]$(RESET) $(NAME)"
-	@$(CC) $(CFLAGS) $(INCLUDES) $(OBJ) $(LIBFT) -lreadline -lncurses -o $@
+	@$(CC) $(CFLAGS) $(INCLUDES) $(OBJ) $(LIBFT) $(LDFLAGS) -o $@
 	@echo "$(GREEN)✅ Build complete!$(RESET)"
 
 $(OBJ_DIR)/%.o: %.c $(HEADER)
@@ -97,4 +101,7 @@ valgrind: all
 fsanitize: CFLAGS += $(FSANITIZE)
 fsanitize: all
 
-.PHONY: all clean fclean re libft valgrind fsanitize
+mac:
+	$(MAKE) CFLAGS="$(MAC_CFLAGS)" LDFLAGS="$(MAC_LDFLAGS)" all
+
+.PHONY: all clean fclean re libft valgrind fsanitize mac

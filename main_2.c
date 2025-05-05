@@ -42,7 +42,7 @@ int main(void)
 		}
 		if (input[0])
 			add_history(input);
-		else
+		else  // TODO: Ask Tariq how does this else block happen? since we already check for !input & input[0] beforehand.
 		{
 			free(input);
 			continue;
@@ -54,8 +54,31 @@ int main(void)
 			free(input);
 			return (1);
 		}
+
+
+		// WARN: This is just printf() debugging, to easily follow the stages of the tokenizing process:
+		size_t	j;
+
+		j = 0;
+		printf("\nin MAIN(), after tokenize(), the strings are:\n\t");
+		while (tokens[j].str)
+		{
+			printf("tokens[%zu].str:	<%s>\n\t", j, tokens[j].str);
+			j++;
+		}
+		printf("\n\n\n");
+
 		expand_tokens(tokens, input, cmd);
-//		expand_tokens(tokens);
+
+		j = 0;
+		printf("in MAIN, after expand_tokens(), the strings are:\n\t");
+		while (tokens[j].str)
+		{
+			printf("tokens[%zu].str:	<%s>\n\t", j, tokens[j].str);
+			j++;
+		}
+		printf("\n\n\n");
+
 		tokens = merge_tokens(tokens);
 		if (!tokens)
 		{
@@ -73,8 +96,7 @@ int main(void)
 		int	i = 0;
 		while (tokens[i].str)
 		{
-			printf("token[%d] =	<%s>	---- quote type:	<%d>	---- line_id =	<%d>\n", i, tokens[i].str, tokens[i].quote, tokens[i].line_id);
-			printf("token[%d].str len = %ld\n", i, ft_strlen(tokens[i].str));
+			printf("token[%d]: <%s>	---- quote type:	<%d>	---- line_id:	<%d>	--- length:	<%zu>\n", i, tokens[i].str, tokens[i].quote, tokens[i].line_id, ft_strlen(tokens[i].str));
 			i++;
 		}
 		

@@ -39,8 +39,8 @@ SRC = main_2.c \
 	parser/tokenizer_utils.c \
 	parser/parser_utils.c \
 	parser/parser.c \
-	parser/expand_3.c \
-	parser/expand_tokens_2.c \
+	parser/expand_tokens.c \
+	parser/expand.c \
 	parser/merge_tokens.c \
 	executor/exec_cmd.c \
 	executor/redirection.c \

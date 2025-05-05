@@ -62,6 +62,17 @@ typedef struct s_token
 }	t_token;
 
 
+/* WARN:
+ * this could be a way to avoid having to go through the array every time to find
+ * the NULL str.... which is sometimes quite complicated and risky.
+ * by keeping track of the count, we would be more safe!
+struct tokens
+{
+	size_t	count;
+	t_token *tokens;
+} t_tokens;
+*/
+
 typedef struct s_command
 {
 	char				**argv;      // Command and arguments
@@ -84,8 +95,8 @@ int	    ft_isspace(char c);
 char	*ft_strncpy(char *dst, const char *src, size_t n);
 // Parser functioons
 t_command	*parse_tokens(t_token *tokens);
-int	ft_strcmp(const char *s1, const char *s2);
-int32_t	expand_variables(t_token *tokens, int i);
+int			ft_strcmp(const char *s1, const char *s2);
+uint32_t	expand_variables(t_token *tokens, int i);
 // new from tarik2
 void    expand_tokens(t_token *tokens, char *input, t_command *cmd);
 // new from yonatan_3

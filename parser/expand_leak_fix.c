@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   expand.c                                           :+:      :+:    :+:   */
+/*   expand_leak_fix.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 14:29:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/05 18:25:49 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/05 20:06:51 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,6 +47,7 @@ uint32_t	expand_variables(t_token *tokens, int i)
 	free(tokens[i].str);
 	tokens[i].str = NULL;
 	tokens[i].str = result;
+	printf("in expand_variables, tokens[%d].str is:	<%s>\n", i, tokens[i].str);   // FIXME: $A $D $B $USER hello $R (for example!)
 	return (0);
 }
 
@@ -88,6 +89,7 @@ static uint32_t	expand_environment_variable(char **ptr, char **result)
 	if (!temp)
 		return (1);
 	value = getenv(temp);
+	printf("in expand_environement_variable(), value is:	<%s>\n", value);
 	free(temp);
 	temp = NULL;
 	if (value)

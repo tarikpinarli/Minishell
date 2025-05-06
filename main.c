@@ -40,7 +40,7 @@ int main(void)
 		}
 		tokens = tokenize(input);
 		expand_tokens(tokens);
-		//tokens = merge_tokens(tokens);
+		tokens = merge_tokens(tokens);
 		if (!tokens)
 		{
 			free(input);

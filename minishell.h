@@ -21,6 +21,7 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
+# include <stdint.h> // necessary if we use size specific data types (such as int32_t, uint32_t and so forth)
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
@@ -52,14 +53,12 @@ typedef struct s_redir
 	struct s_redir	*next;
 }	t_redir;
 
-
 typedef struct s_token
 {
 	char			*str;
 	t_quote_type	quote;
 	int				line_id;
 }	t_token;
-
 
 typedef struct s_command
 {
@@ -76,20 +75,23 @@ void	handle_sigint(int sig);
 void	handle_sigquit(int sig);
 
 // tokenizer functions
-t_token	*tokenize(char *input);
+int		tokenize(char *input, t_token **tokens);
+//t_token	*tokenize(char *input); // older version? modified in order to avoid leaks
 int		count_tokens(const char *str);
 int	    ft_isspace(char c);
 char	*ft_strncpy(char *dst, const char *src, size_t n);
 // Parser functioons
 t_command	*parse_tokens(t_token *tokens);
-int	ft_strcmp(const char *s1, const char *s2);
-char	*expand_variables(const char *str);
+int			ft_strcmp(const char *s1, const char *s2);
+uint32_t	expand_variables(t_token *tokens, int i);
 // new from tarik2
-void expand_tokens(t_token *tokens);
+void    expand_tokens(t_token *tokens, char *input, t_command *cmd);
+// new from yonatan_3
+t_token	*merge_tokens(t_token *tokens);
 // exit code
 int	last_exit_code(int set, int value);
 //executor functioms
-int	setup_redirections(t_command *cmd);
+int		setup_redirections(t_command *cmd);
 void	exec_command(t_command *cmd);
 char	*find_in_path(char *cmd);
 void	execute_pipeline(t_command *cmd);
@@ -97,9 +99,9 @@ void	execute_pipeline(t_command *cmd);
 void	ft_free_split(char **arr);
 void	free_all(char *input, t_token *tokens, t_command *cmd);
 // Builtin commands
-int	is_builtin(char *cmd);
-int execute_builtin(t_command *cmd);
-int builtin_pwd(void);
+int		is_builtin(char *cmd);
+int		execute_builtin(t_command *cmd);
+int		builtin_pwd(void);
 //int builtin_cd(char **argv);
 //int builtin_export(char **argv);
 //int builtin_unset(char **argv);

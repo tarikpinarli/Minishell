@@ -53,25 +53,12 @@ typedef struct s_redir
 	struct s_redir	*next;
 }	t_redir;
 
-
 typedef struct s_token
 {
 	char			*str;
 	t_quote_type	quote;
 	int				line_id;
 }	t_token;
-
-
-/* WARN:
- * this could be a way to avoid having to go through the array every time to find
- * the NULL str.... which is sometimes quite complicated and risky.
- * by keeping track of the count, we would be more safe!
-struct tokens
-{
-	size_t	count;
-	t_token *tokens;
-} t_tokens;
-*/
 
 typedef struct s_command
 {

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 14:29:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/05 18:25:49 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/06 17:51:29 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,6 +26,7 @@ uint32_t	expand_variables(t_token *tokens, int i)
 	char		*ptr;
 	char		*result;
 	uint32_t	failure_flag;
+	int			temp;
 
 	ptr = tokens[i].str;
 	result = NULL;
@@ -37,8 +38,33 @@ uint32_t	expand_variables(t_token *tokens, int i)
 			failure_flag = expand_last_exit_status(&result);
 			ptr += 2;
 		}
-		else if (*ptr == '$' && ft_isalpha(*(ptr + 1))) // WARN: should we add here: && *(ptr + 1) != '_') ???
+		else if (*ptr == '$' && ft_isalpha(*(ptr + 1))) // WARN: should we add here: && *(ptr + 1) != '_') ??? UPDATE: yes we should, Yonatan will do it
+		{
 			failure_flag = expand_environment_variable(&ptr, &result);
+			if (failure_flag == 2)
+			{
+				// FIXME: note to Yonatan: We need to make this block of code
+				// update the token.quote element as well, so that the token.str
+				// matches with the right token.quote !!!
+				// TODO: Also, refactor this block into a more user friendly
+				// helper function!
+				temp = i;
+				while (tokens[temp].str)
+				{
+					if (temp == i)
+					{
+						free(tokens[temp].str);
+						tokens[temp].str = NULL;
+					}
+					tokens[temp].str = tokens[temp + 1].str;
+					temp++;
+				}
+				ptr = tokens[i].str;
+				if (!ptr)
+					return (0);
+				failure_flag = 0;
+			}
+		}
 		else
 			failure_flag = append_non_expandable_str(&ptr, &result);
 		if (failure_flag)  // this if statement should be checked after each iteration of the loop.
@@ -67,7 +93,12 @@ static uint32_t	expand_last_exit_status(char **result)
 
 /*
 * ◦ returns 1 if any call to malloc() has failed
-* ◦ otherwise, returns 0
+* ◦ returns 2 if a non existing variable was about to be expendad, and that
+*	variable was the only data that a token was holding; in this case, Minishell
+*	expands that to nothing, and so the token has to become empty, and should be
+*	replaced by the next tokens following it. This is done when after returning
+*	to expand_variables().
+* ◦ otherwise, this function returns 0
 * NOTE: Do NOT free() the 'value' pointer! It would lead to undefined behaviour.
 * The return value of getenv() (which is assigned to 'value') is static memory,
 * that one should not free().
@@ -94,6 +125,11 @@ static uint32_t	expand_environment_variable(char **ptr, char **result)
 	{
 		if (strjoin_and_replace(result, &value, 0) == 1)
 			return (1);
+	}
+	else
+	{
+		if (!(*ptr)[len] && !*result)
+			return (2);
 	}
 	(*ptr) += len;
 	return (0);

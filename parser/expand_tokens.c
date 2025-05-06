@@ -16,7 +16,7 @@ static uint32_t  is_expandable(const char *string);
 
 
 /*
-// TEST:  these are leaking...
+// TEST:  these are leaking... UPDATE: these are NOT leaking anymore!!
 // I suppose it might be happening when a variable does NOT expand, and there
 // is no more text in the token's string after that varialbe AND there are
 // other valid tokens in our *tokens array, we are facing an issue: the token
@@ -31,6 +31,8 @@ $A  (this leaks a little bit later, probably with the 'cmd' functions. but the n
 $A $USER $B $D
 
 "echo " "hello $" $$$$$ $A $12341
+
+$A $D $B $USER hello $R
 */
 
 void    expand_tokens(t_token *tokens, char *input, t_command *cmd)

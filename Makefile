@@ -40,7 +40,7 @@ SRC = main_2.c \
 	parser/parser_utils.c \
 	parser/parser.c \
 	parser/expand_tokens.c \
-	parser/expand_leak_fix.c \
+	parser/expand.c \
 	parser/merge_tokens.c \
 	executor/exec_cmd.c \
 	executor/redirection.c \

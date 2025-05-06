@@ -33,6 +33,15 @@ $A $USER $B $D
 "echo " "hello $" $$$$$ $A $12341
 
 $A $D $B $USER hello $R
+
+FIXME: this case is not working !!!
+jskldfjla ;jadn ;kdan ;nsa; knsdak fnnk n$USER $USER alkd;jalk;lasdnf; $USERfadlflaklssdfjlkaskj "$US"$US
+
+FIXME: same, not working. any text after a valid variable just doesn't expand anymore....
+$USERhello
+
+$USER"hello"there$USER
+
 */
 
 void    expand_tokens(t_token *tokens, char *input, t_command *cmd)
@@ -52,6 +61,7 @@ void    expand_tokens(t_token *tokens, char *input, t_command *cmd)
                 if (failure_flag)
                 {
                     free_all(input, tokens, cmd);
+                    // TODO: add last_exit_code() call here!
                     exit (1);
                 }
             }

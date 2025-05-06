@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:43 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/27 17:07:35 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/06 19:22:18 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ static t_token	extract_quoted_token(char **str, char quote, int *line_id)
 	size_t		len;
 	t_token		token;
 
+	ft_bzero(&token, sizeof(t_token));
 	(*str)++; // skip first quote
 	start = *str;
 	while (**str && **str != quote)
@@ -50,6 +51,7 @@ static t_token	extract_simple_token(char **str, int *line_id)
 	int		len;
 	t_token	token;
 
+	ft_bzero(&token, sizeof(t_token));
 	start = *str;
 	while (**str && !ft_isspace(**str) && **str != '\'' && **str != '"')
 		(*str)++;
@@ -90,91 +92,56 @@ static t_token	next_token(char **str, int *line_id)
 	return (empty);
 }
 
-t_token	*tokenize(char *input)
-{
-	int			i;
-	int			count;
-	t_token		*tokens;
-	static int	line_id;
-
-	if (!input)
-		return (NULL);
-	count = count_tokens(input);
-	if (count < 0)
-		return (NULL);
-	tokens = malloc(sizeof(t_token) * (count + 1));
-	if (!tokens)
-		return (NULL);
-	while (ft_isspace(*input))
-		input++;
-	i = 0;
-	while (i < count)
-	{
-		tokens[i] = next_token(&input, &line_id);
-		if (!tokens[i].str)
-		{
-			while (--i >= 0)
-				free(tokens[i].str);
-			free(tokens);
-			line_id = 0;
-			return (NULL);
-		}
-		i++;
-	}
-	line_id = 0;
-	tokens[count].str = NULL;
-	tokens[count].quote = QUOTE_NONE;
-	return (tokens);
-}
-
 /*
 * return values:
 * ◦ positive value: if everything went smoothly, this function returns the count
 * obtained by the call to count_tokens().
 * ◦ -1: if a quotation mark has not been closed in the input.
 * ◦ -2: on malloc failure
-* ◦ -3: if the input passed to this function is NULL. WARN: unnecessary check?
 */
-/*
-int	tokenize(char *input, t_token *tokens)
+int	tokenize(char *input, t_token **tokens)
 {
 	int			i;
 	int			count;
 	static int	line_id;
 
+	/*
+	 * FIXME: Now trying without this, as it is probably unnecessary.
 	if (!input)
 		return (-3);
-// TODO: Ask Tarik if input can really be NULL when arriving here?
-// There is already a check in main() for (!input) before calling tokenize().
-// Or is this related to something regarding signals?
+	*/
 	count = count_tokens(input);
 	if (count < 0)
 	{
 		free(input);
 		return (-1); // same as the return value of count_tokens()
 	}
-	tokens = malloc(sizeof(t_token) * (count + 1));
-	if (!tokens)
+	*tokens = ft_calloc((count + 1), sizeof(t_token));
+	if (!*tokens)
+	{
+		free(input);
 		return (-2);
+	}
 	while (ft_isspace(*input))
 		input++;
 	i = 0;
 	while (i < count)
 	{
-		tokens[i] = next_token(&input, &line_id);
-		if (!tokens[i].str)
+		(*tokens)[i] = next_token(&input, &line_id);
+		if (!(*tokens)[i].str) // TODO: can we call free_all() from here, instead?
 		{
 			while (--i >= 0)
-				free(tokens[i].str);
-			free(tokens);
+				free((*tokens)[i].str);
+			free(*tokens);
+			*tokens = NULL;
 			line_id = 0;
+			free(input);
 			return (-2);
 		}
 		i++;
 	}
 	line_id = 0;
-	tokens[count].str = NULL;
-	tokens[count].quote = QUOTE_NONE;
+	(*tokens)[count].str = NULL;
+	(*tokens)[count].quote = QUOTE_NONE;
 	return (count);
 }
-*/

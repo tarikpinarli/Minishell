@@ -42,16 +42,16 @@ int main(void)
 		}
 		if (input[0])
 			add_history(input);
-		else  // TODO: Ask Tariq how does this else block happen? since we already check for !input & input[0] beforehand.
+		else  // this is for when the input string is empty.
 		{
 			free(input);
 			continue;
 		}
-		if (tokenize(input, &tokens) < 0) // tokenize frees input for us if (count < 0), and nothing else gets allocated in that case.
+		if (tokenize(input, &tokens) == -1) // tokenize() returns -1 if a quotation mark was left unclosed.
 			continue;
-		if (!tokens)
+		if (!tokens)  // if malloc() failed within tokenize(), everything was freed in there, and tokens is NULL.
 		{
-			free(input);
+			(void)last_exit_code(1, 1); // TODO: ask Tariq if this is the correct way to use this.
 			return (1);
 		}
 
@@ -110,5 +110,5 @@ int main(void)
 	}
 	rl_clear_history();
 //	clear_history(); // WARN: this function is not allowed by the subject, should we remove it? is it for running on mac()?
-	return 0;
+	return (0); // do we need to set the exit status before returning 0 as well?
 }

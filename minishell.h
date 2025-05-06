@@ -21,12 +21,15 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include <fcntl.h>
-# include <stdint.h> // necessary if we use size specific data types (such as int32_t, uint32_t and so forth)
+# include <stdint.h>
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
 # endif
 
+# ifndef FAIL_MAX
+#  define FAIL_MAX 100
+# endif
 
 // Signal handling
 extern int g_signal_status;
@@ -76,7 +79,6 @@ void	handle_sigquit(int sig);
 
 // tokenizer functions
 int		tokenize(char *input, t_token **tokens);
-//t_token	*tokenize(char *input); // older version? modified in order to avoid leaks
 int		count_tokens(const char *str);
 int	    ft_isspace(char c);
 char	*ft_strncpy(char *dst, const char *src, size_t n);
@@ -84,10 +86,8 @@ char	*ft_strncpy(char *dst, const char *src, size_t n);
 t_command	*parse_tokens(t_token *tokens);
 int			ft_strcmp(const char *s1, const char *s2);
 uint32_t	expand_variables(t_token *tokens, int i);
-// new from tarik2
-void    expand_tokens(t_token *tokens, char *input, t_command *cmd);
-// new from yonatan_3
-t_token	*merge_tokens(t_token *tokens);
+void		expand_tokens(t_token *tokens, char *input, t_command *cmd);
+t_token		*merge_tokens(t_token *tokens);
 // exit code
 int	last_exit_code(int set, int value);
 //executor functioms
@@ -106,7 +106,7 @@ int		builtin_pwd(void);
 //int builtin_export(char **argv);
 //int builtin_unset(char **argv);
 //int builtin_env(void);
-//int builtin_exit(char **argv);
-//int builtin_echo(char **argv);
+int builtin_exit(char **argv);
+int builtin_echo(char **argv);
 
 #endif

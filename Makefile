@@ -35,7 +35,7 @@ LIBFT_DIR = libft
 BIN_DIR = bin
 
 SRC = main_2.c \
-	parser/tokenizer_2.c \
+	parser/tokenizer.c \
 	parser/tokenizer_utils.c \
 	parser/parser_utils.c \
 	parser/parser.c \

@@ -52,6 +52,10 @@ uint32_t	expand_variables(t_token *tokens, int i)
 			failure_flag = expand_environment_variable(&ptr, &result);
 			if (failure_flag == 2)
 			{
+				// if (!handle_expansion_to_void())
+				//		return (0);
+				//	failure_flag = 0;
+				//	}
 				// TODO: Also, refactor this block into a more user friendly
 				// helper function!
 				temp = i;
@@ -142,6 +146,36 @@ static uint32_t	expand_environment_variable(char **ptr, char **result)
 	(*ptr) += len;
 	return (0);
 }
+
+
+// TODO:
+static uint32_t	handle_expansion_to_void(t_token *tokens, int i)
+{
+	int	temp;
+
+//	if (failure_flag == 2)
+//	{
+		// TODO: Also, refactor this block into a more user friendly
+		// helper function!
+	temp = i;
+	while (tokens[temp].str)
+	{
+		if (temp == i)
+		{
+			free(tokens[temp].str);
+			tokens[temp].str = NULL;
+		}
+		tokens[temp].str = tokens[temp + 1].str;
+		tokens[temp].quote = tokens[temp + 1].quote;
+		tokens[temp].line_id = tokens[temp + 1].line_id;
+		temp++;
+	}
+	ptr = tokens[i].str;
+	if (!ptr || tokens[i].quote == QUOTE_SINGLE)
+		return (0);
+//		failure_flag = 0;
+	}
+
 
 /*
 * ◦ returns 1 if any call to malloc() has failed

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/27 13:25:20 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/07 15:36:47 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ void	execute_pipeline(t_command *cmd)
 
 		if (pid == 0)
 		{
-			// Child process
 			if (prev_fd != -1)
 			{
 				dup2(prev_fd, STDIN_FILENO);
@@ -57,6 +56,11 @@ void	execute_pipeline(t_command *cmd)
 			}
             if (!setup_redirections(cmd))
     		    exit(1);
+			if (is_builtin(cmd->argv[0]))
+			{
+				execute_builtin(cmd, 0);
+				exit(0);
+			}
 			if (cmd->argv[0][0] == '/')
 				path = ft_strdup(cmd->argv[0]);
 			else
@@ -102,11 +106,30 @@ void	exec_command(t_command *cmd)
 		return;
 	if (is_builtin(cmd->argv[0]) && !cmd->next)
 	{
-		setup_redirections(cmd);
-		execute_builtin(cmd);
+		int saved_stdin = dup(STDIN_FILENO);
+		int saved_stdout = dup(STDOUT_FILENO);
+	
+		if (!setup_redirections(cmd))
+		{
+			dup2(saved_stdin, STDIN_FILENO);
+			dup2(saved_stdout, STDOUT_FILENO);
+			close(saved_stdin);
+			close(saved_stdout);
+			return;
+		}
+	
+		execute_builtin(cmd, 1);
+	
+		// Restore stdin/stdout
+		dup2(saved_stdin, STDIN_FILENO);
+		dup2(saved_stdout, STDOUT_FILENO);
+		close(saved_stdin);
+		close(saved_stdout);
+	
 		unlink(".heredoc.txt");
 		return;
 	}
+		
 	pid = fork();
 	if (pid == -1)
 	{

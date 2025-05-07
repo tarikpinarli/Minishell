@@ -33,6 +33,9 @@ uint32_t	expand_variables(t_token *tokens, int i)
 	failure_flag = 0;
 	while (*ptr)
 	{
+		// this might seem odd, but it is very important: on some iterations of the loop, this returns TRUE, because we have to replace the current tokens[i].str with the next token, and that next token might be in single quotes!!!
+		if (tokens[i].quote == QUOTE_SINGLE)
+			return (0);
 		if (*ptr == '$' && *(ptr + 1) == '?')
 		{
 			failure_flag = expand_last_exit_status(&result);
@@ -43,9 +46,6 @@ uint32_t	expand_variables(t_token *tokens, int i)
 			failure_flag = expand_environment_variable(&ptr, &result);
 			if (failure_flag == 2)
 			{
-				// FIXME: note to Yonatan: We need to make this block of code
-				// update the token.quote element as well, so that the token.str
-				// matches with the right token.quote !!!
 				// TODO: Also, refactor this block into a more user friendly
 				// helper function!
 				temp = i;
@@ -57,6 +57,8 @@ uint32_t	expand_variables(t_token *tokens, int i)
 						tokens[temp].str = NULL;
 					}
 					tokens[temp].str = tokens[temp + 1].str;
+					tokens[temp].quote = tokens[temp + 1].quote;
+					tokens[temp].line_id = tokens[temp + 1].line_id;
 					temp++;
 				}
 				ptr = tokens[i].str;

@@ -10,7 +10,6 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-
 #include "minishell.h"
 
 /*
@@ -50,10 +49,7 @@ int main(void)
 		if (tokenize(input, &tokens) == -1) // tokenize() returns -1 if a quotation mark was left unclosed.
 			continue;
 		if (!tokens)  // if malloc() failed within tokenize(), everything was freed in there, and tokens is NULL.
-		{
-			(void)last_exit_code(1, 1); // TODO: ask Tariq if this is the correct way to use this.
-			return (1);
-		}
+			return (1);  // here there is no need to set the last_exit_status(), we are in main and we can simply return (1).
 
 
 		// WARN: This is just printf() debugging, to easily follow the stages of the tokenizing process:
@@ -86,14 +82,14 @@ int main(void)
 			continue;
 		}
 		cmd = parse_tokens(tokens);
-		if (!cmd)
+		if (!cmd) // WARN: we have to free all here, otherwise, if strings have been allocated for, they will leak!
 		{
-			free(cmd);
-			free(tokens);
+			free_all(input, tokens, cmd);
 			printf("Parcing failed.\n");
 			continue;
 		}
 		int	i = 0;
+		printf("in MAIN, at the very end of the loop, the tokens are:\n");
 		while (tokens[i].str)
 		{
 			printf("token[%d]: <%s>	---- quote type:	<%d>	---- line_id:	<%d>	--- length:	<%zu>\n", i, tokens[i].str, tokens[i].quote, tokens[i].line_id, ft_strlen(tokens[i].str));
@@ -110,5 +106,5 @@ int main(void)
 	}
 	rl_clear_history();
 //	clear_history(); // WARN: this function is not allowed by the subject, should we remove it? is it for running on mac()?
-	return (0); // do we need to set the exit status before returning 0 as well?
+	return (0);
 }

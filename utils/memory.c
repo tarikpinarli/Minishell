@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/20 15:15:43 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/07 13:14:54 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,47 +25,76 @@ void	ft_free_split(char **arr)
 	}
 	free(arr);
 }
-void	free_cmd(t_command *cmd)
+void	free_argv(char **argv)
 {
-	t_redir	*tmp;
-	int		i;
+	int	i;
 
 	i = 0;
-	if (cmd)
+	if (!argv)
+		return;
+	while (argv[i])
 	{
-		while (cmd->argv && cmd->argv[i])
-			free(cmd->argv[i++]);
-		free(cmd->argv);
-		while (cmd->in_redir)
-		{
-			tmp = cmd->in_redir;
-			cmd->in_redir = tmp->next;
-			free(tmp->filename);
-			free(tmp);
-		}
-		while (cmd->out_redir)
-		{
-			tmp = cmd->out_redir;
-			cmd->out_redir = tmp->next;
-			free(tmp->filename);
-			free(tmp);
-		}
-		free(cmd);
+		free(argv[i]);
+		i++;
+	}
+	free(argv);
+}
+
+void	free_redir_list(t_redir *redir)
+{
+	t_redir	*next;
+
+	while (redir)
+	{
+		next = redir->next;
+		free(redir->filename);
+		free(redir);
+		redir = next;
 	}
 }
-void	free_all(char *input, t_token *tokens, t_command *cmd)
+
+void	free_cmd(t_command *cmd)
+{
+	t_command	*next;
+
+	while (cmd)
+	{
+		next = cmd->next;
+		free_argv(cmd->argv);
+		free_redir_list(cmd->in_redir);
+		free_redir_list(cmd->out_redir);
+		free(cmd);
+		cmd = next;
+	}
+}
+
+
+
+void	free_tokens(t_token *tokens)
 {
 	int		i;
 
 	i = 0;
 	if (tokens)
 	{
-		while (tokens[i].str)
-			free(tokens[i++].str);
+		while (tokens[i].str != NULL)
+		{
+			free(tokens[i].str);
+			i++;	
+		}
 		free(tokens);
-	}
-	free(input);
-	free_cmd(cmd);
+	}	
 }
 
+void	free_input(char *input)
+{
+	if (input)
+		free(input);
+}
 
+void	free_all(char *input, t_token *tokens, t_command *cmd)
+{
+	free_input(input);
+	free_tokens(tokens);
+	free_cmd(cmd);
+}

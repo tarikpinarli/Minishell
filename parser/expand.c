@@ -20,6 +20,15 @@ static uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 /*
 * ◦ returns 1 if any call to malloc() has failed
 * ◦ otherwise, returns 0
+*
+* NOTE:
+* The check for QUOTE_SINGLE at the end of the 'else if' block might seem odd,
+* but it is actually very important. When a token contains a '$' followed by an
+* inexisting variable - and nothing else - that variable expands to nothing at
+* all, and the token becomes a NULL pointer. If there are other string tokens in
+* the array following that specific token, all tokens from that point onwards
+* get replaced by their neighbour - and our NULL token's new replacement might
+* have been single-quoted, in which case we do not wish to try and expand it.
 */
 uint32_t	expand_variables(t_token *tokens, int i)
 {
@@ -33,9 +42,6 @@ uint32_t	expand_variables(t_token *tokens, int i)
 	failure_flag = 0;
 	while (*ptr)
 	{
-		// this might seem odd, but it is very important: on some iterations of the loop, this returns TRUE, because we have to replace the current tokens[i].str with the next token, and that next token might be in single quotes!!!
-		if (tokens[i].quote == QUOTE_SINGLE)
-			return (0);
 		if (*ptr == '$' && *(ptr + 1) == '?')
 		{
 			failure_flag = expand_last_exit_status(&result);
@@ -62,7 +68,7 @@ uint32_t	expand_variables(t_token *tokens, int i)
 					temp++;
 				}
 				ptr = tokens[i].str;
-				if (!ptr)
+				if (!ptr || tokens[i].quote == QUOTE_SINGLE)
 					return (0);
 				failure_flag = 0;
 			}

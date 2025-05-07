@@ -39,7 +39,6 @@ void    expand_tokens(t_token *tokens, char *input, t_command *cmd)
     }
 }
 
-// WARN: Should we add here (and to the expand.c file) a check for an underscore?
 /*
 * returns true if the string passed as a parameter contains a '$' followed by
 * either a '?' or a letter of the alphabet - otherwise, this program does not
@@ -52,7 +51,9 @@ static uint32_t  is_expandable(const char *string)
     j = 0;
     while (string[j])
     {
-        if (string[j] == '$' && (string[j + 1] == '?' || ft_isalpha(string[j + 1])))
+        if (string[j] == '$' &&
+            (string[j + 1] == '?'
+            || ft_isalpha(string[j + 1]) || string[j + 1] == '_'))
             return (1);
         j++;
     }

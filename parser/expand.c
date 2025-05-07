@@ -41,7 +41,7 @@ uint32_t	expand_variables(t_token *tokens, int i)
 			failure_flag = expand_last_exit_status(&result);
 			ptr += 2;
 		}
-		else if (*ptr == '$' && ft_isalpha(*(ptr + 1))) // WARN: should we add here: && *(ptr + 1) != '_') ??? UPDATE: yes we should, Yonatan will do it
+		else if (*ptr == '$' && (ft_isalpha(*(ptr + 1)) || *(ptr + 1) == '_'))
 		{
 			failure_flag = expand_environment_variable(&ptr, &result);
 			if (failure_flag == 2)

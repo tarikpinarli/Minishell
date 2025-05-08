@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 15:58:09 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/05 18:41:32 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/08 17:09:49 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void    expand_tokens(t_token *tokens, char *input, t_command *cmd)
         {
             if (is_expandable(tokens[i].str))
             {
-                failure_flag = expand_variables(tokens, i);
+                failure_flag = rebuild_string(tokens, i);
                 if (failure_flag)
                 {
                     free_all(input, tokens, cmd);
@@ -37,6 +37,17 @@ void    expand_tokens(t_token *tokens, char *input, t_command *cmd)
         }
         i++;
     }
+    i = 0;
+    printf("in expand_tokens, at the very end of the loop, the tokens are:\n");
+    while (tokens[i].str)
+    {
+        printf("token[%d]: <%s>	---- quote type:	<%d>	---- line_id:	<%d>"
+            "--- length:	<%zu>\n",
+            i, tokens[i].str, tokens[i].quote, tokens[i].line_id,
+            ft_strlen(tokens[i].str));
+        i++;
+    }
+    printf("\n\n");
 }
 
 /*

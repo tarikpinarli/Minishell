@@ -82,15 +82,18 @@ int		tokenize(char *input, t_token **tokens);
 int		count_tokens(const char *str);
 int	    ft_isspace(char c);
 char	*ft_strncpy(char *dst, const char *src, size_t n);
-// Parser functioons
+// Parser functions
 t_command	*parse_tokens(t_token *tokens);
 int			ft_strcmp(const char *s1, const char *s2);
-uint32_t	expand_variables(t_token *tokens, int i);
-void		expand_tokens(t_token *tokens, char *input, t_command *cmd);
 t_token		*merge_tokens(t_token *tokens);
+// expansion functions
+void		expand_tokens(t_token *tokens, char *input, t_command *cmd);
+uint32_t	rebuild_string(t_token *tokens, int i);
+uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
+uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 // exit code
 int	last_exit_code(int set, int value);
-//executor functioms
+//executor functions
 int		setup_redirections(t_command *cmd);
 void	exec_command(t_command *cmd);
 char	*find_in_path(char *cmd);

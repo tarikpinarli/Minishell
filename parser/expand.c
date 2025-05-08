@@ -6,18 +6,25 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 14:29:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/06 17:51:29 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/08 17:10:25 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static uint32_t	expand_last_exit_status(char **result);
+static uint32_t	expand_vars(t_token *tokens, int i, char **ptr, char **result);
+static uint32_t	expand_last_exit_status(char **result, char **ptr);
 static uint32_t	expand_environment_variable(char **ptr, char **result);
 static uint32_t	append_non_expandable_str(char **ptr, char **result);
-static uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 
 /*
+* With the help if expand_vars() just below, rebuild_string() indexes through
+* the tokens[i].str, and builds 'result' step by step, appending to it either
+* the environment variable, the exit status, or the rest of the string
+* independent of a '$' sign. Once the whole tokens[i].str is processed, its
+* memory is freed, and it is replaced by the newly built string that 'reslut'
+* points at.
+*
 * ◦ returns 1 if any call to malloc() has failed
 * ◦ otherwise, returns 0
 *
@@ -30,57 +37,22 @@ static uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 * get replaced by their neighbour - and our NULL token's new replacement might
 * have been single-quoted, in which case we do not wish to try and expand it.
 */
-uint32_t	expand_variables(t_token *tokens, int i)
+uint32_t	rebuild_string(t_token *tokens, int i)
 {
 	char		*ptr;
 	char		*result;
 	uint32_t	failure_flag;
-	int			temp;
 
 	ptr = tokens[i].str;
 	result = NULL;
 	failure_flag = 0;
 	while (*ptr)
 	{
-		if (*ptr == '$' && *(ptr + 1) == '?')
-		{
-			failure_flag = expand_last_exit_status(&result);
-			ptr += 2;
-		}
-		else if (*ptr == '$' && (ft_isalpha(*(ptr + 1)) || *(ptr + 1) == '_'))
-		{
-			failure_flag = expand_environment_variable(&ptr, &result);
-			if (failure_flag == 2)
-			{
-				// if (!handle_expansion_to_void())
-				//		return (0);
-				//	failure_flag = 0;
-				//	}
-				// TODO: Also, refactor this block into a more user friendly
-				// helper function!
-				temp = i;
-				while (tokens[temp].str)
-				{
-					if (temp == i)
-					{
-						free(tokens[temp].str);
-						tokens[temp].str = NULL;
-					}
-					tokens[temp].str = tokens[temp + 1].str;
-					tokens[temp].quote = tokens[temp + 1].quote;
-					tokens[temp].line_id = tokens[temp + 1].line_id;
-					temp++;
-				}
-				ptr = tokens[i].str;
-				if (!ptr || tokens[i].quote == QUOTE_SINGLE)
-					return (0);
-				failure_flag = 0;
-			}
-		}
-		else
-			failure_flag = append_non_expandable_str(&ptr, &result);
-		if (failure_flag)  // this if statement should be checked after each iteration of the loop.
+		failure_flag = expand_vars(tokens, i, &ptr, &result);
+		if (failure_flag == 1)
 			return (1);
+		else if (failure_flag == 3)
+			return (0);
 	}
 	free(tokens[i].str);
 	tokens[i].str = NULL;
@@ -89,14 +61,44 @@ uint32_t	expand_variables(t_token *tokens, int i)
 }
 
 /*
+* Return values:
+* ◦ returns 1 if any call to malloc() has failed
+* ◦ returns 3 if the token expands to nothing and the next string that replaces
+*	tokens[i].str is either NULL or was in single quotes in the input string.
+* ◦ returns 0 in all other scenarios
+*/
+static uint32_t	expand_vars(t_token *tokens, int i, char **ptr, char **result)
+{
+	uint32_t	failure_flag;
+
+	failure_flag = 0;
+	if (**ptr == '$' && *(*ptr + 1) == '?')
+		failure_flag = expand_last_exit_status(result, ptr);
+	else if (**ptr == '$' && (ft_isalpha(*(*ptr + 1)) || *(*ptr + 1) == '_'))
+	{
+		failure_flag = expand_environment_variable(ptr, result);
+		if (failure_flag == 2)
+		{
+			if (!handle_empty_expansion(tokens, i, ptr))
+				return (3);
+			failure_flag = 0;
+		}
+	}
+	else
+		failure_flag = append_non_expandable_str(ptr, result);
+	return (failure_flag);
+}
+
+/*
 * ◦ returns 1 if any call to malloc() has failed
 * ◦ otherwise, returns 0
 */
-static uint32_t	expand_last_exit_status(char **result)
+static uint32_t	expand_last_exit_status(char **result, char **ptr)
 {
 	char	*exit_str;
 
 	exit_str = NULL;
+	*ptr += 2;
 	exit_str = ft_itoa(last_exit_code(0, 0));
 	if (!exit_str)
 		return (1);
@@ -108,8 +110,7 @@ static uint32_t	expand_last_exit_status(char **result)
 * ◦ returns 2 if a non existing variable was about to be expendad, and that
 *	variable was the only data that a token was holding; in this case, Minishell
 *	expands that to nothing, and so the token has to become empty, and should be
-*	replaced by the next tokens following it. This is done when after returning
-*	to expand_variables().
+*	replaced by the next tokens following it.
 * ◦ otherwise, this function returns 0
 * NOTE: Do NOT free() the 'value' pointer! It would lead to undefined behaviour.
 * The return value of getenv() (which is assigned to 'value') is static memory,
@@ -132,50 +133,17 @@ static uint32_t	expand_environment_variable(char **ptr, char **result)
 		return (1);
 	value = getenv(temp);
 	free(temp);
-	temp = NULL;
 	if (value)
 	{
 		if (strjoin_and_replace(result, &value, 0) == 1)
 			return (1);
 	}
 	else
-	{
 		if (!(*ptr)[len] && !*result)
 			return (2);
-	}
 	(*ptr) += len;
 	return (0);
 }
-
-
-// TODO:
-static uint32_t	handle_expansion_to_void(t_token *tokens, int i)
-{
-	int	temp;
-
-//	if (failure_flag == 2)
-//	{
-		// TODO: Also, refactor this block into a more user friendly
-		// helper function!
-	temp = i;
-	while (tokens[temp].str)
-	{
-		if (temp == i)
-		{
-			free(tokens[temp].str);
-			tokens[temp].str = NULL;
-		}
-		tokens[temp].str = tokens[temp + 1].str;
-		tokens[temp].quote = tokens[temp + 1].quote;
-		tokens[temp].line_id = tokens[temp + 1].line_id;
-		temp++;
-	}
-	ptr = tokens[i].str;
-	if (!ptr || tokens[i].quote == QUOTE_SINGLE)
-		return (0);
-//		failure_flag = 0;
-	}
-
 
 /*
 * ◦ returns 1 if any call to malloc() has failed
@@ -194,7 +162,7 @@ static uint32_t	append_non_expandable_str(char **ptr, char **result)
 		if (*temp == '$' && *(temp + 1) != '?' && !ft_isalpha(*(temp + 1)))
 			temp++;
 		else
-			break;
+			break ;
 	}
 	len = temp - *ptr;
 	temp = NULL;
@@ -203,42 +171,4 @@ static uint32_t	append_non_expandable_str(char **ptr, char **result)
 		return (1);
 	*ptr += len;
 	return (strjoin_and_replace(result, &temp, 1));
-}
-
-/*
-* Performs a regular strjoin of s1 and s2, but with a twist:
-* - the joined result is assigned to s1 (since it is a double pointer, there is
-*   no need to assign the call of this function in the caller.
-* - s1 is dynamically allocated: therefore, assigning a different string to it
-*   requires freeing of its memory first - which this function takes care of.
-* - the last parameter 'is_s2_heap' lets this function know if the 2nd argument,
-*   s2, is allocated on the heap as well and needs freeing before the function's
-*   end. This is particularly useful here since s2 is the return value of
-*   getenv(), this pointer should NOT be freed.
-*
-*   Return values: 0 upon success, 1 upon malloc() failure
-*/
-static uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap)
-{
-	char	*temp;
-
-	temp = NULL;
-	if (!*s1)
-		*s1 = ft_strdup(*s2);
-	else
-	{
-		temp = *s1;
-		*s1 = NULL;
-		*s1 = ft_strjoin(temp, *s2);
-		free(temp);
-		temp = NULL;
-	}
-	if (is_s2_heap)
-	{
-		free(*s2);
-		*s2 = NULL;
-	}
-	if (!*s1)
-		return (1);
-	return (0);
 }

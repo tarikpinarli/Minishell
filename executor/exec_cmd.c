@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/07 15:36:47 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/08 14:57:47 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,6 +108,7 @@ void	exec_command(t_command *cmd)
 	{
 		int saved_stdin = dup(STDIN_FILENO);
 		int saved_stdout = dup(STDOUT_FILENO);
+		int	ret;
 	
 		if (!setup_redirections(cmd))
 		{
@@ -115,17 +116,19 @@ void	exec_command(t_command *cmd)
 			dup2(saved_stdout, STDOUT_FILENO);
 			close(saved_stdin);
 			close(saved_stdout);
+			last_exit_code(1, 1);
 			return;
 		}
 	
-		execute_builtin(cmd, 1);
+		ret = execute_builtin(cmd, 1);
 	
 		// Restore stdin/stdout
 		dup2(saved_stdin, STDIN_FILENO);
 		dup2(saved_stdout, STDOUT_FILENO);
 		close(saved_stdin);
 		close(saved_stdout);
-	
+		
+		last_exit_code(1, ret);
 		unlink(".heredoc.txt");
 		return;
 	}
@@ -138,6 +141,7 @@ void	exec_command(t_command *cmd)
 	}
 	if (pid == 0)
 	{
+		signal(SIGPIPE, SIG_DFL);
 		if (!setup_redirections(cmd))
 		    exit(1);
 

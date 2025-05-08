@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 12:48:37 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/08 14:05:04 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/08 16:28:26 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag)
 		return (1);
 	}
 	if (pid_flag)
-		ft_putendl_fd("exit", 2);
+		ft_putendl_fd("exit", 1);
 	if (arg_count == 2 && !is_numeric(argv[1]))
 	{
 		ft_putstr_fd("exit: ", 2);

@@ -6,16 +6,83 @@
 /*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 12:07:44 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/08 18:06:42 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/08 20:46:04 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-// NOTE: *ptr is called as such because it is not the same as *tokens;
-// rather, it is a pointer to the token struct containing the first string
-// we are about to join with other ones.
-static char	*join_multiple_strs(t_token *ptr, size_t n_strs_to_join, size_t len)
+static int	merge_string(t_token *tokens, size_t i, size_t *j, size_t k);
+static int	replace_string(t_token *tokens, size_t i, size_t k);
+static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len);
+static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i);
+
+void	merge_tokens(t_token *tokens, char *input)
+{
+	size_t	i;
+	size_t	j;
+	size_t	k;
+
+	i = 0;
+	k = 0;
+	if (!tokens)
+		free_tokens_input_and_exit(tokens, input, i);
+	while (tokens[i].str)
+	{
+		j = i;
+		if (tokens[i + 1].str && tokens[i].line_id == tokens[i + 1].line_id)
+		{
+			if (merge_string(tokens, i, &j, k) == -1)
+				free_tokens_input_and_exit(tokens, input, i);
+		}
+		else if (k != i)
+		{
+			if (replace_string(tokens, i, k) == -1)
+				free_tokens_input_and_exit(tokens, input, i);
+		}
+		i = j + 1;
+		k++;
+	}
+	free_deprecated_strings(tokens, k);
+}
+
+static int	merge_string(t_token *tokens, size_t i, size_t *j, size_t k)
+{
+	size_t	len;
+
+	len = 0;
+	while (tokens[*j + 1].str && tokens[*j].line_id == tokens[*j + 1].line_id)
+	{
+		len += ft_strlen(tokens[*j].str);
+		(*j)++;
+	}
+	len += ft_strlen(tokens[*j].str);
+	tokens[k].str = strjoin_multiple(&tokens[i], *j - i, len);
+	if (!tokens[k].str)
+		return (-1);
+	tokens[k].quote = tokens[i].quote;
+	tokens[k].line_id = tokens[i].line_id;
+	return (0);
+}
+
+static int	replace_string(t_token *tokens, size_t i, size_t k)
+{
+	tokens[k].str = ft_strdup(tokens[i].str);
+	if (!tokens[k].str)
+		return (-1);
+	free(tokens[i].str);
+	tokens[i].str = NULL;
+	tokens[k].quote = tokens[i].quote;
+	tokens[k].line_id = tokens[i].line_id;
+	return (0);
+}
+
+/*
+* NOTE: *ptr is called as such because it is not the same as *tokens;
+* rather, it is a pointer to the token struct containing the first string we
+* are about to join with other ones.
+*/
+static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len)
 {
 	char	*result;
 	size_t	i;
@@ -43,83 +110,17 @@ static char	*join_multiple_strs(t_token *ptr, size_t n_strs_to_join, size_t len)
 	return (result);
 }
 
-// this function returns 0 upon failure.
-// 1 upon success.
-t_token	*merge_tokens(t_token *tokens)
+static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i)
 {
-	size_t	i;
-	size_t	j;
-	size_t	k;
-	size_t	len;
-	
-	if (!tokens)
-		return (NULL);
-
-	len = 0;
-	i = 0;
-	k = 0;
-	printf("in merge_tokens(), tokens are:\n\n\n");
 	while (tokens[i].str)
+		i++;
+	while (i > 0)
 	{
-		printf("\tvalue of k:	<%zu>\n\ttokens[k].str is:	<%s>\n\ttokens[k].quote is:	<%d>\n\ttokens[k].line_id is:	<%d>\n\n\n",
-			k, tokens[k].str, tokens[k].quote, tokens[k].line_id);
-		j = i;
-		if (tokens[i + 1].str && tokens[i].line_id == tokens[i + 1].line_id)
-		{
-			while (tokens[j + 1].str && tokens[j].line_id == tokens[j + 1].line_id)
-			{
-				len += ft_strlen(tokens[j].str);
-				j++;
-			}
-			len += ft_strlen(tokens[j].str);
-			tokens[k].str = join_multiple_strs(&tokens[i], j - i, len);
-			if (!tokens[k].str)
-			{
-				while (tokens[i].str)
-					i++;
-				while (i > 0)
-				{
-					i--;
-					free(tokens[i].str);
-					tokens[i].str = NULL;
-				}
-				free(tokens);
-				return (NULL);
-			}
-			tokens[k].quote = tokens[i].quote; // new addition here
-			tokens[k].line_id = tokens[i].line_id; // new addition here
-		}
-		else if (k != i)
-		{
-			tokens[k].str = ft_strdup(tokens[i].str);
-			if (!tokens[k].str) // this is the exact same freeing block as you have a little bit earlier.
-			{
-				while (tokens[i].str)
-					i++;
-				while (i > 0)
-				{
-					i--;
-					free(tokens[i].str);
-					tokens[i].str = NULL;
-				}
-				free(tokens);
-				return (NULL);
-			}
-			free(tokens[i].str);
-			tokens[i].str = NULL;
-			tokens[k].quote = tokens[i].quote; // new addition here
-			tokens[k].line_id = tokens[i].line_id; // new addition here
-		}
-		i = j + 1;
-		k++;
-		printf("value of i at the end of the loop:	<%zu>\n", i);
+		i--;
+		free(tokens[i].str);
+		tokens[i].str = NULL;
 	}
-	while (tokens[k].str)
-	{
-		free(tokens[k].str);
-		tokens[k].str = NULL;
-		k++;
-	}
-
-	return (tokens);
+	free(tokens);
+	free(input);
+	exit (last_exit_code(1, 1));
 }

@@ -68,4 +68,12 @@ void	free_all(char *input, t_token *tokens, t_command *cmd)
 	free_cmd(cmd);
 }
 
-
+void	free_deprecated_strings(t_token *tokens, size_t k)
+{
+	while (tokens[k].str)
+	{
+		free(tokens[k].str);
+		tokens[k].str = NULL;
+		k++;
+	}
+}

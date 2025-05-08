@@ -101,6 +101,7 @@ void	execute_pipeline(t_command *cmd);
 // Free
 void	ft_free_split(char **arr);
 void	free_all(char *input, t_token *tokens, t_command *cmd);
+void	free_deprecated_strings(t_token *tokens, size_t k);
 // Builtin commands
 int		is_builtin(char *cmd);
 int		execute_builtin(t_command *cmd);

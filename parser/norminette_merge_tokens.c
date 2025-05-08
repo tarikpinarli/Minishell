@@ -1,0 +1,120 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   norminette_merge_tokens.c                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/04/28 12:07:44 by ykadosh           #+#    #+#             */
+/*   Updated: 2025/05/08 18:45:05 by ykadosh          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#include "../minishell.h"
+
+static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len);
+static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i);
+static void	free_deprecated_strings(t_token *tokens, size_t k);
+
+void	merge_tokens(t_token *tokens, char *input)
+{
+	size_t	i;
+	size_t	j;
+	size_t	k;
+	size_t	len;
+	
+	len = 0;
+	i = 0;
+	k = 0;
+	if (!tokens)
+		free_tokens_input_and_exit(tokens, input, i);
+	while (tokens[i].str)
+	{
+		j = i;
+		if (tokens[i + 1].str && tokens[i].line_id == tokens[i + 1].line_id)
+		{
+			while (tokens[j + 1].str && tokens[j].line_id == tokens[j + 1].line_id)
+			{
+				len += ft_strlen(tokens[j].str);
+				j++;
+			}
+			len += ft_strlen(tokens[j].str);
+			tokens[k].str = strjoin_multiple(&tokens[i], j - i, len);
+			if (!tokens[k].str)
+				free_tokens_input_and_exit(tokens, input, i);
+			tokens[k].quote = tokens[i].quote;
+			tokens[k].line_id = tokens[i].line_id;
+		}
+		else if (k != i)
+		{
+			tokens[k].str = ft_strdup(tokens[i].str);
+			if (!tokens[k].str)
+				free_tokens_input_and_exit(tokens, input, i);
+			free(tokens[i].str);
+			tokens[i].str = NULL;
+			tokens[k].quote = tokens[i].quote;
+			tokens[k].line_id = tokens[i].line_id;
+		}
+		i = j + 1;
+		k++;
+	}
+	free_deprecated_strings(tokens, k);
+}
+
+/*
+* NOTE: *ptr is called as such because it is not the same as *tokens;
+* rather, it is a pointer to the token struct containing the first string we
+* are about to join with other ones.
+*/
+static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len)
+{
+	char	*result;
+	size_t	i;
+	size_t	temp_len;
+
+	result = NULL;
+	result = (char *)ft_calloc(1, len + 1);
+	if (!result)
+		return (NULL);
+	len = ft_strlen(ptr->str);
+	(void)ft_memmove(result, ptr->str, len);
+	free(ptr->str);
+	ptr->str = NULL;
+	temp_len = 0;
+	i = 1;
+	while (i <= n_strs_to_join)
+	{
+		temp_len = ft_strlen(ptr[i].str);
+		(void)ft_memmove(&result[len], ptr[i].str, temp_len);
+		len += temp_len;
+		free(ptr[i].str);
+		ptr[i].str = NULL;
+		i++;
+	}
+	return (result);
+}
+
+static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i)
+{
+	while (tokens[i].str)
+		i++;
+	while (i > 0)
+	{
+		i--;
+		free(tokens[i].str);
+		tokens[i].str = NULL;
+	}
+	free(tokens);
+	free(input);
+	exit (last_exit_code(1, 1));
+}
+
+static void	free_deprecated_strings(t_token *tokens, size_t k)
+{
+	while (tokens[k].str)
+	{
+		free(tokens[k].str);
+		tokens[k].str = NULL;
+		k++;
+	}
+}

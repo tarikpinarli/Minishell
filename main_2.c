@@ -77,14 +77,10 @@ int main(void)
 		}
 		printf("\n\n\n");
 
-		tokens = merge_tokens(tokens);
-		if (!tokens)
-		{
-			free(input);
-			continue;
-		}
+		merge_tokens(tokens, input);
+
 		cmd = parse_tokens(tokens);
-		if (!cmd) // WARN: we have to free all here, otherwise, if strings have been allocated for, they will leak!
+		if (!cmd)
 		{
 			free_all(input, tokens, cmd);
 			printf("Parcing failed.\n");

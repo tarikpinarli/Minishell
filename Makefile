@@ -42,7 +42,7 @@ SRC = main_2.c \
 	parser/expand_tokens.c \
 	parser/expand.c \
 	parser/expansion_utils.c \
-	parser/merge_tokens.c \
+	parser/norminette_merge_tokens.c \
 	executor/exec_cmd.c \
 	executor/redirection.c \
 	builtins/builtin.c \

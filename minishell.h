@@ -85,7 +85,7 @@ char	*ft_strncpy(char *dst, const char *src, size_t n);
 // Parser functions
 t_command	*parse_tokens(t_token *tokens);
 int			ft_strcmp(const char *s1, const char *s2);
-t_token		*merge_tokens(t_token *tokens);
+void		merge_tokens(t_token *tokens, char *input);
 // expansion functions
 void		expand_tokens(t_token *tokens, char *input, t_command *cmd);
 uint32_t	rebuild_string(t_token *tokens, int i);

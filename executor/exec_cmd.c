@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/08 14:57:47 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/08 17:08:57 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ void	execute_pipeline(t_command *cmd)
 	int		pid;
 	int 	status;
     int 	wpid;
+	int		ret;
 
 	prev_fd = -1; // önceki pipe'ın read ucu
 	while (cmd)
@@ -40,7 +41,6 @@ void	execute_pipeline(t_command *cmd)
 			perror("fork");
 			return;
 		}
-
 		if (pid == 0)
 		{
 			if (prev_fd != -1)
@@ -58,8 +58,8 @@ void	execute_pipeline(t_command *cmd)
     		    exit(1);
 			if (is_builtin(cmd->argv[0]))
 			{
-				execute_builtin(cmd, 0);
-				exit(0);
+				ret = execute_builtin(cmd, 0);
+				exit(ret);
 			}
 			if (cmd->argv[0][0] == '/')
 				path = ft_strdup(cmd->argv[0]);
@@ -68,7 +68,8 @@ void	execute_pipeline(t_command *cmd)
 
 			if (!path)
 			{
-				fprintf(stderr, "%s: command not found\n", cmd->argv[0]);
+				ft_putstr_fd(cmd->argv[0], 2);
+				ft_putendl_fd(": command not found", 2);
 				exit(127);
 			}
 			execve(path, cmd->argv, environ);
@@ -85,6 +86,8 @@ void	execute_pipeline(t_command *cmd)
 			close(pipefd[1]);
 			prev_fd = pipefd[0];
 		}
+		else
+			prev_fd = -1;
 		cmd = cmd->next;
 	}
     while ((wpid = wait(&status)) > 0)

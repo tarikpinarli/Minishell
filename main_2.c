@@ -70,7 +70,9 @@ int main(void)
 		printf("in MAIN, after expand_tokens(), the strings are:\n\t");
 		while (tokens[j].str)
 		{
-			printf("tokens[%zu].str:	<%s>\n\t", j, tokens[j].str);
+			printf("tokens[%zu].str:		<%s>\n\ttokens[%zu].quote:	<%d>\n\t"
+				"tokens[%zu].line_id:	<%d>\n\n\n\t", j, tokens[j].str,
+				j, tokens[j].quote, j, tokens[j].line_id);
 			j++;
 		}
 		printf("\n\n\n");

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/09 14:04:48 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/09 16:31:38 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ int		builtin_pwd(void);
 //int builtin_cd(char **argv);
 int builtin_export(char **argv, int pid_flag, char **env);
 //int builtin_unset(char **argv);
-//int builtin_env(void);
+int builtin_env(char **env);
 int builtin_exit(char **argv, t_command *cmd, int pid_flag);
 int builtin_echo(char **argv);
 

@@ -41,7 +41,7 @@ int main(void)
 		}
 		if (input[0])
 			add_history(input);
-		else  // this is for when the input string is empty.
+		else  // this is for when the input string is empty - just a nul terminator
 		{
 			free(input);
 			continue;

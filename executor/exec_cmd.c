@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/08 17:08:57 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/09 14:05:37 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-extern char **environ;
-
-void	execute_pipeline(t_command *cmd)
+void	execute_pipeline(t_command *cmd, char **env)
 {
 	char	*path;
 	int		pipefd[2];		//this int array will hold two end of the created pipe 0 for stdin 1 for stdout
@@ -58,7 +56,7 @@ void	execute_pipeline(t_command *cmd)
     		    exit(1);
 			if (is_builtin(cmd->argv[0]))
 			{
-				ret = execute_builtin(cmd, 0);
+				ret = execute_builtin(cmd, 0, env);
 				exit(ret);
 			}
 			if (cmd->argv[0][0] == '/')
@@ -72,7 +70,7 @@ void	execute_pipeline(t_command *cmd)
 				ft_putendl_fd(": command not found", 2);
 				exit(127);
 			}
-			execve(path, cmd->argv, environ);
+			execve(path, cmd->argv, env);
 			perror("execve failed");
 			free(path);
 			exit(1);
@@ -99,7 +97,7 @@ void	execute_pipeline(t_command *cmd)
 }
 
 
-void	exec_command(t_command *cmd)
+void	exec_command(t_command *cmd, char **env)
 {
 	pid_t	pid;
 	int		status;
@@ -123,7 +121,7 @@ void	exec_command(t_command *cmd)
 			return;
 		}
 	
-		ret = execute_builtin(cmd, 1);
+		ret = execute_builtin(cmd, 1, env);
 	
 		// Restore stdin/stdout
 		dup2(saved_stdin, STDIN_FILENO);
@@ -158,7 +156,7 @@ void	exec_command(t_command *cmd)
 			write(2, ": command not found\n", 21);
 			exit(127);
 		}
-		execve(path, cmd->argv, environ); // if its successful it terminates the child process
+		execve(path, cmd->argv, env); // if its successful it terminates the child process
 		perror("execve failed");
 		free(path);
 		exit(1);

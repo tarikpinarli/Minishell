@@ -6,20 +6,21 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 19:51:05 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/07 15:26:21 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/09 14:07:29 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "minishell.h"
-
 /*
 * return values:
 * ◦ 0: if everything ran smoothly
 * ◦ 1: upon failure of request for dynamic memory allocation
 */
-int main(void)
+int main(int argc, char **argv, char **env)
 {
+	(void)argv;
+	(void)argc;
 	char		*input;
 	t_token		*tokens;
 	t_command	*cmd;
@@ -102,10 +103,11 @@ int main(void)
 		
 		//if (is_builtin(cmd->arg[0]))
 			// if its a builtin command execute.
+		//print_command(cmd);
         if (cmd && cmd->next) // If there is pipe cmd->next exists
-            execute_pipeline(cmd);
+            execute_pipeline(cmd, env);
         else if (cmd)
-            exec_command(cmd); // If its a single command*/
+            exec_command(cmd, env); // If its a single command*/
 		free_all(input, tokens, cmd);
 	}
 	rl_clear_history();

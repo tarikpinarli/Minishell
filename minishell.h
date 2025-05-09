@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/08 14:50:30 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/09 14:04:48 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,9 +92,9 @@ t_token	*merge_tokens(t_token *tokens);
 int	last_exit_code(int set, int value);
 //executor functioms
 int		setup_redirections(t_command *cmd);
-void	exec_command(t_command *cmd);
+void	exec_command(t_command *cmd, char **env);
 char	*find_in_path(char *cmd);
-void	execute_pipeline(t_command *cmd);
+void	execute_pipeline(t_command *cmd, char **env);
 // Free
 void	ft_free_split(char **arr);
 void	free_all(char *input, t_token *tokens, t_command *cmd);
@@ -102,13 +102,16 @@ void	free_cmd(t_command *cmd);
 
 // Builtin commands
 int		is_builtin(char *cmd);
-int		execute_builtin(t_command *cmd, int pid_flag);
+int		execute_builtin(t_command *cmd, int pid_flag, char **env);
 int		builtin_pwd(void);
 //int builtin_cd(char **argv);
-//int builtin_export(char **argv);
+int builtin_export(char **argv, int pid_flag, char **env);
 //int builtin_unset(char **argv);
 //int builtin_env(void);
 int builtin_exit(char **argv, t_command *cmd, int pid_flag);
 int builtin_echo(char **argv);
+
+//debug functions
+void	print_command(t_command *cmd);
 
 #endif

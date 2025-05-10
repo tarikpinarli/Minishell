@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/10 13:36:19 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/10 14:08:08 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,12 +75,12 @@ void    sort_and_print_env(char **env)
     print_env(copy);
 }
 
-int builtin_export(char **argv, int pid_flag, char **env)
+int builtin_export(char **argv, int pid_flag, char ***env)
 {
     (void)argv;
     (void)pid_flag;
 
     if (!argv[1])
-        sort_and_print_env(env);
+        sort_and_print_env(*env);
     return (0);
 }

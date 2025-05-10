@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/09 14:05:37 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/10 14:06:40 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-void	execute_pipeline(t_command *cmd, char **env)
+void	execute_pipeline(t_command *cmd, char ***env)
 {
 	char	*path;
 	int		pipefd[2];		//this int array will hold two end of the created pipe 0 for stdin 1 for stdout
@@ -70,7 +70,7 @@ void	execute_pipeline(t_command *cmd, char **env)
 				ft_putendl_fd(": command not found", 2);
 				exit(127);
 			}
-			execve(path, cmd->argv, env);
+			execve(path, cmd->argv, *env);
 			perror("execve failed");
 			free(path);
 			exit(1);
@@ -97,7 +97,7 @@ void	execute_pipeline(t_command *cmd, char **env)
 }
 
 
-void	exec_command(t_command *cmd, char **env)
+void	exec_command(t_command *cmd, char ***env)
 {
 	pid_t	pid;
 	int		status;
@@ -156,7 +156,7 @@ void	exec_command(t_command *cmd, char **env)
 			write(2, ": command not found\n", 21);
 			exit(127);
 		}
-		execve(path, cmd->argv, env); // if its successful it terminates the child process
+		execve(path, cmd->argv, *env); // if its successful it terminates the child process
 		perror("execve failed");
 		free(path);
 		exit(1);

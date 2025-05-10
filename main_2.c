@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/30 19:51:05 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/09 14:07:29 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/10 14:08:58 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,9 +105,9 @@ int main(int argc, char **argv, char **env)
 			// if its a builtin command execute.
 		//print_command(cmd);
         if (cmd && cmd->next) // If there is pipe cmd->next exists
-            execute_pipeline(cmd, env);
+            execute_pipeline(cmd, &env);
         else if (cmd)
-            exec_command(cmd, env); // If its a single command*/
+            exec_command(cmd, &env); // If its a single command*/
 		free_all(input, tokens, cmd);
 	}
 	rl_clear_history();

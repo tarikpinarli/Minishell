@@ -81,7 +81,6 @@ void	handle_sigquit(int sig);
 int		tokenize(char *input, t_token **tokens);
 int		count_tokens(const char *str);
 int	    ft_isspace(char c);
-char	*ft_strncpy(char *dst, const char *src, size_t n);
 // Parser functions
 t_command	*parse_tokens(t_token *tokens);
 int			ft_strcmp(const char *s1, const char *s2);

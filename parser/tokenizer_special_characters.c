@@ -1,16 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   tokenizer.c                                        :+:      :+:    :+:   */
+/*   tokenizer_special_characters.c                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:43 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/06 19:22:18 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/10 17:50:14 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+static char	*ft_strncpy(char *dst, const char *src, size_t n)
+{
+	size_t	i;
+
+	i = 0;
+	while (i < n && src[i])
+	{
+		dst[i] = src[i];
+		i++;
+	}
+	while (i < n)
+	{
+		dst[i] = '\0';
+		i++;
+	}
+	return (dst);
+}
 
 static t_token	extract_quoted_token(char **str, char quote, int *line_id)
 {
@@ -116,6 +134,7 @@ int	tokenize(char *input, t_token **tokens)
 		free(input);
 		return (-1); // same as the return value of count_tokens()
 	}
+	printf("TOKENS COUNTED :	<%d>\n\n\n", count); // WARN: just printf() debugging
 	*tokens = ft_calloc((count + 1), sizeof(t_token));
 	if (!*tokens)
 	{

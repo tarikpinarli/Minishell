@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/10 14:08:08 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/10 15:41:14 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,13 +74,79 @@ void    sort_and_print_env(char **env)
     }
     print_env(copy);
 }
+//  Simple valid check
+int valid_identifier(char *str)
+{
+    while (*str)
+    {
+        if (!ft_isalnum(*str) && *str != '=')
+        {
+            printf("%s: not a valid identifier\n", str);
+            return (0);
+        }
+        str++;
+    }
+    return (1);
+}
 
 int builtin_export(char **argv, int pid_flag, char ***env)
 {
-    (void)argv;
+    int     i;
+    int     j;
+    int     env_count;
+    char    **copy;
     (void)pid_flag;
 
+    i = 1;
     if (!argv[1])
+    {
         sort_and_print_env(*env);
+        return (0);
+    }
+    while (argv[i])
+    {
+        if (!valid_identifier(argv[i]))
+            return (1);
+        env_count = 0;
+        while ((*env)[env_count])
+            env_count++;
+        copy = malloc(sizeof(char *) * (env_count + 2));
+        if (!copy)
+            return(1);
+        j = 0;
+        while ((*env)[j])
+        {
+            copy[j] = (*env)[j];
+            j++;
+        }
+        copy[env_count++] = ft_strdup(argv[i]);
+        copy[env_count] = NULL;
+        (*env) = copy;
+        i++;
+    }
     return (0);
+    /*i = 0;
+    while ((*env)[i])
+        i++;
+    printf("env line coint: %d\n", i);
+    copy = malloc(sizeof(char *) * (i + 2));
+    if (!copy)
+        return(0);
+    i = 0;
+    while ((*env)[i])
+    {
+        copy[i] = (*env)[i];
+        i++;
+    }
+    copy[i] = ft_strdup("NEW VAR");
+    i++;
+    copy[i] = NULL;
+    (*env) = copy;
+    i = 0;
+    while ((*env)[i])
+    {
+        printf("%s\n", (*env)[i]);
+        i++;
+    }
+    return (0);*/
 }

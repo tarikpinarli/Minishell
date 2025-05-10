@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/09 15:08:44 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/10 13:33:52 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,11 @@ void    print_env(char **copy)
     while (copy[i])
     {
         eq = ft_strchr(copy[i], '=');
-        *eq = '\0';
-        if (eq[0] == '\0')
+        if (eq)
         {
+            *eq = '\0';
             printf("declare -x %s=\"%s\"\n", copy[i], eq + 1);
-            eq = "=";
+            *eq = "=";
         }
         else
             printf("declare -x %s\n", copy[i]);

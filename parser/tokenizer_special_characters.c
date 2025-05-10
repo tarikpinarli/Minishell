@@ -12,23 +12,7 @@
 
 #include "../minishell.h"
 
-static char	*ft_strncpy(char *dst, const char *src, size_t n)
-{
-	size_t	i;
-
-	i = 0;
-	while (i < n && src[i])
-	{
-		dst[i] = src[i];
-		i++;
-	}
-	while (i < n)
-	{
-		dst[i] = '\0';
-		i++;
-	}
-	return (dst);
-}
+// FIXME: issue with the special characters?
 
 static t_token	extract_quoted_token(char **str, char quote, int *line_id)
 {
@@ -50,7 +34,7 @@ static t_token	extract_quoted_token(char **str, char quote, int *line_id)
 		token.quote = QUOTE_NONE;
 		return (token);
 	}
-	ft_strncpy(token.str, start, len);
+	(void)ft_strncpy(token.str, start, len);
 	token.str[len] = '\0';
 	if (quote == '\'')
 		token.quote = QUOTE_SINGLE;
@@ -63,6 +47,37 @@ static t_token	extract_quoted_token(char **str, char quote, int *line_id)
 	return (token);
 }
 
+// FIXME: try to refactor this just by sending token "empty" to this function and to return it, and then no need to declare token.
+static t_token	extract_special_character_token(char **str, int *line_id)
+{
+	int		len;
+	t_token	token;
+
+	ft_bzero(&token, sizeof(t_token));
+	len = 1;
+	if (**str == '|')
+	{
+		token.str = ft_calloc(2, sizeof(char));
+		if (!token.str)
+			return (token);
+		(void)ft_memmove(token.str, "|", 1);
+	}
+	else
+	{
+		if (*(*str + 1) == **str)
+			len++;
+		token.str = ft_calloc(len + 1, sizeof(char));
+		if (!token.str)
+			return (token);
+		(void)ft_memmove(token.str, *str, len);
+	}
+	token.line_id = -1;
+	(*str) += len;
+	if (**str && !ft_isspace(**str))
+		(*line_id)++;
+	return (token);
+}
+
 static t_token	extract_simple_token(char **str, int *line_id)
 {
 	char	*start;
@@ -71,9 +86,10 @@ static t_token	extract_simple_token(char **str, int *line_id)
 
 	ft_bzero(&token, sizeof(t_token));
 	start = *str;
-	while (**str && !ft_isspace(**str) && **str != '\'' && **str != '"')
+	while (**str && !ft_isspace(**str)
+		&& **str != '\'' && **str != '"'
+		&& **str != '<' && **str != '>' && **str != '|')
 		(*str)++;
-
 	len = *str - start;
 	token.str = malloc(len + 1);
 	if (!token.str)
@@ -82,8 +98,7 @@ static t_token	extract_simple_token(char **str, int *line_id)
 		token.quote = QUOTE_NONE;
 		return (token);
 	}
-
-	ft_strncpy(token.str, start, len);
+	(void)ft_strncpy(token.str, start, len);
 	token.str[len] = '\0';
 	token.quote = QUOTE_NONE;
 	token.line_id = *line_id;
@@ -103,6 +118,8 @@ static t_token	next_token(char **str, int *line_id)
 	}
 	if (**str == '\'' || **str == '"')
 		return (extract_quoted_token(str, **str, line_id));
+	else if (**str == '<' || **str == '>' || **str == '|')
+		return (extract_special_character_token(str, line_id));
 	else if (**str)
 		return (extract_simple_token(str, line_id));
 	empty.str = NULL;
@@ -134,7 +151,6 @@ int	tokenize(char *input, t_token **tokens)
 		free(input);
 		return (-1); // same as the return value of count_tokens()
 	}
-	printf("TOKENS COUNTED :	<%d>\n\n\n", count); // WARN: just printf() debugging
 	*tokens = ft_calloc((count + 1), sizeof(t_token));
 	if (!*tokens)
 	{

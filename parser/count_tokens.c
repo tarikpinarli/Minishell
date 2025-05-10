@@ -88,6 +88,10 @@ int	count_tokens(const char *str)
 }
 */
 
+/*
+* return values: the number of tokens counted, or -1, in case the input string
+* has an unclosed quotation mark within it
+*/
 int	count_tokens(const char *str)
 {
 	int		count;
@@ -105,6 +109,15 @@ int	count_tokens(const char *str)
 	return (count);
 }
 
+/*
+* Indexes through the token found in the string, according to the type of token
+* it is (token in quotes, redirection characters, pipes, or a non quoted token).
+* The count gets incremented accordingly from this function, since its address
+* is passed as a parameter. The index i get incremented as well.
+*
+* returns -1 if an opening quotation mark does not have a pair;
+* otherwise, return 0
+*/
 static int	parse_single_token(const char *str, int *i, int *count)
 {
 	if (str[*i] == '\'' || str[*i] == '"')

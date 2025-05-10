@@ -37,17 +37,6 @@ void    expand_tokens(t_token *tokens, char *input, t_command *cmd)
         }
         i++;
     }
-    i = 0;
-    printf("in expand_tokens, at the very end of the loop, the tokens are:\n");
-    while (tokens[i].str)
-    {
-        printf("token[%d]: <%s>	---- quote type:	<%d>	---- line_id:	<%d>"
-            "--- length:	<%zu>\n",
-            i, tokens[i].str, tokens[i].quote, tokens[i].line_id,
-            ft_strlen(tokens[i].str));
-        i++;
-    }
-    printf("\n\n");
 }
 
 /*

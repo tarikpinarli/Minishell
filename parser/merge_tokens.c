@@ -17,6 +17,9 @@ static int	replace_string(t_token *tokens, size_t i, size_t k);
 static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len);
 static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i);
 
+// TODO: write an alternate version that is not going to merge the tokens with
+// line_id -1! Those are the redirection and pipes that we do not want to
+// merge together...
 void	merge_tokens(t_token *tokens, char *input)
 {
 	size_t	i;

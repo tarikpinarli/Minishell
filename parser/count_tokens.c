@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 13:07:24 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/10 19:01:52 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/11 20:25:09 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,78 +15,6 @@
 static int		parse_single_token(const char *str, int *i, int *count);
 static int8_t	index_through_quoted_token(const char *str, int *i);
 static int		index_through_non_quoted_token(const char *str, int i);
-
-/* FIXME: Delete this older, working but not refactored version when ready:
-int	count_tokens(const char *str)
-{
-	int		count;
-	char	quote;
-	int		i;
-
-	count = 0;
-	i = 0;
-	while (str[i])
-	{
-		while (str[i] && ft_isspace(str[i]))
-			i++;
-		if (str[i] == '\'' || str[i] == '"')
-		{
-			quote = str[i];
-			i++; // skip opening quote
-			while (str[i] && str[i] != quote)
-				i++;
-			if (str[i] == quote)
-				i++; // skip closing quote
-			else
-			{
-				// In bash shel dquote something is happennig check it out.
-				// Update: no need to take care of that, enough to return error
-				// if a quotation was left open.
-				printf("Quote not propery opened or closed.\n");
-				return (-1);
-			}
-			count++;
-		}
-		else if (str[i] == '<' || str[i] == '>')
-		{
-			i++;
-			if (str[i] == str[i - 1])
-				i++;
-			count++;
-		}
-		
-//		else if (str[i] == '<')
-//		{
-//			i++;
-//			if (str[i] == '<')
-//				i++;
-//			count++;
-//		}
-//		else if (str[i] == '>')
-//		{
-//			i++;
-//			if (str[i] == '>')
-//				i++;
-//			count++;
-//		}
-		
-		else if (str[i] == '|')
-		{
-			i++;
-			count++;
-		}
-		else if (str[i])
-		{
-			while (str[i] && !ft_isspace(str[i])
-				&& str[i] != '\'' && str[i] != '"'
-				&& str[i] != '<' && str[i] != '>' && str[i] != '|')
-				i++;
-			count++;
-		}
-	}
-	return (count);
-}
-*/
 
 /*
 * return values: the number of tokens counted, or -1, in case the input string
@@ -166,10 +94,4 @@ static int	index_through_non_quoted_token(const char *str, int i)
 		&& str[i] != '<' && str[i] != '>' && str[i] != '|')
 		i++;
 	return (i);
-}
-
-int	ft_isspace(char c)
-{
-	return (c == ' ' || c == '\t' || c == '\n'
-		|| c == '\v' || c == '\f' || c == '\r');
 }

@@ -12,11 +12,6 @@
 
 #include "minishell.h"
 
-/*
-* return values:
-* ◦ 0: if everything ran smoothly
-* ◦ 1: upon failure of request for dynamic memory allocation
-*/
 int main(void)
 {
 	char		*input;
@@ -46,11 +41,8 @@ int main(void)
 			free(input);
 			continue;
 		}
-		if (tokenize(input, &tokens) == -1) // tokenize() returns -1 if a quotation mark was left unclosed.
+		if (tokenize(input, &tokens, cmd) == -1) // tokenize() returns -1 if a quotation mark was left unclosed.
 			continue;
-		if (!tokens)  // if malloc() failed within tokenize(), everything was freed in there, and tokens is NULL.
-			return (1);  // here there is no need to set the last_exit_status(), we are in main and we can simply return (1).
-
 
 		// WARN: This is just printf() debugging, to easily follow the stages of the tokenizing process:
 		size_t	j;
@@ -86,20 +78,24 @@ int main(void)
 			printf("Parcing failed.\n");
 			continue;
 		}
-		int	i = 0;
+		size_t	i = 0;
 		printf("in MAIN, at the very end of the loop, the tokens are:\n");
 		while (tokens[i].str)
 		{
-			printf("token[%d]: <%s>	---- quote type:	<%d>	---- line_id:	<%d>	--- length:	<%zu>\n", i, tokens[i].str, tokens[i].quote, tokens[i].line_id, ft_strlen(tokens[i].str));
+			printf("tokens[%zu].str:		<%s>\ntokens[%zu].quote:	<%d>\n"
+				"tokens[%zu].line_id:	<%d>\nlength of string:	<%zu>\n\n\n",
+				i, tokens[i].str, i, tokens[i].quote, i, tokens[i].line_id,
+				ft_strlen(tokens[i].str));
 			i++;
 		}
-		
+		printf("\n\n");
+
 		//if (is_builtin(cmd->arg[0]))
 			// if its a builtin command execute.
-        /*if (cmd && cmd->next) // If there is pipe cmd->next exists
-            execute_pipeline(cmd);
-        else if (cmd)
-            exec_command(cmd); // If its a single command*/
+		/*if (cmd && cmd->next) // If there is pipe cmd->next exists
+			execute_pipeline(cmd);
+		else if (cmd)
+			exec_command(cmd); // If its a single command*/
 		free_all(input, tokens, cmd);
 	}
 	rl_clear_history();

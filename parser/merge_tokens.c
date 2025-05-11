@@ -17,9 +17,8 @@ static int	replace_string(t_token *tokens, size_t i, size_t k);
 static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len);
 static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i);
 
-// TODO: write an alternate version that is not going to merge the tokens with
-// line_id -1! Those are the redirection and pipes that we do not want to
-// merge together...
+// TODO: Now that we fixed the non-merging of line_id -1 (pipes and redirection
+// characters), the issue is that we have one line too many in the function.
 void	merge_tokens(t_token *tokens, char *input)
 {
 	size_t	i;
@@ -33,7 +32,7 @@ void	merge_tokens(t_token *tokens, char *input)
 	while (tokens[i].str)
 	{
 		j = i;
-		if (tokens[i + 1].str && tokens[i].line_id == tokens[i + 1].line_id)
+		if (tokens[i].line_id != -1 && tokens[i + 1].str && tokens[i].line_id == tokens[i + 1].line_id)
 		{
 			if (merge_string(tokens, i, &j, k) == -1)
 				free_tokens_input_and_exit(tokens, input, i);

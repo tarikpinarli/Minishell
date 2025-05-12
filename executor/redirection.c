@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:35 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/04 12:13:57 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/08 17:19:41 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,13 +102,14 @@ int	handle_out_redir(t_command *cmd)
 
 int	setup_redirections(t_command *cmd)
 {
-	int	in_redir_flag = handle_in_redir(cmd);
+	int	in_redir_flag;
+	int	out_redir_flag;
+
+	in_redir_flag = handle_in_redir(cmd);
 	if (in_redir_flag == 0)
 		return (0);
-
-	int	out_redir_flag = handle_out_redir(cmd);
+	out_redir_flag = handle_out_redir(cmd);
 	if (out_redir_flag == 0)
 		return (0);
 	return (1);
 }
-

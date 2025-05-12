@@ -34,7 +34,7 @@ OBJ_DIR = obj
 LIBFT_DIR = libft
 BIN_DIR = bin
 
-SRC = main_2.c \
+SRC = main.c \
 	parser/tokenizer.c \
 	parser/count_tokens.c \
 	parser/tokenizer_utils.c \

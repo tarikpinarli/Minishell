@@ -68,7 +68,7 @@ typedef struct s_command
 }	t_command;
 
 
-
+// signal functions
 void		setup_signals(void);
 void		handle_sigint(int sig);
 void		handle_sigquit(int sig);
@@ -80,7 +80,7 @@ int			fill_up_tokens(char *input, t_token **tokens, int count);
 char		*ft_strncpy(char *dst, const char *src, size_t n);
 int			ft_isspace(char c);
 
-// Parser functions
+// parser functions
 t_command	*parse_tokens(t_token *tokens);
 int			ft_strcmp(const char *s1, const char *s2);
 void		merge_tokens(t_token *tokens, char *input);
@@ -94,13 +94,13 @@ uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 // exit code
 int			last_exit_code(int set, int value);
 
-//executor functions
+// executor functions
 int			setup_redirections(t_command *cmd);
 void		exec_command(t_command *cmd, char ***env);
 char		*find_in_path(char *cmd);
 void		execute_pipeline(t_command *cmd, char ***env);
 
-// Free
+// free
 void		ft_free_split(char **arr);
 void		free_all(char *input, t_token *tokens, t_command *cmd);
 void		free_cmd(t_command *cmd);
@@ -109,7 +109,7 @@ void		free_deprecated_strings(t_token *tokens, size_t k);
 // NOTE: Question to Tarik: Do you think we should consider changing the variable
 // name of "argv" that is used for the builtins, because there is already one
 // argv variable in the main? Or is it the same one?
-// Builtin commands
+// builtin commands
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(void);
@@ -120,7 +120,7 @@ int			builtin_env(char ***env);
 int			builtin_exit(char **argv, t_command *cmd, int pid_flag);
 int			builtin_echo(char **argv);
 
-//debug functions
+// debug functions // WARN: remove before evaluation if just for debugging
 void		print_command(t_command *cmd);
 
 #endif

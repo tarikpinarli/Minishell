@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/10 15:41:14 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/12 13:06:54 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,14 +77,34 @@ void    sort_and_print_env(char **env)
 //  Simple valid check
 int valid_identifier(char *str)
 {
-    while (*str)
+    char    *eq;
+    char    *head;
+
+    head = str;
+    eq = ft_strchr(str, '=');
+    if (eq)
     {
-        if (!ft_isalnum(*str) && *str != '=')
+        *eq = '\0';
+        while (*str)
         {
-            printf("%s: not a valid identifier\n", str);
-            return (0);
+            if (!ft_isalnum(*str) && *str != '_')
+            {
+                ft_putstr_fd("export: ", 2);
+                ft_putstr_fd(str, 2);
+                ft_putendl_fd("not a valid identifier", 2);
+            }
+            str++;
         }
-        str++;
+        *eq = '=';
+    }
+    else
+    {
+        while (*head)
+        {
+            if (!ft_isalnum(*head) && *head != '_')
+                return (0);
+            head++;
+        }
     }
     return (1);
 }
@@ -94,9 +114,11 @@ int builtin_export(char **argv, int pid_flag, char ***env)
     int     i;
     int     j;
     int     env_count;
+    int     update_flag;
     char    **copy;
     (void)pid_flag;
 
+    update_flag = 0;
     i = 1;
     if (!argv[1])
     {
@@ -109,7 +131,11 @@ int builtin_export(char **argv, int pid_flag, char ***env)
             return (1);
         env_count = 0;
         while ((*env)[env_count])
+        {
+            if (ft_strcmp((*env)[env_count], argv[i]))
+                update_flag = env_count;
             env_count++;
+        }
         copy = malloc(sizeof(char *) * (env_count + 2));
         if (!copy)
             return(1);
@@ -119,34 +145,10 @@ int builtin_export(char **argv, int pid_flag, char ***env)
             copy[j] = (*env)[j];
             j++;
         }
-        copy[env_count++] = ft_strdup(argv[i]);
-        copy[env_count] = NULL;
+        copy[j++] = ft_strdup(argv[i]);
+        copy[j] = NULL;
         (*env) = copy;
         i++;
     }
     return (0);
-    /*i = 0;
-    while ((*env)[i])
-        i++;
-    printf("env line coint: %d\n", i);
-    copy = malloc(sizeof(char *) * (i + 2));
-    if (!copy)
-        return(0);
-    i = 0;
-    while ((*env)[i])
-    {
-        copy[i] = (*env)[i];
-        i++;
-    }
-    copy[i] = ft_strdup("NEW VAR");
-    i++;
-    copy[i] = NULL;
-    (*env) = copy;
-    i = 0;
-    while ((*env)[i])
-    {
-        printf("%s\n", (*env)[i]);
-        i++;
-    }
-    return (0);*/
 }

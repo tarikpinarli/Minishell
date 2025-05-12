@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/12 13:06:54 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/12 16:20:44 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,7 @@ int valid_identifier(char *str)
 
     head = str;
     eq = ft_strchr(str, '=');
+    printf("arg == %s\n", str);
     if (eq)
     {
         *eq = '\0';
@@ -115,9 +116,13 @@ int builtin_export(char **argv, int pid_flag, char ***env)
     int     j;
     int     env_count;
     int     update_flag;
+    int     update_index;
     char    **copy;
+    char    *split_identifier;
+    char    *eq;
     (void)pid_flag;
 
+    update_index = -1;
     update_flag = 0;
     i = 1;
     if (!argv[1])
@@ -125,30 +130,59 @@ int builtin_export(char **argv, int pid_flag, char ***env)
         sort_and_print_env(*env);
         return (0);
     }
+    
     while (argv[i])
     {
+        split_identifier = ft_strdup(argv[i]);
+        eq = strchr(split_identifier, '=');
+        *eq = '\0';
+        printf("split_identifier == %s\n", split_identifier);
+        int len = ft_strlen(split_identifier);       
         if (!valid_identifier(argv[i]))
             return (1);
         env_count = 0;
         while ((*env)[env_count])
         {
-            if (ft_strcmp((*env)[env_count], argv[i]))
-                update_flag = env_count;
+            if (ft_strncmp((*env)[env_count], argv[i], len) == 0 
+                && (*env)[env_count][len] == '=')
+                update_flag = 1;
             env_count++;
         }
-        copy = malloc(sizeof(char *) * (env_count + 2));
+        printf("update_flag == %d\n", update_flag);
+        j = 0;
+        if (update_flag)
+        {
+            while ((*env)[j])
+            {
+                if (ft_strncmp((*env)[env_count], argv[i], len) == 0 
+                    && ((*env)[env_count][len + 1] == '='
+                    || (*env)[env_count][len + 1] == '\0'))
+                    update_index = j;
+                j++;
+            }
+        }
+        if (update_flag)
+            copy = malloc(sizeof(char *) * (env_count + 1));
+        else
+            copy = malloc(sizeof(char *) * (env_count + 2));
         if (!copy)
             return(1);
         j = 0;
+        printf("update_index = %d\n", update_index);
         while ((*env)[j])
         {
-            copy[j] = (*env)[j];
+            if (update_flag && j == update_index)
+                copy[j] = ft_strdup(argv[i]);
+            else
+                copy[j] = (*env)[j];
             j++;
         }
-        copy[j++] = ft_strdup(argv[i]);
+        if (!update_flag)
+            copy[j++] = ft_strdup(argv[i]);
         copy[j] = NULL;
         (*env) = copy;
         i++;
     }
+    printf("update_flag == %d\n", update_flag);
     return (0);
 }

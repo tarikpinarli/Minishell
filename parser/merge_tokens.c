@@ -32,7 +32,8 @@ void	merge_tokens(t_token *tokens, char *input)
 	while (tokens[i].str)
 	{
 		j = i;
-		if (tokens[i].line_id != -1 && tokens[i + 1].str && tokens[i].line_id == tokens[i + 1].line_id)
+		if (tokens[i].line_id != -1 && tokens[i + 1].str
+			&& tokens[i].line_id == tokens[i + 1].line_id)
 		{
 			if (merge_string(tokens, i, &j, k) == -1)
 				free_tokens_input_and_exit(tokens, input, i);

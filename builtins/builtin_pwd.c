@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/24 15:00:56 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/27 14:13:27 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/08 14:06:33 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,7 +21,7 @@ int builtin_pwd()
     if (ptr)
     {
         printf("%s\n", ptr);
-        return (EXIT_SUCCESS);
+        return (0);
     }
-    return (EXIT_FAILURE);
+    return (1);
 }

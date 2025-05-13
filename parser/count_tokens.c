@@ -12,7 +12,7 @@
 
 #include "../minishell.h"
 
-static int		parse_single_token(const char *str, int *i, int *count);
+static int		index_through_single_token(const char *str, int *i, int *count);
 static int8_t	index_through_quoted_token(const char *str, int *i);
 static int		index_through_non_quoted_token(const char *str, int i);
 
@@ -31,7 +31,7 @@ int	count_tokens(const char *str)
 	{
 		while (str[i] && ft_isspace(str[i]))
 			i++;
-		if (parse_single_token(str, &i, &count) == -1)
+		if (index_through_single_token(str, &i, &count) == -1)
 			return (-1);
 	}
 	return (count);
@@ -46,7 +46,7 @@ int	count_tokens(const char *str)
 * returns -1 if an opening quotation mark does not have a pair;
 * otherwise, return 0
 */
-static int	parse_single_token(const char *str, int *i, int *count)
+static int	index_through_single_token(const char *str, int *i, int *count)
 {
 	if (str[*i] == '\'' || str[*i] == '"')
 	{

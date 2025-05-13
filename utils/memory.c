@@ -70,13 +70,13 @@ void	free_cmd(t_command *cmd)
 	}
 }
 
-static void	free_input(char *input)
+void	free_input(char *input)
 {
 	if (input)
 		free(input);
 }
 
-static void	free_tokens(t_token *tokens)
+void	free_tokens(t_token *tokens)
 {
 	int	i;
 

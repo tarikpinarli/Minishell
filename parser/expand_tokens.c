@@ -14,7 +14,7 @@
 
 static uint32_t	is_expandable(const char *string);
 
-void	expand_tokens(t_token *tokens, char *input, t_command *cmd)
+void	expand_tokens(t_token *tokens, char *input)
 {
 	int			i;
 	uint32_t	failure_flag;
@@ -27,10 +27,11 @@ void	expand_tokens(t_token *tokens, char *input, t_command *cmd)
 		{
 			if (is_expandable(tokens[i].str))
 			{
-				failure_flag = rebuild_string(tokens, i);
+				failure_flag = rebuild_expandable_string(tokens, i);
 				if (failure_flag)
 				{
-					free_all(input, tokens, cmd);
+					free_input(input);
+					free_tokens(tokens);
 					exit (last_exit_code(1, 1));
 				}
 			}

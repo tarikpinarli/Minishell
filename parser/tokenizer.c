@@ -20,7 +20,7 @@
 * ◦ Setting the exit status to 1, this function frees all heap allocated memory
 *	and exits the program if a request for dynamic memory allocation fails.
 */
-int	tokenize(char *input, t_token **tokens, t_command *cmd)
+int	tokenize(char *input, t_token **tokens)
 {
 	int	count;
 
@@ -38,7 +38,8 @@ int	tokenize(char *input, t_token **tokens, t_command *cmd)
 	}
 	if (fill_up_tokens(input, tokens, count) == -1)
 	{
-		free_all(input, *tokens, cmd);
+		free_input(input);
+		free(*tokens);
 		*tokens = NULL;
 		exit (last_exit_code(1, 1));
 	}

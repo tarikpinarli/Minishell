@@ -17,8 +17,6 @@ static int	replace_string(t_token *tokens, size_t i, size_t k);
 static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len);
 static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i);
 
-// TODO: Now that we fixed the non-merging of line_id -1 (pipes and redirection
-// characters), the issue is that we have one line too many in the function.
 void	merge_tokens(t_token *tokens, char *input)
 {
 	size_t	i;
@@ -27,8 +25,11 @@ void	merge_tokens(t_token *tokens, char *input)
 
 	i = 0;
 	k = 0;
-	if (!tokens)
-		free_tokens_input_and_exit(tokens, input, i);
+//	it should be alright to take this away, we check for tokens being NULL
+//	every time it is necessary, before calling this function (and then the
+//	function will fit within 25 lines)
+//	if (!tokens)
+//		free_tokens_input_and_exit(tokens, input, i);
 	while (tokens[i].str)
 	{
 		j = i;
@@ -113,6 +114,14 @@ static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len)
 	return (result);
 }
 
+/*
+* This function is customly made for the context of merge_tokens(), where, in
+* some scenarios, freeing of the strings allocated within the array of structs
+* 'tokens' should be done in reverse, from the very last string backwards, as
+* one or more of the strings in the middle of the array might be NULL while
+* merge_tokens() is executing - but all strings at tokens' index i onwards are
+* assured to be valid (until the last NULL, which marks the end of the array).
+*/
 static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i)
 {
 	while (tokens[i].str)

@@ -47,38 +47,9 @@ int	main(int argc, char **argv, char **env)
 			free(input);
 			continue ;
 		}
-		if (tokenize(input, &tokens, cmd) == -1) // tokenize() returns -1 if a quotation mark was left unclosed.
+		if (tokenize(input, &tokens) == -1) // tokenize() returns -1 if a quotation mark was left unclosed.
 			continue ;
-
-		/*
-		// WARN: This is just printf() debugging, to easily follow the stages of the tokenizing process:
-		size_t	j;
-
-		j = 0;
-		printf("\nin MAIN(), after tokenize(), the strings are:\n\t");
-		while (tokens[j].str)
-		{
-			printf("tokens[%zu].str:	<%s>\n\t", j, tokens[j].str);
-			j++;
-		}
-		printf("\n\n\n");
-		*/
-
-		expand_tokens(tokens, input, cmd);
-
-		/*
-		j = 0;
-		printf("in MAIN, after expand_tokens(), the strings are:\n\t");
-		while (tokens[j].str)
-		{
-			printf("tokens[%zu].str:		<%s>\n\ttokens[%zu].quote:	<%d>\n\t"
-				"tokens[%zu].line_id:	<%d>\n\n\n\t", j, tokens[j].str,
-				j, tokens[j].quote, j, tokens[j].line_id);
-			j++;
-		}
-		printf("\n\n\n");
-		*/
-
+		expand_tokens(tokens, input);
 		merge_tokens(tokens, input);
 
 		cmd = parse_tokens(tokens);

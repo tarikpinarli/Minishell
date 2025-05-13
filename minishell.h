@@ -74,7 +74,7 @@ void		handle_sigint(int sig);
 void		handle_sigquit(int sig);
 
 // tokenizer functions
-int			tokenize(char *input, t_token **tokens, t_command *cmd);
+int			tokenize(char *input, t_token **tokens);
 int			count_tokens(const char *str);
 int			fill_up_tokens(char *input, t_token **tokens, int count);
 char		*ft_strncpy(char *dst, const char *src, size_t n);
@@ -86,8 +86,8 @@ int			ft_strcmp(const char *s1, const char *s2);
 void		merge_tokens(t_token *tokens, char *input);
 
 // expansion functions
-void		expand_tokens(t_token *tokens, char *input, t_command *cmd);
-uint32_t	rebuild_string(t_token *tokens, int i);
+void		expand_tokens(t_token *tokens, char *input);
+uint32_t	rebuild_expandable_string(t_token *tokens, int i);
 uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 
@@ -101,9 +101,11 @@ char		*find_in_path(char *cmd);
 void		execute_pipeline(t_command *cmd, char ***env);
 
 // free
-void		ft_free_split(char **arr);
-void		free_all(char *input, t_token *tokens, t_command *cmd);
+void		free_input(char *input);
+void		free_tokens(t_token *tokens);
 void		free_cmd(t_command *cmd);
+void		free_all(char *input, t_token *tokens, t_command *cmd);
+void		ft_free_split(char **arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
 
 // NOTE: Question to Tarik: Do you think we should consider changing the variable

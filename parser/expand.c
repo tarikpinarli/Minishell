@@ -18,12 +18,12 @@ static uint32_t	expand_environment_variable(char **ptr, char **result);
 static uint32_t	append_non_expandable_str(char **ptr, char **result);
 
 /*
-* With the help if expand_vars() just below, rebuild_string() indexes through
-* the tokens[i].str, and builds 'result' step by step, appending to it either
-* the environment variable, the exit status, or the rest of the string
-* independent of a '$' sign. Once the whole tokens[i].str is processed, its
-* memory is freed, and it is replaced by the newly built string that 'reslut'
-* points at.
+* With the help if expand_vars() just below, rebuild_expanded_string() indexes
+* through the string which tokens[i] points at, and builds 'result' step by
+* step, appending to it either the environment variable, the exit status, or the
+* parts of the string which are not concerned by a '$' sign. Once the whole
+* string 'tokens[i].str' is processed, its memory is freed, and it is
+* replaced by the newly built string that 'result' points at.
 *
 * ◦ returns 1 if any call to malloc() has failed
 * ◦ otherwise, returns 0
@@ -37,7 +37,7 @@ static uint32_t	append_non_expandable_str(char **ptr, char **result);
 * get replaced by their neighbour - and our NULL token's new replacement might
 * have been single-quoted, in which case we do not wish to try and expand it.
 */
-uint32_t	rebuild_string(t_token *tokens, int i)
+uint32_t	rebuild_expandable_string(t_token *tokens, int i)
 {
 	char		*ptr;
 	char		*result;
@@ -112,6 +112,7 @@ static uint32_t	expand_last_exit_status(char **result, char **ptr)
 *	expands that to nothing, and so the token has to become empty, and should be
 *	replaced by the next tokens following it.
 * ◦ otherwise, this function returns 0
+*
 * NOTE: Do NOT free() the 'value' pointer! It would lead to undefined behaviour.
 * The return value of getenv() (which is assigned to 'value') is static memory,
 * that one should not free().

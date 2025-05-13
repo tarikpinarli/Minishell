@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:51 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/14 14:36:02 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/13 14:30:01 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@ void	handle_sigint(int sig)
 {
 	(void)sig;
 	g_signal_status = 130;
+	last_exit_code(1, 130);
 	rl_replace_line("", 0); // Clear current line
 	write(1, "\n", 1);		// Move to next line
 	rl_on_new_line();		// Prepare readline for new input

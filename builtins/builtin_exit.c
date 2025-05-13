@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
 static int	is_numeric(const char *str)
 {
@@ -61,6 +61,3 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag)
 	free_cmd(cmd);
 	exit(exit_code);
 }
-
-
-

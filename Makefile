@@ -34,13 +34,16 @@ OBJ_DIR = obj
 LIBFT_DIR = libft
 BIN_DIR = bin
 
-SRC = main_2.c \
-	parser/tokenizer_2.c \
+SRC = main.c \
+	parser/tokenizer.c \
+	parser/count_tokens.c \
 	parser/tokenizer_utils.c \
+	parser/string_utils.c \
 	parser/parser_utils.c \
 	parser/parser.c \
 	parser/expand_tokens.c \
 	parser/expand.c \
+	parser/expansion_utils.c \
 	parser/merge_tokens.c \
 	executor/exec_cmd.c \
 	executor/redirection.c \

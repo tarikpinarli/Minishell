@@ -113,4 +113,3 @@ int	setup_redirections(t_command *cmd)
 		return (0);
 	return (1);
 }
-

@@ -1,0 +1,122 @@
+Tokenizer Rules
+
+Tokens are split by whitespace
+→ Words or symbols separated by spaces become separate tokens.
+
+Quoted text is a single token
+→ Anything inside single ' ' or double " " quotes is kept together as one token.
+
+Quotes are removed from the token string
+→ The actual token does not include the quotes, but it stores the quote type (SINGLE, DOUBLE, or NONE).
+
+Special characters (<, >, >>, <<, |) are split into separate tokens
+→ Even without surrounding spaces, these are always separated as individual tokens.
+
+Special characters inside quotes are not split
+→ If a symbol like < appears inside 'like<this' or "like<this", it stays part of the quoted token. (check test case 5 and 10)
+
+Each token has a line_id for grouping
+→ Tokens that are part of the same logical unit (e.g., abc"def") share the same line_id.
+
+Whitespace triggers a new line_id
+→ When a space is encountered, the next token gets a new line_id.
+
+Redirection and pipe tokens always get line_id = -1
+→ This prevents them from being merged with other tokens. All special operator tokens share the same line_id = -1.
+
+The token list ends with a NULL token
+→ The final token will be marked by tokens[i].str = NULL to indicate the end of the list.
+
+---------------------
+TOKENIZER TEST CASES
+---------------------
+
+Each token is printed as:
+tokens[i].str → quote: QUOTE_*, line_id: N
+
+===============================================
+1. echo hello world
+===============================================
+tokens[0].str = [echo]       → quote: NONE,  line_id: 1
+tokens[1].str = [hello]      → quote: NONE,  line_id: 2
+tokens[2].str = [world]      → quote: NONE,  line_id: 3
+
+===============================================
+2. echo hello"world$USER"
+===============================================
+tokens[0].str = [echo]       → quote: NONE,   line_id: 1
+tokens[1].str = [hello]      → quote: NONE,   line_id: 2
+tokens[2].str = [world$USER] → quote: DOUBLE, line_id: 2
+
+===============================================
+3. cat<file1>file2
+===============================================
+tokens[0].str = [cat]        → quote: NONE,  line_id: 1
+tokens[1].str = [<]          → quote: NONE,  line_id: -1
+tokens[2].str = [file1]      → quote: NONE,  line_id: 2
+tokens[3].str = [>]          → quote: NONE,  line_id: -1
+tokens[4].str = [file2]      → quote: NONE,  line_id: 3
+
+===============================================
+4. grep"pattern"file.txt
+===============================================
+tokens[0].str = [grep]       → quote: NONE,    line_id: 1
+tokens[1].str = [pattern]    → quote: DOUBLE,  line_id: 1
+tokens[2].str = [file.txt]   → quote: NONE,    line_id: 1
+
+===============================================
+5. echo 'a|b'|grep b
+===============================================
+tokens[0].str = [echo]       → quote: NONE,   line_id: 1
+tokens[1].str = [a|b]        → quote: SINGLE, line_id: 2
+tokens[2].str = [|]          → quote: NONE,   line_id: -1
+tokens[3].str = [grep]       → quote: NONE,   line_id: 3
+tokens[4].str = [b]          → quote: NONE,   line_id: 4
+
+===============================================
+6. sort<"data.txt">>output
+===============================================
+tokens[0].str = [sort]       → quote: NONE,   line_id: 1
+tokens[1].str = [<]          → quote: NONE,   line_id: -1
+tokens[2].str = [data.txt]   → quote: DOUBLE, line_id: 2
+tokens[3].str = [>>]         → quote: NONE,   line_id: -1
+tokens[4].str = [output]     → quote: NONE,   line_id: 3
+
+===============================================
+7. echo abc|grep'def'|wc
+===============================================
+tokens[0].str = [echo]       → quote: NONE,   line_id: 1
+tokens[1].str = [abc]        → quote: NONE,   line_id: 2
+tokens[2].str = [|]          → quote: NONE,   line_id: -1
+tokens[3].str = [grep]       → quote: NONE,   line_id: 3
+tokens[4].str = [def]        → quote: SINGLE, line_id: 3
+tokens[5].str = [|]          → quote: NONE,   line_id: -1
+tokens[6].str = [wc]         → quote: NONE,   line_id: 4
+
+===============================================
+8. echo"x"<f1>>f2|cat
+===============================================
+tokens[0].str = [echo]       → quote: NONE,   line_id: 1
+tokens[1].str = [x]          → quote: DOUBLE, line_id: 1
+tokens[2].str = [<]          → quote: NONE,   line_id: -1
+tokens[3].str = [f1]         → quote: NONE,   line_id: 2
+tokens[4].str = [>>]         → quote: NONE,   line_id: -1
+tokens[5].str = [f2]         → quote: NONE,   line_id: 3
+tokens[6].str = [|]          → quote: NONE,   line_id: -1
+tokens[7].str = [cat]        → quote: NONE,   line_id: 4
+
+===============================================
+9. echo'abc'def"ghi"
+===============================================
+tokens[0].str = [echo]       → quote: NONE,    line_id: 1
+tokens[1].str = [abc]        → quote: SINGLE,  line_id: 1
+tokens[2].str = [def]        → quote: NONE,    line_id: 1
+tokens[3].str = [ghi]        → quote: DOUBLE,  line_id: 1
+
+===============================================
+10. echo "a > b" | cat
+===============================================
+tokens[0].str = [echo]      → quote: NONE,    line_id: 1
+tokens[1].str = [a > b]     → quote: DOUBLE,  line_id: 2
+tokens[2].str = [|]         → quote: NONE,    line_id: -1
+tokens[3].str = [cat]       → quote: NONE,    line_id: 3

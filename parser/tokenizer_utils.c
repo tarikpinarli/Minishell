@@ -3,76 +3,128 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/04/11 13:07:24 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/23 13:25:04 by tpinarli         ###   ########.fr       */
+/*   Created: 2025/05/10 19:57:58 by ykadosh           #+#    #+#             */
+/*   Updated: 2025/05/10 19:58:44 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int	ft_isspace(char c)
+static t_token	extract_quoted_token(char **str, char quote, int *line_id)
 {
-	return (c == ' ' || c == '\t' || c == '\n'
-		|| c == '\v' || c == '\f' || c == '\r');
+	const char	*start;
+	size_t		len;
+	t_token		token;
+
+	ft_bzero(&token, sizeof(t_token));
+	(*str)++;
+	start = *str;
+	while (**str && **str != quote)
+		(*str)++;
+	len = *str - start;
+	token.str = malloc(len + 1);
+	if (!token.str)
+		return (token);
+	(void)ft_strncpy(token.str, start, len);
+	token.str[len] = '\0';
+	if (quote == '\'')
+		token.quote = QUOTE_SINGLE;
+	else
+		token.quote = QUOTE_DOUBLE;
+	token.line_id = *line_id;
+	if (**str == quote)
+		(*str)++;
+	return (token);
 }
 
-int	count_tokens(const char *str)
+static t_token	extract_special_character_token(char **str, int *line_id)
 {
-	int		count;
-    char	quote;
-	int		i;
+	int		len;
+	t_token	token;
 
-    count = 0;
-	i = 0;
-	while (str[i])
-	{
-		while (str[i] && ft_isspace(str[i]))
-			i++;
-
-		if (str[i] == '\'' || str[i] == '"')
-		{
-			quote = str[i];
-			i++; // skip opening quote
-			while (str[i] && str[i] != quote)
-				i++;
-			if (str[i] == quote)
-				i++; // skip closing quote
-            else 
-            {
-                // In bash shel dquote something is happennig check it out.
-				// Update: no need to take care of that, enough to return error
-				// if a quotation was left open.
-                printf("Quote not propery opened or closed.\n");
-                return (-1);
-            }
-			count++;
-		}
-		else if (str[i])
-		{
-			while (str[i] && !ft_isspace(str[i]) && str[i] != '\'' && str[i] != '"')
-				i++;
-			count++;
-		}
-	}
-	return (count);
+	ft_bzero(&token, sizeof(t_token));
+	len = 1;
+	if ((**str == '<' || **str == '>') && (*(*str + 1) == **str))
+		len++;
+	token.str = ft_calloc(len + 1, sizeof(char));
+	if (!token.str)
+		return (token);
+	(void)ft_memmove(token.str, *str, len);
+	token.line_id = -1;
+	(*str) += len;
+	while (ft_isspace(**str))
+		(*str)++;
+	if (**str && **str != '<' && **str != '>' && **str != '|')
+		(*line_id)++;
+	return (token);
 }
 
-char	*ft_strncpy(char *dst, const char *src, size_t n)
+static t_token	extract_simple_token(char **str, int *line_id)
 {
-	size_t	i;
+	char	*start;
+	int		len;
+	t_token	token;
 
+	ft_bzero(&token, sizeof(t_token));
+	start = *str;
+	while (**str && !ft_isspace(**str)
+		&& **str != '\'' && **str != '"'
+		&& **str != '<' && **str != '>' && **str != '|')
+		(*str)++;
+	len = *str - start;
+	token.str = malloc(len + 1);
+	if (!token.str)
+		return (token);
+	(void)ft_strncpy(token.str, start, len);
+	token.str[len] = '\0';
+	token.quote = QUOTE_NONE;
+	token.line_id = *line_id;
+	return (token);
+}
+
+static t_token	next_token(char **str, int *line_id)
+{
+	t_token	empty;
+
+	ft_bzero(&empty, sizeof(t_token));
+	if (ft_isspace(**str))
+	{
+		while (**str && ft_isspace(**str))
+			(*str)++;
+		if (**str && **str != '<' && **str != '>' && **str != '|')
+			(*line_id)++;
+	}
+	if (**str == '\'' || **str == '"')
+		return (extract_quoted_token(str, **str, line_id));
+	else if (**str == '<' || **str == '>' || **str == '|')
+		return (extract_special_character_token(str, line_id));
+	else if (**str)
+		return (extract_simple_token(str, line_id));
+	empty.str = NULL;
+	empty.quote = QUOTE_NONE;
+	return (empty);
+}
+
+int	fill_up_tokens(char *input, t_token **tokens, int count)
+{
+	static int	line_id;
+	int			i;
+
+	while (ft_isspace(*input))
+		input++;
 	i = 0;
-	while (i < n && src[i])
+	while (i < count)
 	{
-		dst[i] = src[i];
+		(*tokens)[i] = next_token(&input, &line_id);
+		if (!(*tokens)[i].str)
+		{
+			line_id = 0;
+			return (-1);
+		}
 		i++;
 	}
-	while (i < n)
-	{
-		dst[i] = '\0';
-		i++;
-	}
-	return (dst);
+	line_id = 0;
+	return (0);
 }

@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "minishell.h"
+#include "../minishell.h"
 
 static int	is_valid_n_flag(char *arg)
 {
@@ -67,5 +67,3 @@ int	builtin_echo(char **argv)
 		printf("\n");
 	return (0);
 }
-
-

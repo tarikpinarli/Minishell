@@ -52,8 +52,8 @@ void	execute_pipeline(t_command *cmd, char ***env)
 				dup2(pipefd[1], STDOUT_FILENO);
 				close(pipefd[1]);
 			}
-            if (!setup_redirections(cmd))
-    		    exit(1);
+			if (!setup_redirections(cmd))
+				exit(1);
 			if (is_builtin(cmd->argv[0]))
 			{
 				ret = execute_builtin(cmd, 0, env);
@@ -168,5 +168,3 @@ void	exec_command(t_command *cmd, char ***env)
 		unlink(".heredoc.txt");
 	}
 }
-
-

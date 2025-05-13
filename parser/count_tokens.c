@@ -52,7 +52,7 @@ static int	index_through_single_token(const char *str, int *i, int *count)
 	{
 		if (index_through_quoted_token(str, i) == -1)
 		{
-			printf("Quote not propery opened or closed.\n");
+			printf("Quote not properly opened or closed.\n");
 			return (-1);
 		}
 	}

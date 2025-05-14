@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/24 14:34:07 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/28 17:58:34 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,9 +70,8 @@ typedef struct s_command
 	struct s_command	*next;		// Next command in pipeline
 }	t_command;
 
-
 // signal functions
-void		setup_signals(void);
+int			setup_signals(void);
 void		handle_sigint(int sig);
 void		handle_sigquit(int sig);
 

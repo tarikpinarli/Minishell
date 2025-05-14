@@ -22,7 +22,7 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	env = copy_env(envp);
-	rl_catch_signals = 0;
+//	rl_catch_signals = 0;
 	// FIXME: Disabling read_line()s default signal handling.
 	// It violates the subject;
 	// but it resolves the issue of SIGQUIT signal Ctrl+\, which is not supposed
@@ -30,7 +30,8 @@ int	main(int argc, char **argv, char **envp)
 	// start of the line... UPDATE: To solve this, we need to use a sigaction
 	// with a handler that tells our shell to ignore the signal SIGQUIT (basically
 	// to not do anything)
-	setup_signals();
+	if (setup_signals() <= -500)
+		return (-500); // WARN: this is a totally random value, just to handle the sig function failures...
 	while (1)
 	{
 		input = NULL;

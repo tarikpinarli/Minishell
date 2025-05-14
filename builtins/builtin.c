@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/27 13:27:12 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/10 14:09:52 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/14 17:12:58 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,6 @@ int execute_builtin(t_command *cmd, int pid_flag, char ***env)
 	else if (!ft_strcmp(cmd->argv[0], "env"))
 		return (builtin_env(env));
 	else if (!ft_strcmp(cmd->argv[0], "exit"))
-		return (builtin_exit(cmd->argv, cmd, pid_flag));
+		return (builtin_exit(cmd->argv, cmd, pid_flag, env));
 	return (1);
 }

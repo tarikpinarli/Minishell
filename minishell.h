@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/12 19:38:24 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/14 17:13:17 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ char		*find_in_path(char *cmd);
 void		execute_pipeline(t_command *cmd, char ***env);
 
 // free
+void		free_env(char **env);
 void		free_input(char *input);
 void		free_tokens(t_token *tokens);
 void		free_cmd(t_command *cmd);
@@ -112,6 +113,7 @@ void		free_deprecated_strings(t_token *tokens, size_t k);
 // name of "argv" that is used for the builtins, because there is already one
 // argv variable in the main? Or is it the same one?
 // builtin commands
+char 		**copy_env(char **envp);
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(void);
@@ -119,7 +121,7 @@ int			builtin_pwd(void);
 int			builtin_export(char **argv, int pid_flag, char ***env);
 //int		builtin_unset(char **argv);
 int			builtin_env(char ***env);
-int			builtin_exit(char **argv, t_command *cmd, int pid_flag);
+int			builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env);
 int			builtin_echo(char **argv);
 
 // debug functions // WARN: remove before evaluation if just for debugging

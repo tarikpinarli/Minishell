@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/12 15:16:58 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/14 16:34:17 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,14 @@ void	ft_free_split(char **arr)
 		i++;
 	}
 	free(arr);
+}
+
+void	free_env(char **env)
+{
+	int i = 0;
+	while (env[i])
+		free(env[i++]);
+	free(env);
 }
 
 static void	free_argv(char **argv)

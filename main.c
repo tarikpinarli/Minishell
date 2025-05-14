@@ -3,23 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:40:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/12 20:55:24 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/14 16:47:24 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	main(int argc, char **argv, char **env)
+int	main(int argc, char **argv, char **envp)
 {
+	char		**env;
 	char		*input;
 	t_token		*tokens;
 	t_command	*cmd;
 
 	(void)argc;
 	(void)argv;
+	env = copy_env(envp);
 	rl_catch_signals = 0;
 	// FIXME: Disabling read_line()s default signal handling.
 	// It violates the subject;
@@ -82,6 +84,7 @@ int	main(int argc, char **argv, char **env)
 			exec_command(cmd, &env); // If its a single command*/
 		free_all(input, tokens, cmd);
 	}
+	free_env(env);
 	rl_clear_history();
 //	clear_history(); // WARN: this function is not allowed by the subject, should we remove it? is it for running on mac()?
 	return (0);

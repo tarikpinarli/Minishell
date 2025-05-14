@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 12:48:37 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/09 16:27:23 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/14 17:15:13 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static int	is_numeric(const char *str)
 	return (1);
 }
 
-int	builtin_exit(char **argv, t_command *cmd, int pid_flag)
+int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 {
 	int	arg_count;
 	int	exit_code;
@@ -57,7 +57,8 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag)
 		exit_code = ft_atoi(argv[1]);
 	else
 		exit_code = 0;
-
+	rl_clear_history();
+	free_env(*env);
 	free_cmd(cmd);
 	exit(exit_code);
 }

@@ -6,11 +6,34 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:46 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/20 11:40:46 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/14 16:31:29 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+char **copy_env(char **envp)
+{
+	int i;
+	int count;
+	char **copy;
+
+	i = 0;
+	count = 0;
+	while (envp[count])
+		count++;
+	copy = malloc(sizeof(char *) * (count + 1));
+	if (!copy)
+		return (NULL);
+	while (i < count)
+	{
+		copy[i] = ft_strdup(envp[i]);
+		i++;
+	}
+	copy[i] = NULL;
+	return (copy);
+}
+
 
 static char	*build_cmd_path(char *dir, char *cmd)
 {

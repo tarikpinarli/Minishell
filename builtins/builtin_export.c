@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/12 13:06:54 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/14 17:17:11 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,6 @@ void	sort_and_print_env(char **env)
 	}
 	print_env(copy);
 }
-//  Simple valid check
 int	valid_identifier(char *str)
 {
 	char	*eq;
@@ -85,13 +84,23 @@ int	valid_identifier(char *str)
 	if (eq)
 	{
 		*eq = '\0';
+		if (!ft_isalpha(*str) && *str != '_')
+		{
+			ft_putstr_fd("export: `", 2);
+			ft_putstr_fd(str, 2);
+			ft_putendl_fd("': not a valid identifier", 2);
+			*eq = '=';
+			return (0);
+		}
 		while (*str)
 		{
 			if (!ft_isalnum(*str) && *str != '_')
 			{
-				ft_putstr_fd("export: ", 2);
-				ft_putstr_fd(str, 2);
-				ft_putendl_fd("not a valid identifier", 2);
+				ft_putstr_fd("export: `", 2);
+				ft_putstr_fd(head, 2);
+				ft_putendl_fd("': not a valid identifier", 2);
+				*eq = '=';
+				return (0);
 			}
 			str++;
 		}
@@ -99,26 +108,138 @@ int	valid_identifier(char *str)
 	}
 	else
 	{
+		if (!ft_isalpha(*head) && *head != '_')
+		{
+			ft_putstr_fd("export: `", 2);
+			ft_putstr_fd(head, 2);
+			ft_putendl_fd("': not a valid identifier", 2);
+			return (0);
+		}
 		while (*head)
 		{
 			if (!ft_isalnum(*head) && *head != '_')
+			{
+				ft_putstr_fd("export: `", 2);
+				ft_putstr_fd(head, 2);
+				ft_putendl_fd("': not a valid identifier", 2);
 				return (0);
+			}
 			head++;
 		}
 	}
 	return (1);
 }
 
-int	builtin_export(char **argv, int pid_flag, char ***env)
+int	var_exist(char *arg, char **env)
+{
+	char	*eq;
+	char	*eq_2;
+	char	*head;
+	int		i;
+
+	head = arg;
+	eq = strchr(arg, '=');
+	i = 0;
+	if (eq)
+	{
+		*eq = '\0';
+		while (env[i])
+		{
+			eq_2 = ft_strchr(env[i], '=');
+			if (eq_2)
+			{
+				*eq_2 = '\0';
+				if (!ft_strcmp(env[i], arg))
+				{
+					*eq = '=';
+					*eq_2 = '=';
+					return (i);
+				}
+				*eq_2 = '=';
+			}
+			i++;
+		}
+		*eq = '=';
+	}
+	else
+	{
+		while (env[i])
+		{
+			eq_2 = ft_strchr(env[i], '=');
+			if (eq_2)
+			{
+				*eq_2 = '\0';
+				if (!strcmp(env[i], head))
+				{
+					*eq_2 = '=';
+					return (i);	
+				}
+				*eq_2 = '=';
+			}
+			i++;
+		}
+	}
+	return (-1);
+}
+
+int remove_var(char ***env, int index)
+{
+	int 	i, j, count;
+	char	**new_env;
+
+	count = 0;
+	while ((*env)[count])
+		count++;
+	new_env = malloc(sizeof(char *) * count);
+	if (!new_env)
+		return (0);
+	i = 0;
+	j = 0;
+	while (i < count)
+	{
+		if (i != index)
+			new_env[j++] = ft_strdup((*env)[i]);
+		free((*env)[i]);
+		i++;
+	}
+	new_env[j] = NULL;
+	free(*env);
+	*env = new_env;
+	return (1);
+}
+
+
+char **append_env(char *new_var, char **env)
 {
 	int		i;
 	int		j;
-	int		env_count;
-	int		update_flag;
-	char	**copy;
+	char	**new_env;
+
+	i = 0;
+	j = 0;
+	while (env && env[i])
+		i++;
+	new_env = malloc(sizeof(char *) * (i + 2));
+	if (!new_env)
+		return (NULL);
+	while (j < i)
+	{
+		new_env[j] = ft_strdup(env[j]);
+		j++;
+	}
+	new_env[i] = ft_strdup(new_var);
+	new_env[i + 1] = NULL;
+	free_env(env);
+	return new_env;
+}
+
+
+int	builtin_export(char **argv, int pid_flag, char ***env)
+{
+	int		i;
+	int exist_index;
 	(void)pid_flag;
 
-	update_flag = 0;
 	i = 1;
 	if (!argv[1])
 	{
@@ -129,25 +250,14 @@ int	builtin_export(char **argv, int pid_flag, char ***env)
 	{
 		if (!valid_identifier(argv[i]))
 			return (1);
-		env_count = 0;
-		while ((*env)[env_count])
+		exist_index = var_exist(argv[i], *env);
+		if (exist_index >= 0)
 		{
-			if (ft_strcmp((*env)[env_count], argv[i]))
-				update_flag = env_count;
-			env_count++;
+			remove_var(env, exist_index);
+			*env = append_env(argv[i], *env);
 		}
-		copy = malloc(sizeof(char *) * (env_count + 2));
-		if (!copy)
-			return(1);
-		j = 0;
-		while ((*env)[j])
-		{
-			copy[j] = (*env)[j];
-			j++;
-		}
-		copy[j++] = ft_strdup(argv[i]);
-		copy[j] = NULL;
-		(*env) = copy;
+		else
+			*env = append_env(argv[i], *env);
 		i++;
 	}
 	return (0);

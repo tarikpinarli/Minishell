@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/27 13:27:12 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/14 17:12:58 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/14 17:35:16 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,8 @@ int execute_builtin(t_command *cmd, int pid_flag, char ***env)
 	//	return (builtin_cd(cmd->argv));
 	else if (!ft_strcmp(cmd->argv[0], "export"))
 		return (builtin_export(cmd->argv, pid_flag, env));
-	//else if (!ft_strcmp(cmd->argv[0], "unset"))
-	//	return (builtin_unset(cmd->argv));
+	else if (!ft_strcmp(cmd->argv[0], "unset"))
+		return (builtin_unset(cmd->argv, env));
 	else if (!ft_strcmp(cmd->argv[0], "env"))
 		return (builtin_env(env));
 	else if (!ft_strcmp(cmd->argv[0], "exit"))

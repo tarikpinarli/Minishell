@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/14 17:17:11 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/14 17:33:51 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -182,7 +182,7 @@ int	var_exist(char *arg, char **env)
 	return (-1);
 }
 
-int remove_var(char ***env, int index)
+int remove_env_var(char ***env, int index)
 {
 	int 	i, j, count;
 	char	**new_env;
@@ -209,7 +209,7 @@ int remove_var(char ***env, int index)
 }
 
 
-char **append_env(char *new_var, char **env)
+char **append_env_var(char *new_var, char **env)
 {
 	int		i;
 	int		j;
@@ -253,11 +253,11 @@ int	builtin_export(char **argv, int pid_flag, char ***env)
 		exist_index = var_exist(argv[i], *env);
 		if (exist_index >= 0)
 		{
-			remove_var(env, exist_index);
-			*env = append_env(argv[i], *env);
+			remove_env_var(env, exist_index);
+			*env = append_env_var(argv[i], *env);
 		}
 		else
-			*env = append_env(argv[i], *env);
+			*env = append_env_var(argv[i], *env);
 		i++;
 	}
 	return (0);

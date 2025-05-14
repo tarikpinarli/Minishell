@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/14 17:13:17 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/14 17:35:32 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -119,10 +119,13 @@ int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(void);
 //int		builtin_cd(char **argv);
 int			builtin_export(char **argv, int pid_flag, char ***env);
-//int		builtin_unset(char **argv);
+int			builtin_unset(char **argv, char ***env);
 int			builtin_env(char ***env);
 int			builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env);
 int			builtin_echo(char **argv);
+// builtin export and unset utils
+int			var_exist(char *arg, char **env);
+int			remove_env_var(char ***env, int index);
 
 // debug functions // WARN: remove before evaluation if just for debugging
 void		print_command(t_command *cmd);

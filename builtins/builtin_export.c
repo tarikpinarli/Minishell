@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/14 17:33:51 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/15 13:54:02 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -184,7 +184,9 @@ int	var_exist(char *arg, char **env)
 
 int remove_env_var(char ***env, int index)
 {
-	int 	i, j, count;
+	int 	i;
+	int		j;
+	int		count;
 	char	**new_env;
 
 	count = 0;

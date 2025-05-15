@@ -73,7 +73,7 @@ typedef struct s_command
 // signal functions
 int			setup_signals(void);
 void		handle_sigint(int sig);
-void		handle_sigquit(int sig);
+void		handle_sigquit(int sig, siginfo_t *info, void *context);
 
 // tokenizer functions
 int			tokenize(char *input, t_token **tokens);

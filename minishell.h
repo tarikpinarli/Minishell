@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/14 17:35:32 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/15 13:43:58 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <stdint.h>
+# include <sys/wait.h>
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096

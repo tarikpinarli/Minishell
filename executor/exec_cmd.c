@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/10 14:06:40 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/15 12:25:50 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,44 +96,68 @@ void	execute_pipeline(t_command *cmd, char ***env)
     last_exit_code(1, WEXITSTATUS(status));
 }
 
+int	exec_isolated_builtin(t_command *cmd, char ***env)
+{
+	int saved_stdin;
+	int saved_stdout;
+	int	ret;
+
+	saved_stdin = dup(STDIN_FILENO);
+	saved_stdout = dup(STDOUT_FILENO);
+	if (!setup_redirections(cmd))
+	{
+		dup2(saved_stdin, STDIN_FILENO);
+		dup2(saved_stdout, STDOUT_FILENO);
+		close(saved_stdin);
+		close(saved_stdout);
+		last_exit_code(1, 1);
+		return (1);
+	}
+	ret = execute_builtin(cmd, 1, env);
+	dup2(saved_stdin, STDIN_FILENO);
+	dup2(saved_stdout, STDOUT_FILENO);
+	close(saved_stdin);
+	close(saved_stdout);
+	last_exit_code(1, ret);
+	unlink(".heredoc.txt");
+	return (1);
+}
+
+void exec_single_cmd_child(t_command *cmd, char **env)
+{
+	char *path;
+
+	if (!setup_redirections(cmd))
+		exit(1);
+
+	if (cmd->argv[0][0] == '/')
+		path = ft_strdup(cmd->argv[0]);
+	else
+		path = find_in_path(cmd->argv[0]);
+
+	if (!path)
+	{
+		write(2, cmd->argv[0], ft_strlen(cmd->argv[0]));
+		write(2, ": command not found\n", 21);
+		exit(127);
+	}
+	execve(path, cmd->argv, env);
+	perror("execve failed");
+	free(path);
+	exit(1);
+}
+
 
 void	exec_command(t_command *cmd, char ***env)
 {
 	pid_t	pid;
 	int		status;
-	char	*path;
 
 	if (!cmd || !cmd->argv || !cmd->argv[0])
 		return;
 	if (is_builtin(cmd->argv[0]) && !cmd->next)
-	{
-		int saved_stdin = dup(STDIN_FILENO);
-		int saved_stdout = dup(STDOUT_FILENO);
-		int	ret;
-	
-		if (!setup_redirections(cmd))
-		{
-			dup2(saved_stdin, STDIN_FILENO);
-			dup2(saved_stdout, STDOUT_FILENO);
-			close(saved_stdin);
-			close(saved_stdout);
-			last_exit_code(1, 1);
-			return;
-		}
-	
-		ret = execute_builtin(cmd, 1, env);
-	
-		// Restore stdin/stdout
-		dup2(saved_stdin, STDIN_FILENO);
-		dup2(saved_stdout, STDOUT_FILENO);
-		close(saved_stdin);
-		close(saved_stdout);
-		
-		last_exit_code(1, ret);
-		unlink(".heredoc.txt");
-		return;
-	}
-		
+		if (exec_isolated_builtin(cmd, env) == 1)
+			return;	
 	pid = fork();
 	if (pid == -1)
 	{
@@ -141,26 +165,7 @@ void	exec_command(t_command *cmd, char ***env)
 		return;
 	}
 	if (pid == 0)
-	{
-		signal(SIGPIPE, SIG_DFL);
-		if (!setup_redirections(cmd))
-		    exit(1);
-
-		if (cmd->argv[0][0] == '/') // If user types abslte path 
-			path = ft_strdup(cmd->argv[0]);
-		else
-			path = find_in_path(cmd->argv[0]);
-		if (!path)
-		{
-			write(2, cmd->argv[0], ft_strlen(cmd->argv[0]));
-			write(2, ": command not found\n", 21);
-			exit(127);
-		}
-		execve(path, cmd->argv, *env); // if its successful it terminates the child process
-		perror("execve failed");
-		free(path);
-		exit(1);
-	}
+		exec_single_cmd_child(cmd, (*env));
 	else
 	{
 		waitpid(pid, &status, 0);

@@ -98,7 +98,7 @@ void	handle_sigquit(int sig)
 
 void	handle_sigquit(int sig, siginfo_t *info, void *context)
 {
-//	(void)sig;
+	(void)sig; // just for the program to compile when we don't do anything with it...
 	(void)context;
 	if (!info->si_pid)
 	{
@@ -108,8 +108,14 @@ void	handle_sigquit(int sig, siginfo_t *info, void *context)
 	}
 	else // IGNORE signal
 	{
-//		return ;
-//		signal(sig, SIG_IGN); // WARN: this is wrong, signal() is incompatible with sigaction(), even though it compiles and works sometimes.
+		SIG_IGN;  // not working...
+
+		//signal(sig, SIG_IGN); // WARN: this is wrong, signal() is incompatible
+		// with sigaction(), even though it compiles and works sometimes - but
+		// never on the first try when running the minishell - AND it also
+		// ignores sigquit on all consecutive iterations of sigquit, also in
+		// cat's interractive mode
+		return ;
 	}
 }
 
@@ -124,20 +130,24 @@ int	setup_signals(void)
 	ft_bzero(&sa_int, sizeof(sigaction));
 	sa_int.sa_handler = &handle_sigint;
 	(void)sigemptyset(&sa_int.sa_mask);
-	sa_int.sa_flags = SA_RESTART; // how about SA_SIGINFO? this will make us use the sigaction function instead of the "handler", which is more robust, because it allows to ALSO get the PID of the process sending the signal! That might be crucial in some fork situations!!
+	sa_int.sa_flags = SA_RESTART;
 	if (sigaction(SIGINT, &sa_int, NULL) == -1)
 		return (-500); // WARN: random value!! but it is important to handle failure of sigaction().
 
 	// SIGQUIT:	Ctrl + '\'
 	ft_bzero(&sa_quit, sizeof(sigaction));
 	(void)sigemptyset(&sa_quit.sa_mask);
-//	(void)sigaddset(&sa_quit.sa_mask, SIGQUIT);
-	sa_quit.sa_flags = SA_SIGINFO | SA_RESTART; // how about SA_SIGINFO? this will make us use the sigaction function instead of the "handler", which is more robust, because it allows to ALSO get the PID of the process sending the signal! That might be crucial in some fork situations!!
-	
+	(void)sigaddset(&sa_quit.sa_mask, SIGQUIT);
+	sa_quit.sa_flags = SA_SIGINFO | SA_RESTART;
 	sa_quit.sa_sigaction = &handle_sigquit;
 
-//	sa_quit.sa_handler = SIG_IGN; // this works: but then we do not set the 
-//	signal(int sig, __sighandler_t handler)
+	// version which ONLY ignores the signal:
+	// (it works: but it doesn't work for cat in interactive mode, where sigquit
+	// does a core dump, and returns the prompt
+	sa_quit.sa_flags = SA_RESTART;
+	sa_quit.sa_handler = SIG_IGN;
+	
+
 	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
 		return (-500); // WARN: random value! but it is important to handle failure of sigaction().
 

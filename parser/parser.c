@@ -84,9 +84,14 @@ t_command *parse_tokens(t_token *tokens)
 	{
 		if (!ft_strcmp(tokens[i].str, "|"))
 		{
+			if (!tokens[++i].str) // check for leaks
+			{
+				printf("syntax error near unexpected token `|'\n");
+				return NULL;
+			}
 			if (!current)
 			{
-				printf("syntax error near unexpected token `|`\n");
+				printf("syntax error near unexpected token `|'\n");
 				return NULL;
 			}
 			new_cmd = ft_calloc(1, sizeof(t_command));

@@ -39,7 +39,6 @@ SRC = main.c \
 	parser/count_tokens.c \
 	parser/tokenizer_utils.c \
 	parser/string_utils.c \
-	parser/parser_utils.c \
 	parser/parser.c \
 	parser/expand_tokens.c \
 	parser/expand.c \

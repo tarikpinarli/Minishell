@@ -42,10 +42,11 @@ typedef enum e_quote_type
 
 typedef enum e_redir_type
 {
-	REDIR_IN,     // <
-	REDIR_OUT,    // >
-	REDIR_APPEND, // >>
-	REDIR_HEREDOC // <<
+	REDIR_NONE,		// (not a redirection)
+	REDIR_IN,		// <
+	REDIR_OUT,		// >
+	REDIR_APPEND,	// >>
+	REDIR_HEREDOC	// <<
 }	t_redir_type;
 
 typedef struct s_redir

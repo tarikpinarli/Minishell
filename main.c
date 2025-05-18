@@ -58,13 +58,13 @@ int	main(int argc, char **argv, char **envp)
 		expand_tokens(tokens, input);
 		merge_tokens(tokens, input);
 
-		cmd = parse_tokens(tokens);
-		free_tokens(tokens);
+		cmd = parse_tokens(tokens, input);
 		if (!cmd)
 		{
 			free_all(input, tokens, cmd);
 			continue ;
 		}
+		free_tokens(tokens);
 		/*
 		size_t	i = 0;
 		printf("in MAIN, at the very end of the loop, the tokens are:\n");

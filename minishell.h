@@ -83,7 +83,7 @@ char		*ft_strncpy(char *dst, const char *src, size_t n);
 int			ft_isspace(char c);
 
 // parser functions
-t_command	*parse_tokens(t_token *tokens);
+t_command	*parse_tokens(t_token *tokens, char *input);
 int			ft_strcmp(const char *s1, const char *s2);
 void		merge_tokens(t_token *tokens, char *input);
 

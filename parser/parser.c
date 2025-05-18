@@ -15,13 +15,20 @@
 t_redir	*create_redir(t_redir_type type, char *filename)
 {
 	t_redir *redir;
-	redir = malloc(sizeof(t_redir));
+
+	redir = (t_redir *)malloc(sizeof(t_redir));
 	if (!redir)
 		return (NULL);
 	redir->type = type;
 	redir->filename = ft_strdup(filename);
+	if (!redir->filename)
+	{
+		free(redir);
+		redir = NULL;
+		return (NULL);
+	}
 	redir->next = NULL;
-	return redir;
+	return (redir);
 }
 
 void append_redir(t_redir **redir_list, t_redir *new_redir)
@@ -70,7 +77,7 @@ char **argv_add(char **argv, char *new_arg)
 
 
 
-t_command *parse_tokens(t_token *tokens)
+t_command *parse_tokens(t_token *tokens, char *input)
 {
 	t_command	*head;
 	t_command	*current;
@@ -87,14 +94,22 @@ t_command *parse_tokens(t_token *tokens)
 			if (!tokens[++i].str) // check for leaks
 			{
 				printf("syntax error near unexpected token `|'\n");
-				return NULL;
+				return (NULL);
 			}
 			if (!current)
 			{
 				printf("syntax error near unexpected token `|'\n");
-				return NULL;
+				return (NULL);
 			}
 			new_cmd = ft_calloc(1, sizeof(t_command));
+			if (!new_cmd)
+			{
+				// TODO: ?????
+				// free_cmd(current);	// ??? necessary? study well the list to understand what is being allocated...
+				free_all(input, tokens, head); // double check if it is indeed 'head' that should be passed here!
+				exit (last_exit_code(1, 1);
+			}
+
 			current->next = new_cmd;
 			current = new_cmd;
 			i++;
@@ -108,6 +123,11 @@ t_command *parse_tokens(t_token *tokens)
 		}
 		// Redirection control
 		if (!ft_strcmp(tokens[i].str, "<") && tokens[i + 1].str)
+		{
+			// first deal with the create_redir() NULL return from malloc failure.
+			// Maybe simply by protecting within append_redir() the second variable
+			// - "if (!new_redir)", then free and exit (last_exit_code(1, 1));
+			// or something of the like!
 			append_redir(&current->in_redir, create_redir(REDIR_IN, tokens[++i].str));
 		else if (!ft_strcmp(tokens[i].str, "<<") && tokens[i + 1].str)
 			append_redir(&current->in_redir, create_redir(REDIR_HEREDOC, tokens[++i].str));

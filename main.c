@@ -61,7 +61,7 @@ int	main(int argc, char **argv, char **envp)
 		cmd = parse_tokens(tokens, input);
 		if (!cmd)
 		{
-			printf("Parsing failed.\n");
+			// printf("Parsing failed.\n"); // NOTE: are we certain we want this "Parsing failed" message? Because we already output different parsing syntax error messages in parse_tokens(), so removing this should be just fine!
 			continue ;
 		}
 		free_tokens(tokens);

@@ -141,9 +141,9 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!current || !tokens[i + 1].str || !ft_strcmp(tokens[i + 1].str, "|")) // WARN: how about inputs ending in a pipe followed by... nothing?
 			{
 				if (!tokens[i + 1].str)
-					printf("Syntax error: Parsing failed.\n");
+					(void)printf("syntax error: parsing failed.\n");
 				else
-					printf("syntax error near unexpected token `|'\n");
+					(void)printf("syntax error near unexpected token `|'\n");
 				return (NULL);
 			}
 			new_cmd = (t_command *)ft_calloc(1, sizeof(t_command));

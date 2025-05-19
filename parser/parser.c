@@ -126,22 +126,24 @@ t_command *parse_tokens(t_token *tokens, char *input)
 	t_redir			*new_redir;
 	t_redir_type	redir_id;
 	int				i;
-	uint8_t			pipe_flag;
 
 	head = NULL;
 	current = NULL;
 	new_cmd = NULL;
 	new_redir = NULL;
-	pipe_flag = 0;
 	i = 0;
 	while (tokens[i].str)
 	{
 		if (!ft_strcmp(tokens[i].str, "|"))
 		{
-			pipe_flag = 1;
-			if (!current || (tokens[i] && (!ft_strcmp(tokens[i].str, "|")))) // WARN: I think that our Minishell might not be handling cases where there would be valid arguments but then at their end there would be two or more consecutive pipes - which bash interprets as the next code of block (to be checked). So should I add here: || current->
+			// TESTING: please TEST this next if statement thorughly! I think it should be good.
+			// NOTE: careful regarding the order in the if statement here: do NOT send tokens[i + 1] into ft_strcmp() if it is NULL.
+			if (!current || !tokens[i + 1].str || !ft_strcmp(tokens[i + 1].str, "|")) // WARN: how about inputs ending in a pipe followed by... nothing?
 			{
-				printf("syntax error near unexpected token `|'\n");
+				if (!tokens[i + 1].str)
+					printf("Syntax error: Parsing failed.\n");
+				else
+					printf("syntax error near unexpected token `|'\n");
 				return (NULL);
 			}
 			new_cmd = (t_command *)ft_calloc(1, sizeof(t_command));
@@ -194,7 +196,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			else
 				append_redir(redir_id, new_redir, current);
 		}
-		else // TODO: we are here now!
+		else // TODO: we are here now! time to study the argv member, its purpose, structure and freeing.
 			current->argv = argv_add(current->argv, tokens[i].str);
 		i++;
 	}

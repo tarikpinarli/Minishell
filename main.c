@@ -61,7 +61,7 @@ int	main(int argc, char **argv, char **envp)
 		cmd = parse_tokens(tokens, input);
 		if (!cmd)
 		{
-			free_all(input, tokens, cmd);
+			printf("Parsing failed.\n");
 			continue ;
 		}
 		free_tokens(tokens);

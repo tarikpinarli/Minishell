@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/19 15:17:43 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/19 16:53:14 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,8 +135,12 @@ void cleanup_heredocs(t_command *cmd)
 }
 void	free_all(char *input, t_token *tokens, t_command *cmd)
 {
-	cleanup_heredocs(cmd);
-	free_input(input);
-	free_tokens(tokens);
-	free_cmd(cmd);
+	if (cmd)
+		cleanup_heredocs(cmd);
+	if (input)
+		free_input(input);
+	if (tokens)
+		free_tokens(tokens);
+	if (cmd)
+		free_cmd(cmd);
 }

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:40:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/19 14:57:24 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/19 16:55:05 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,7 +61,6 @@ int	main(int argc, char **argv, char **envp)
 		if (!cmd)
 		{
 			free_all(input, tokens, cmd);
-			printf("Parsing failed.\n");
 			continue ;
 		}
 		/*
@@ -84,7 +83,7 @@ int	main(int argc, char **argv, char **envp)
 		if (cmd && cmd->next) // If there is pipe cmd->next exists
 			execute_pipeline(cmd, &env);
 		else if (cmd)
-			exec_command(cmd, &env); // If its a single command*/
+			exec_command(cmd, &env); // If its a single command
 		free_all(input, tokens, cmd);
 	}
 	free_env(env);

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/19 16:09:33 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/19 16:54:23 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,6 +186,11 @@ int	exec_isolated_builtin(t_command *cmd, char ***env)
 void	exec_single_cmd_child(t_command *cmd, char **env)
 {
 	char	*path;
+
+	if (!cmd->argv || !cmd->argv[0])
+		exit(0);
+	if (cmd->argv[0][0] == '\0')
+		exit(0);
 
 	if (!setup_redirections(cmd, 0))
 		exit(1);

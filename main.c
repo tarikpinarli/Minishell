@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:40:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/14 16:47:24 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/19 14:57:24 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,9 @@ int	main(int argc, char **argv, char **envp)
 		input = readline("minishell$ ");
 		if (!input)
 		{
+			close(STDIN_FILENO);
+			close(STDOUT_FILENO);
+			close(STDERR_FILENO);
 			printf("exit\n");
 			break ;
 		}

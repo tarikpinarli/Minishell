@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 12:48:37 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/14 17:15:13 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/19 14:54:43 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,5 +60,11 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 	rl_clear_history();
 	free_env(*env);
 	free_cmd(cmd);
+	close(3);
+	close(4);
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
+
 	exit(exit_code);
 }

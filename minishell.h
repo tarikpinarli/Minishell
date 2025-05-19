@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/15 13:43:58 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/19 16:02:19 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@
 # include <fcntl.h>
 # include <stdint.h>
 # include <sys/wait.h>
+# include <errno.h>
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
@@ -96,10 +97,13 @@ uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 int			last_exit_code(int set, int value);
 
 // executor functions
-int			setup_redirections(t_command *cmd);
 void		exec_command(t_command *cmd, char ***env);
 char		*find_in_path(char *cmd);
 void		execute_pipeline(t_command *cmd, char ***env);
+
+// Redirection functions
+int			setup_redirections(t_command *cmd, int pipeline_flag);
+int			prepare_heredoc_file(t_command *cmd);
 
 // free
 void		free_env(char **env);
@@ -109,6 +113,7 @@ void		free_cmd(t_command *cmd);
 void		free_all(char *input, t_token *tokens, t_command *cmd);
 void		ft_free_split(char **arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
+void		cleanup_heredocs(t_command *cmd);
 
 // NOTE: Question to Tarik: Do you think we should consider changing the variable
 // name of "argv" that is used for the builtins, because there is already one

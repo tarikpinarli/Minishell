@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/14 16:34:17 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/19 15:17:43 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -100,13 +100,6 @@ void	free_tokens(t_token *tokens)
 	}
 }
 
-void	free_all(char *input, t_token *tokens, t_command *cmd)
-{
-	free_input(input);
-	free_tokens(tokens);
-	free_cmd(cmd);
-}
-
 void	free_deprecated_strings(t_token *tokens, size_t k)
 {
 	while (tokens[k].str)
@@ -115,4 +108,35 @@ void	free_deprecated_strings(t_token *tokens, size_t k)
 		tokens[k].str = NULL;
 		k++;
 	}
+}
+
+void cleanup_heredocs(t_command *cmd)
+{
+	t_redir *in = cmd->in_redir;
+	char	*heredoc_file_name;
+	char	*heredoc_number;
+	int		i;
+
+	i = 1;
+	while (in)
+	{
+		
+		if (in->type == REDIR_HEREDOC)
+		{
+			heredoc_number = ft_itoa(i);
+			heredoc_file_name = ft_strjoin("heredoc_", heredoc_number);
+			unlink(heredoc_file_name);
+			free(heredoc_file_name);
+			free(heredoc_number);
+			i++;
+		}
+		in = in->next;
+	}
+}
+void	free_all(char *input, t_token *tokens, t_command *cmd)
+{
+	cleanup_heredocs(cmd);
+	free_input(input);
+	free_tokens(tokens);
+	free_cmd(cmd);
 }

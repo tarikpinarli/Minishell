@@ -137,8 +137,9 @@ t_command *parse_tokens(t_token *tokens, char *input)
 		if (!ft_strcmp(tokens[i].str, "|"))
 		{
 			// TESTING: please TEST this next if statement thorughly! I think it should be good.
-			// NOTE: careful regarding the order in the if statement here: do NOT send tokens[i + 1] into ft_strcmp() if it is NULL.
-			if (!current || !tokens[i + 1].str || !ft_strcmp(tokens[i + 1].str, "|")) // WARN: how about inputs ending in a pipe followed by... nothing?
+			// NOTE: careful when refactoring this if statement: It looks over complicated FOR A REASON: the order of the checks are intended. The check for !current should come BEFORE checking for !tokens[i + 1].str, and the last ft_strcmp check has to come AFTER !tokens[i + 1].str....
+			// Also: do NOT send tokens[i + 1] into ft_strcmp() if it is NULL.
+			if (!current || !tokens[i + 1].str || !ft_strcmp(tokens[i + 1].str, "|"))
 			{
 				if (!tokens[i + 1].str)
 					(void)printf("syntax error: parsing failed.\n");
@@ -155,12 +156,11 @@ t_command *parse_tokens(t_token *tokens, char *input)
 				exit (last_exit_code(1, 1));
 			}
 
+
 			current->next = new_cmd;
 			current = new_cmd;
 			new_cmd = NULL;
 			i++;
-			if (tokens[i] && (!ft_strcmp(tokens[i].str, "|")))
-
 
 			continue ; // contnue with next tokens[i].str
 		}
@@ -168,8 +168,11 @@ t_command *parse_tokens(t_token *tokens, char *input)
 		if (!current)
 		{
 			current = (t_command *)ft_calloc(1, sizeof(t_command));
-			// FIXME: protect? but how?
-			
+			if (!current)
+			{
+				free_all(input, tokens, head);
+				exit (last_exit_code(1, 1);
+			}
 			head = current;
 		}
 		// Redirection control
@@ -183,18 +186,26 @@ t_command *parse_tokens(t_token *tokens, char *input)
 				free_all(input, tokens, head); // check that "head" is the correct one to pass to free_all...
 				return (NULL);
 			}
+			if (!get_redirection_id(tokens[i].str))
+			{
+				// TODO: our redirection symbol is followed by another redirection symbol. handle this differently?
+				// Be very precise about this, however: observe what happens in EVERY scenario, with different combinations of redirection symbol sequences!
+				// < < ,  < << ,  < > ,  <  >> ,  >> > , >> >>, >> <<, >> < <<................... and the list goes on...
+				// WARN: Bash's behaviour seems to be quite consistent across the board with these sequences, EXCEPT the really odd two cases:
+				// "echo hello <<<" and "echo hello <<<<"              (without the quotes).
+				//
+				// implement first : (void)printf("syntax error near unexpected token `[%placeholder for tokens[i].str which should be printed here]');
+				free argv / cmd??
+				free_all() ?
+				return (NULL);
+			}
 			new_redir = create_redir(redir_id, tokens[i].str);
 			if (!new_redir)  // here we protect the malloc()
 			{
 				free_all(input, tokens, head);
 				exit (last_exit_code(1, 1));
 			}
-			if (!get_redirection_id(tokens[i].str))
-			{
-				// our redirection symbol is followed by another redirection symbol. handle this differently?
-			}
-			else
-				append_redir(redir_id, new_redir, current);
+			append_redir(redir_id, new_redir, current);
 		}
 		else // TODO: we are here now! time to study the argv member, its purpose, structure and freeing.
 			current->argv = argv_add(current->argv, tokens[i].str);

@@ -14,6 +14,7 @@
 
 static t_redir_type	get_redirection_id(const char *str);
 
+// WARN: remove printf() debugging
 t_redir	*create_redir(t_redir_type type, char *filename)
 {
 	t_redir *redir;
@@ -29,35 +30,52 @@ t_redir	*create_redir(t_redir_type type, char *filename)
 		redir = NULL;
 		return (NULL);
 	}
+//	printf("redir->filename is:	<%s>\n", redir->filename);
+//	printf("redir->type is:	<%u>\n", redir->type);
 	redir->next = NULL;
 	return (redir);
 }
 
+// WARN: remove printf() debugging
 void append_redir(t_redir_type type, t_redir *new_redir, t_command *current)
 {
-	t_redir	*temp;
-	t_redir *last_node;
+	t_redir	**temp;
 
 	temp = NULL;
-	last_node = NULL;
+//	printf("within append_redir(), new_redir->type is:	<%u>\n", new_redir->type);
+//	printf("within append_redir(), new_redir->filename is:	<%s>\n", new_redir->filename);
 	if (type == REDIR_IN || type == REDIR_HEREDOC)
-		temp = current->in_redir;
+		temp = &current->in_redir;
 	else
-		temp = current->out_redir;
-	if (!temp)
-		temp = new_redir;
+		temp = &current->out_redir;
+	if (!*temp)
+	{
+		*temp = new_redir;
+//		printf("temp->type is:	<%u>\n", (*temp)->type);
+//		printf("temp->filename is:	<%s>\n", (*temp)->filename);
+	}
 	else
 	{
-		last_node = temp->next;
-		while (last_node->next)
-			last_node = last_node->next;
-		last_node->next = new_redir;
+		while (*temp)
+			temp = &((*temp)->next);
+		*temp = new_redir;
 	}
-	// WARN: this last block is just for printf() debugging!!
-	if (last_node->next)
-		printf("ERROR occured in the parser(): appended node's next pointer is not NULL!!!\n\n");
-	if (last_node->type != type)
-		printf("ERROR occured in the parser(): appended node's type is not compatible with the type it is supposed to be!!\n\n");
+	
+	/*
+	// WARN: printf debugging !
+	printf("at the end of append_redir():\n");
+	if (current->in_redir)
+	{
+		printf("current->in_redir->filename is:	<%s>\n", current->in_redir->filename);
+		printf("current->in_redir->type is:	<%u>\n", current->in_redir->type);
+	}
+	if (current->out_redir)
+	{
+		printf("current->out_redir->filename is:	<%s>\n", current->out_redir->filename);
+		printf("current->out_redir->type is:	<%u>\n", current->out_redir->type);
+	}
+	printf("\n");
+	*/
 }
 
 /*
@@ -84,8 +102,6 @@ void append_redir(t_redir **redir_list, t_redir *new_redir)
 }
 */
 
-
-// TODO: protect this function from empty strings (such as invalid variables!)
 char **argv_add(char **argv, char *new_arg)
 {
 	int		count;
@@ -158,7 +174,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			new_cmd = (t_command *)ft_calloc(1, sizeof(t_command));
 			if (!new_cmd)
 			{
-				free_all(input, tokens, head); // double check if it is indeed 'head' that should be passed here!
+				free_all(input, tokens, head);
 				exit (last_exit_code(1, 1));
 			}
 
@@ -176,7 +192,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!current)
 			{
 				free_all(input, tokens, head);
-				exit (last_exit_code(1, 1);
+				exit (last_exit_code(1, 1));
 			}
 			head = current;
 		}
@@ -188,7 +204,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!tokens[i].str)
 			{
 				(void)printf("syntax error near unexpected token `newline'\n");
-				free_all(input, tokens, head); // check that "head" is the correct one to pass to free_all...
+				free_all(input, tokens, head);
 				return (NULL);
 			}
 			if (get_redirection_id(tokens[i].str))
@@ -200,24 +216,79 @@ t_command *parse_tokens(t_token *tokens, char *input)
 				free_all(input, tokens, head);
 				return (NULL);
 			}
+			if (!ft_strcmp(tokens[i].str, "|"))
+			{
+				(void)printf("syntax error near unexpected token `|'\n");
+				free_all(input, tokens, head);
+				return (NULL);
+			}
+
 			new_redir = create_redir(redir_id, tokens[i].str);
 			if (!new_redir)
 			{
 				free_all(input, tokens, head);
 				exit (last_exit_code(1, 1));
 			}
+
 			append_redir(redir_id, new_redir, current);
+
 		}
-		else // TODO: we are here now! time to study the argv member, its purpose, structure and freeing.
+		else
 		{
 			current->argv = argv_add(current->argv, tokens[i].str);
 			if (!current->argv)
 			{
-				free_all(input, tokens, cmd);
-				exit(last_exit_code(1, 1);
+				free_all(input, tokens, head);
+				exit (last_exit_code(1, 1));
 			}
+		}
 		i++;
 	}
+
+
+	size_t	j;
+	t_redir	*next_node;
+
+	next_node = NULL;
+	current = head;
+	i = 0;
+	printf("at the end of parse_tokens():\n");
+	while (current)
+	{
+		printf("CMD node n. <%d>, our lists are the following:\n", i);
+		j = 0;
+		if (current->in_redir)
+		{
+			next_node = current->in_redir;
+			while (next_node)
+			{
+				printf("in_redir node n. <%zu>:\n", j);
+				printf("filename is:	<%s>\n", next_node->filename);
+				printf("type is:	<%u>\n", next_node->type);
+				next_node = next_node->next;
+				j++;
+				printf("\n");
+			}
+		}
+		j = 0;
+		if (current->out_redir)
+		{
+			next_node = current->out_redir;
+			while (next_node)
+			{
+				printf("out_redir node n. <%zu>:\n", j);
+				printf("filename is:	<%s>\n", next_node->filename);
+				printf("type is:	<%u>\n", next_node->type);
+				next_node = next_node->next;
+				j++;
+				printf("\n");
+			}
+		}
+		printf("\n\n");
+		current = current->next;
+		i++;
+	}
+
 	return (head);
 }
 

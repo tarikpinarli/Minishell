@@ -45,7 +45,7 @@ void	free_env(char **env)
 	free(env);
 }
 
-static void	free_argv(char **argv)
+void	free_argv(char **argv)
 {
 	int	i;
 

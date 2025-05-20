@@ -84,6 +84,7 @@ void append_redir(t_redir **redir_list, t_redir *new_redir)
 }
 */
 
+
 // TODO: protect this function from empty strings (such as invalid variables!)
 char **argv_add(char **argv, char *new_arg)
 {
@@ -91,8 +92,7 @@ char **argv_add(char **argv, char *new_arg)
 	int		i;
 	char	**new_argv;
 
-<<<<<<< HEAD
-	if (!new_arg || new_arg[0] == '\0')
+	if (!new_arg || new_arg[0] == '\0') // important, but could eventually be done before calling this function, instead
 		return (argv);
 	// Count current size
 	count = 0;
@@ -100,10 +100,13 @@ char **argv_add(char **argv, char *new_arg)
 	while (argv && argv[count])
 		count++;
 
-	new_argv = malloc(sizeof(char *) * (count + 2));
-	if (!new_argv) // FIXME: is this sufficient? Is there a need to free() something first?
+	new_argv = (char **)malloc(sizeof(char *) * (count + 2)); // NOTE: why do we add 2? because: 1 for the new_arg string, & 1 for the NULL
+	if (!new_argv)
+	{
+		free_argv(argv); // it is mandatory to free_argv() here, BEFORE returning NULL and calling free_all()!
+		// Otherwise we replace argv with NULL, losing access to the memory that has to be freed!
 		return (NULL);
-
+	}
 	while (i < count)
 	{
 		new_argv[i] = argv[i];
@@ -111,9 +114,13 @@ char **argv_add(char **argv, char *new_arg)
 	}
 
 	new_argv[count] = ft_strdup(new_arg);
-	// FIXME: needs protection?
+	if (!new_argv[count])
+	{
+		free(new_argv);
+		free_argv(argv);
+		return (NULL);
+	}
 	new_argv[count + 1] = NULL;
-
 	free(argv); // free old array pointer
 	return (new_argv);
 }
@@ -145,17 +152,15 @@ t_command *parse_tokens(t_token *tokens, char *input)
 					(void)printf("syntax error: parsing failed.\n");
 				else
 					(void)printf("syntax error near unexpected token `|'\n");
+				free_all(input, tokens, head);
 				return (NULL);
 			}
 			new_cmd = (t_command *)ft_calloc(1, sizeof(t_command));
 			if (!new_cmd)
 			{
-				// TODO: ?????
-				// free_cmd(current);	// ??? necessary? study well the list to understand what is being allocated...and study the free_cmd() function, I am not quite sure to understand the **argv element!
 				free_all(input, tokens, head); // double check if it is indeed 'head' that should be passed here!
 				exit (last_exit_code(1, 1));
 			}
-
 
 			current->next = new_cmd;
 			current = new_cmd;
@@ -186,21 +191,17 @@ t_command *parse_tokens(t_token *tokens, char *input)
 				free_all(input, tokens, head); // check that "head" is the correct one to pass to free_all...
 				return (NULL);
 			}
-			if (!get_redirection_id(tokens[i].str))
+			if (get_redirection_id(tokens[i].str))
 			{
-				// TODO: our redirection symbol is followed by another redirection symbol. handle this differently?
-				// Be very precise about this, however: observe what happens in EVERY scenario, with different combinations of redirection symbol sequences!
-				// < < ,  < << ,  < > ,  <  >> ,  >> > , >> >>, >> <<, >> < <<................... and the list goes on...
-				// WARN: Bash's behaviour seems to be quite consistent across the board with these sequences, EXCEPT the really odd two cases:
-				// "echo hello <<<" and "echo hello <<<<"              (without the quotes).
-				//
-				// implement first : (void)printf("syntax error near unexpected token `[%placeholder for tokens[i].str which should be printed here]');
-				free argv / cmd??
-				free_all() ?
+				(void)printf("syntax error near unexpected token `%s'\n",
+					tokens[i].str); // this is quite similar to bash's behaviour,
+								// except some cases where it is slightly different: [ <> ] , [ <>> ] , [ <<< ] , [ <<<< ]
+								// but those (or some of those) start to behave in even other ways if there are more redirection sybols or valid arguments later; This is beyond the scope of this project. But since there are a lot of different behaviours, but most of them end up being parsing errors, so we can consider printing a more general "parsing failed\n" error instead... What does Tarik think?
+				free_all(input, tokens, head);
 				return (NULL);
 			}
 			new_redir = create_redir(redir_id, tokens[i].str);
-			if (!new_redir)  // here we protect the malloc()
+			if (!new_redir)
 			{
 				free_all(input, tokens, head);
 				exit (last_exit_code(1, 1));
@@ -208,7 +209,13 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			append_redir(redir_id, new_redir, current);
 		}
 		else // TODO: we are here now! time to study the argv member, its purpose, structure and freeing.
+		{
 			current->argv = argv_add(current->argv, tokens[i].str);
+			if (!current->argv)
+			{
+				free_all(input, tokens, cmd);
+				exit(last_exit_code(1, 1);
+			}
 		i++;
 	}
 	return (head);

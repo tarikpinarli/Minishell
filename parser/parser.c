@@ -12,9 +12,8 @@
 
 #include "../minishell.h"
 
-static t_redir_type	get_redirection_id(const char *str);
+static t_redir_type	get_redirection_id(const char *str, t_quote_type quote);
 
-// WARN: remove printf() debugging
 t_redir	*create_redir(t_redir_type type, char *filename)
 {
 	t_redir *redir;
@@ -30,77 +29,28 @@ t_redir	*create_redir(t_redir_type type, char *filename)
 		redir = NULL;
 		return (NULL);
 	}
-//	printf("redir->filename is:	<%s>\n", redir->filename);
-//	printf("redir->type is:	<%u>\n", redir->type);
 	redir->next = NULL;
 	return (redir);
 }
 
-// WARN: remove printf() debugging
 void append_redir(t_redir_type type, t_redir *new_redir, t_command *current)
 {
 	t_redir	**temp;
 
 	temp = NULL;
-//	printf("within append_redir(), new_redir->type is:	<%u>\n", new_redir->type);
-//	printf("within append_redir(), new_redir->filename is:	<%s>\n", new_redir->filename);
 	if (type == REDIR_IN || type == REDIR_HEREDOC)
 		temp = &current->in_redir;
 	else
 		temp = &current->out_redir;
 	if (!*temp)
-	{
 		*temp = new_redir;
-//		printf("temp->type is:	<%u>\n", (*temp)->type);
-//		printf("temp->filename is:	<%s>\n", (*temp)->filename);
-	}
 	else
 	{
 		while (*temp)
 			temp = &((*temp)->next);
 		*temp = new_redir;
 	}
-	
-	/*
-	// WARN: printf debugging !
-	printf("at the end of append_redir():\n");
-	if (current->in_redir)
-	{
-		printf("current->in_redir->filename is:	<%s>\n", current->in_redir->filename);
-		printf("current->in_redir->type is:	<%u>\n", current->in_redir->type);
-	}
-	if (current->out_redir)
-	{
-		printf("current->out_redir->filename is:	<%s>\n", current->out_redir->filename);
-		printf("current->out_redir->type is:	<%u>\n", current->out_redir->type);
-	}
-	printf("\n");
-	*/
 }
-
-/*
- * older version:
-void append_redir(t_redir **redir_list, t_redir *new_redir)
-{
-	t_redir *last;
-
-	if (!new_redir)
-	{
-		if (*redir_list)
-			free_redir_l
-		return ; // to protect the malloc_failure
-	}
-	if (!*redir_list)
-		*redir_list = new_redir;
-	else
-	{
-		last = *redir_list;
-		while (last->next)
-			last = last->next;
-		last->next = new_redir;
-	}
-}
-*/
 
 char **argv_add(char **argv, char *new_arg)
 {
@@ -160,8 +110,10 @@ t_command *parse_tokens(t_token *tokens, char *input)
 		if (!ft_strcmp(tokens[i].str, "|"))
 		{
 			// TESTING: please TEST this next if statement thorughly! I think it should be good.
-			// NOTE: careful when refactoring this if statement: It looks over complicated FOR A REASON: the order of the checks are intended. The check for !current should come BEFORE checking for !tokens[i + 1].str, and the last ft_strcmp check has to come AFTER !tokens[i + 1].str....
-			// Also: do NOT send tokens[i + 1] into ft_strcmp() if it is NULL.
+			// NOTE: careful when refactoring this if statement: It looks over complicated FOR A REASON:
+			// the order of the checks are intended. The check for !current should come BEFORE checking
+			// for !tokens[i + 1].str, and the last ft_strcmp check has to come AFTER !tokens[i + 1].str....
+			// Also, NOTE: do NOT send tokens[i + 1] into ft_strcmp() if it is NULL.
 			if (!current || !tokens[i + 1].str || !ft_strcmp(tokens[i + 1].str, "|"))
 			{
 				if (!tokens[i + 1].str)
@@ -197,7 +149,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			head = current;
 		}
 		// Redirection control
-		redir_id = get_redirection_id(tokens[i].str);
+		redir_id = get_redirection_id(tokens[i].str, tokens[i].quote);
 		if (redir_id)
 		{
 			i++;
@@ -207,7 +159,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 				free_all(input, tokens, head);
 				return (NULL);
 			}
-			if (get_redirection_id(tokens[i].str))
+			if (get_redirection_id(tokens[i].str, tokens[i].quote))
 			{
 				(void)printf("syntax error near unexpected token `%s'\n",
 					tokens[i].str); // this is quite similar to bash's behaviour,
@@ -229,9 +181,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 				free_all(input, tokens, head);
 				exit (last_exit_code(1, 1));
 			}
-
 			append_redir(redir_id, new_redir, current);
-
 		}
 		else
 		{
@@ -245,7 +195,8 @@ t_command *parse_tokens(t_token *tokens, char *input)
 		i++;
 	}
 
-
+	/*
+	 * WARN: printf() debugging block:
 	size_t	j;
 	t_redir	*next_node;
 
@@ -288,6 +239,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 		current = current->next;
 		i++;
 	}
+	*/
 
 	return (head);
 }
@@ -296,8 +248,10 @@ t_command *parse_tokens(t_token *tokens, char *input)
 * returns the type of redirection that the string, passed as a parameter,
 * corresponds to - or REDIR_NONE - if it corresponds to neither.
 */
-static t_redir_type	get_redirection_id(const char *str)
+static t_redir_type	get_redirection_id(const char *str, t_quote_type quote)
 {
+	if (quote != QUOTE_NONE)
+		return (REDIR_NONE);
 	if (*str == '<')
 	{
 		str++;

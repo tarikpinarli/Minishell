@@ -88,28 +88,17 @@ void	free_cmd(t_command *cmd)
 	}
 }
 
-void	free_input(char *input) // do we really want to keep this? better to inline it into free_all(). It will be just as explicit to write there: free(input);
-{
-	if (input)
-		free(input);
-}
-
 void	free_tokens(t_token *tokens)
 {
 	int	i;
 
 	i = 0;
-	if (tokens) // WARN: try to remove this if check, since I added it in free_all().
+	while (tokens[i].str != NULL)
 	{
-		while (tokens[i].str != NULL)
-		{
-			free(tokens[i].str);
-			tokens[i].str =  NULL;
-			i++;
-		}
-		free(tokens);
-		tokens = NULL;
+		free(tokens[i].str);
+		i++;
 	}
+	free(tokens);
 }
 
 void	free_all(char *input, t_token *tokens, t_command *cmd)

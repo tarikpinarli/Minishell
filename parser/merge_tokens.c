@@ -25,11 +25,6 @@ void	merge_tokens(t_token *tokens, char *input)
 
 	i = 0;
 	k = 0;
-//	it should be alright to take this away, we check for tokens being NULL
-//	every time it is necessary, before calling this function (and then the
-//	function will fit within 25 lines)
-//	if (!tokens)
-//		free_tokens_input_and_exit(tokens, input, i);
 	while (tokens[i].str)
 	{
 		j = i;

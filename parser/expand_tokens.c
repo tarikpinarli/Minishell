@@ -30,8 +30,7 @@ void	expand_tokens(t_token *tokens, char *input)
 				failure_flag = rebuild_expandable_string(tokens, i);
 				if (failure_flag)
 				{
-					free_input(input);
-					free_tokens(tokens);
+					free_all(input, tokens, NULL);
 					exit (last_exit_code(1, 1));
 				}
 			}

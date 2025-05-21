@@ -38,7 +38,7 @@ int	tokenize(char *input, t_token **tokens)
 	}
 	if (fill_up_tokens(input, tokens, count) == -1)
 	{
-		free_input(input);
+		free(input);
 		free(*tokens);
 		*tokens = NULL;
 		exit (last_exit_code(1, 1));

@@ -6,7 +6,96 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:22 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/27 14:03:06 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/21 15:15:09 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "../minishell.h"
+
+
+void	update_env_var(char ***env, const char *key, const char *value)
+{
+	int		i;
+	size_t	key_len;
+	char	*new_entry;
+	char	**new_env;
+	size_t	total_len;
+
+	key_len = ft_strlen(key);
+	total_len = ft_strlen(key) + 1 + ft_strlen(value) + 1; // key + '=' + value + '\0'
+
+	new_entry = malloc(total_len);
+	if (!new_entry)
+		return ;
+	ft_strlcpy(new_entry, key, key_len + 1);
+	ft_strlcat(new_entry, "=", key_len + 2);
+	ft_strlcat(new_entry, value, total_len);
+
+	i = 0;
+	while ((*env)[i])
+	{
+		if (ft_strncmp((*env)[i], key, key_len) == 0 && (*env)[i][key_len] == '=')
+		{
+			free((*env)[i]);
+			(*env)[i] = new_entry;
+			return ;
+		}
+		i++;
+	}
+
+	new_env = malloc(sizeof(char *) * (i + 2));
+	if (!new_env)
+	{
+		free(new_entry);
+		return ;
+	}
+	i = 0;
+	while ((*env)[i])
+	{
+		new_env[i] = (*env)[i];
+		i++;
+	}
+	new_env[i] = new_entry;
+	new_env[i + 1] = NULL;
+	free(*env);
+	*env = new_env;
+}
+
+
+void	update_pwd_vars(char ***env, const char *oldpwd, const char *newpwd)
+{
+	update_env_var(env, "OLDPWD", oldpwd);
+	update_env_var(env, "PWD", newpwd);
+}
+
+
+int builtin_cd(char **argv, char ***env)
+{
+    char oldpwd[PATH_MAX];
+    char newpwd[PATH_MAX];
+
+    if (!argv || !argv[0])
+        return (0);
+    if (!argv[1])
+    {
+        ft_putendl_fd("cd: HOME/USER not set", 2);
+        return (1);
+    }
+    if (argv[2])
+    {
+        ft_putstr_fd("minishell: ", 2);
+        ft_putstr_fd(argv[0], 2);
+        ft_putendl_fd(": too many arguments", 2);
+        return (1);
+    }
+    if (!getcwd(oldpwd, sizeof(oldpwd)))
+        return (1);
+    if (chdir(argv[1]) != 0)
+    {
+        perror("cd");
+        return (1);
+    }
+    if (getcwd(newpwd, sizeof(newpwd)))
+        update_pwd_vars(env, oldpwd, newpwd);
+    return (0);
+}

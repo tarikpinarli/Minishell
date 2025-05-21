@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/19 16:02:19 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/21 14:45:27 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ char 		**copy_env(char **envp);
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(void);
-//int		builtin_cd(char **argv);
+int			builtin_cd(char **argv, char ***env);
 int			builtin_export(char **argv, int pid_flag, char ***env);
 int			builtin_unset(char **argv, char ***env);
 int			builtin_env(char ***env);

@@ -102,7 +102,7 @@ static t_token	next_token(char **str, int *line_id)
 		return (extract_special_character_token(str, line_id));
 	else if (**str)
 		return (extract_simple_token(str, line_id));
-	printf("Hello from where you were wondering if we get to or not!!!\n\n");
+	printf("Hello from where you were wondering if we get to or not!!!\n\n"); // FIXME: remove this debugging when ready!
 	return (empty);
 }
 

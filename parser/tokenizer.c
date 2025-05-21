@@ -16,7 +16,8 @@
 * return values:
 * ◦ count: If everything goes smoothly, this function returns the count returned
 *	from count_tokens().
-* ◦ -1: if an opening quotation mark has not been closed by the user
+* ◦ 0: if an opening quotation mark has not been closed by the user, or if
+*	no tokens have been found in the input string and count is empty.
 * ◦ Setting the exit status to 1, this function frees all heap allocated memory
 *	and exits the program if a request for dynamic memory allocation fails.
 */
@@ -25,10 +26,10 @@ int	tokenize(char *input, t_token **tokens)
 	int	count;
 
 	count = count_tokens(input);
-	if (count == -1)
+	if (count == 0 || count == -1)
 	{
 		free(input);
-		return (-1);
+		return (0);
 	}
 	*tokens = ft_calloc((count + 1), sizeof(t_token));
 	if (!*tokens)

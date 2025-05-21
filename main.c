@@ -53,7 +53,7 @@ int	main(int argc, char **argv, char **envp)
 			free(input);
 			continue ;
 		}
-		if (tokenize(input, &tokens) == -1) // tokenize() returns -1 if a quotation mark was left unclosed.
+		if (!tokenize(input, &tokens)) // it returns 0 if a quotation mark was left unclosed or if no tokens were counted (whitespace input)
 			continue ;
 		expand_tokens(tokens, input);
 		merge_tokens(tokens, input);

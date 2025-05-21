@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/19 16:54:23 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/21 16:14:02 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -194,7 +194,9 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 
 	if (!setup_redirections(cmd, 0))
 		exit(1);
-	if (cmd->argv[0][0] == '/')
+	if (cmd->argv[0][0] == '/' ||
+		ft_strncmp(cmd->argv[0], "./", 2) == 0 ||
+		ft_strncmp(cmd->argv[0], "../", 3) == 0)
 		path = ft_strdup(cmd->argv[0]);
 	else
 		path = find_in_path(cmd->argv[0]);

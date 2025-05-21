@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:35 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/19 15:55:18 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/21 19:52:24 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,28 +75,34 @@ int	prepare_heredoc_file(t_command *cmd)
 	return (fd);
 }
 
-int handle_in_redir(t_command *cmd)
+int	handle_in_redir(t_command *cmd)
 {
-	t_redir *in = cmd->in_redir;
-	int fd = -1;
+	t_redir		*in;
+	struct stat	st;
+	int			fd;
 
+	in = cmd->in_redir;
 	while (in)
 	{
+		if (stat(in->filename, &st) == -1)
+		{
+			perror(in->filename);
+			return (0);
+		}
 		fd = open(in->filename, O_RDONLY);
 		if (fd < 0)
 		{
 			perror(in->filename);
 			return (0);
 		}
-		if (in->next == NULL)
-		{
+		if (!in->next)
 			dup2(fd, STDIN_FILENO);
-		}
 		close(fd);
 		in = in->next;
 	}
 	return (1);
 }
+
 
 int	handle_out_redir(t_command *cmd)
 {

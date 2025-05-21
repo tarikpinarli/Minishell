@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/21 19:15:02 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/21 20:00:15 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,6 +186,7 @@ int	exec_isolated_builtin(t_command *cmd, char ***env)
 void	exec_single_cmd_child(t_command *cmd, char **env)
 {
 	char	*path;
+	struct stat	st;
 
 	if (!cmd->argv || !cmd->argv[0])
 		exit(0);
@@ -202,28 +203,34 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 		path = find_in_path(cmd->argv[0]);
 	if (!path)
 	{
-		write(2, cmd->argv[0], ft_strlen(cmd->argv[0]));
-		write(2, ": command not found\n", 21);
+		ft_putstr_fd(cmd->argv[0], 2);
+		ft_putendl_fd(": command not found", 2);
 		exit(127);
+	}
+	if (stat(path, &st) == 0 && S_ISDIR(st.st_mode))
+	{
+		ft_putstr_fd(path, 2);
+		ft_putendl_fd(": Is a directory", 2);
+		exit(126);
 	}
 	if (execve(path, cmd->argv, env) == -1)
 	{
 		if (errno == EISDIR)
 		{
 			ft_putstr_fd(cmd->argv[0], 2);
-			ft_putendl_fd(": Permission denied", 2);
+			ft_putendl_fd(": Is a directory", 2);
 			exit(126);
 		}
 		else if (errno == EACCES)
 		{
 			ft_putstr_fd(cmd->argv[0], 2);
-			ft_putendl_fd(": Is a directory", 2);
+			ft_putendl_fd(": Permission denied", 2);
 			exit(126);
 		}
 		else if (errno == ENOENT)
 		{
 			ft_putstr_fd(cmd->argv[0], 2);
-			ft_putendl_fd(": command not found", 2);
+			ft_putendl_fd(": No such file or directory", 2);
 			exit(127);
 		}
 		else

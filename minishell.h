@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/21 14:45:27 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/21 19:52:36 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@
 # include <stdint.h>
 # include <sys/wait.h>
 # include <errno.h>
+# include <sys/stat.h> 
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096

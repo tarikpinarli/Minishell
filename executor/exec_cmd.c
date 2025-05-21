@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/21 16:14:02 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/21 19:15:02 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -241,8 +241,12 @@ void	exec_command(t_command *cmd, char ***env)
 	pid_t	pid;
 	int		status;
 
-	if (!cmd || !cmd->argv || !cmd->argv[0])
+	if (!cmd || !cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
+	{
+		ft_putstr_fd("Command ''", 2);
+		ft_putendl_fd(" not found, but can be installed", 2);
 		return ;
+	}
 	if (is_builtin(cmd->argv[0]) && !cmd->next)
 		if (exec_isolated_builtin(cmd, env) == 1)
 			return ;

@@ -6,11 +6,30 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 12:48:37 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/19 14:54:43 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/21 19:33:57 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+int is_too_big(const char *str)
+{
+	int len;
+	int i;
+
+	len = 0;
+	i = 0;
+	if (!str)
+		return (1);
+	if (str[0] == '-' || str[0] == '+')
+		i++;
+	while (str[i])
+	{
+		len++;
+		i++;
+	}
+	return (len > 19);
+}
 
 static int	is_numeric(const char *str)
 {
@@ -45,7 +64,7 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 	}
 	if (pid_flag)
 		ft_putendl_fd("exit", 1);
-	if (arg_count == 2 && !is_numeric(argv[1]))
+	if (arg_count >= 2 && (!is_numeric(argv[1]) || is_too_big(argv[1])))
 	{
 		ft_putstr_fd("exit: ", 2);
 		ft_putstr_fd(argv[1], 2);
@@ -65,6 +84,5 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 	close(STDIN_FILENO);
 	close(STDOUT_FILENO);
 	close(STDERR_FILENO);
-
 	exit(exit_code);
 }

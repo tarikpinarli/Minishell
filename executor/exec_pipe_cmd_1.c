@@ -1,41 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec_cmd.c                                         :+:      :+:    :+:   */
+/*   exec_pipe_cmd_1.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/22 18:59:31 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/22 20:21:22 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-int	setup_pipe(int *pipefd)
-{
-	if (pipe(pipefd) == -1)
-	{
-		perror("pipe");
-		return (0);
-	}
-	return (1);
-}
-
-void	prepare_child(t_command *cmd, int prev_fd, int *pipefd)
-{
-	if (prev_fd != -1)
-	{
-		dup2(prev_fd, STDIN_FILENO);
-		close(prev_fd);
-	}
-	if (cmd->next)
-	{
-		close(pipefd[0]);
-		dup2(pipefd[1], STDOUT_FILENO);
-		close(pipefd[1]);
-	}
-}
 
 void	exec_cmd_child_logic(t_command *cmd, char ***env)
 {
@@ -49,7 +24,8 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 		ret = execute_builtin(cmd, 0, env);
 		exit(ret);
 	}
-	if (cmd->argv[0][0] == '/')
+	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2) ||
+        !ft_strncmp(cmd->argv[0], "../", 3))
 		path = ft_strdup(cmd->argv[0]);
 	else
 		path = find_in_path(cmd->argv[0]);
@@ -60,32 +36,7 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 		exit(127);
 	}
 	if (execve(path, cmd->argv, *env) == -1)
-	{
-		if (errno == EISDIR)
-		{
-			ft_putstr_fd(cmd->argv[0], 2);
-			ft_putendl_fd(": Is a directory", 2);
-			exit(126);
-		}
-		else if (errno == EACCES)
-		{
-			ft_putstr_fd(cmd->argv[0], 2);
-			ft_putendl_fd(": Permission denied", 2);
-			exit(126);
-		}
-		else if (errno == ENOENT)
-		{
-			ft_putstr_fd(cmd->argv[0], 2);
-			ft_putendl_fd(": command not found", 2);
-			exit(127);
-		}
-		else
-		{
-			perror("execve");
-			exit(1);
-		}
-	}
-
+		handle_execve_error(cmd->argv[0], path);
 	free(path);
 	exit(1);
 }
@@ -105,28 +56,6 @@ void	launch_child_process(t_command *cmd, int prv_fd, int *p_fd, char ***env)
 		prepare_child(cmd, prv_fd, p_fd);
 		exec_cmd_child_logic(cmd, env);
 	}
-}
-
-void	update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd)
-{
-	if (cmd->next)
-	{
-		close(pipefd[1]);
-		*prev_fd = pipefd[0];
-	}
-	else
-		*prev_fd = -1;
-}
-
-void	wait_for_children(void)
-{
-	int	status;
-	int	wpid;
-
-	wpid = 1;
-	while (wpid > 0)
-		wpid = wait(&status);
-	last_exit_code(1, WEXITSTATUS(status));
 }
 
 void	execute_pipeline(t_command *cmd, char ***env)

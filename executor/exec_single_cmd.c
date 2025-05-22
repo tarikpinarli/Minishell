@@ -6,38 +6,11 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/22 19:26:01 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/22 20:11:33 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-void	handle_execve_error(char *cmd, char *path)
-{
-	if (errno == EISDIR)
-	{
-		ft_putstr_fd(path, 2);
-		ft_putendl_fd(": Is a directory", 2);
-		exit(126);
-	}
-	else if (errno == EACCES)
-	{
-		ft_putstr_fd(path, 2);
-		ft_putendl_fd(": Permission denied", 2);
-		exit(126);
-	}
-	else if (errno == ENOENT)
-	{
-		ft_putstr_fd(path, 2);
-		ft_putendl_fd(": No such file or directory", 2);
-		exit(127);
-	}
-	else
-	{
-		perror(cmd);
-		exit(1);
-	}
-}
 
 int	exec_isolated_builtin(t_command *cmd, char ***env)
 {
@@ -88,9 +61,8 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 		exit(0);
 	if (!setup_redirections(cmd, 0))
 		exit(1);
-	if (cmd->argv[0][0] == '/' ||
-        ft_strncmp(cmd->argv[0], "./", 2) == 0 ||
-        ft_strncmp(cmd->argv[0], "../", 3) == 0)
+	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2) ||
+        !ft_strncmp(cmd->argv[0], "../", 3))
 		path = ft_strdup(cmd->argv[0]);
 	else
 		path = find_in_path(cmd->argv[0]);

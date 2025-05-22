@@ -96,6 +96,7 @@ void	handle_sigquit(int sig)
 //			returned to the user, and exit status is: 143
 //			3. SIGINT seems to behave the same way as when not within 'cat'.
 
+/*
 void	handle_sigquit(int sig, siginfo_t *info, void *context)
 {
 	(void)sig; // just for the program to compile when we don't do anything with it...
@@ -118,7 +119,7 @@ void	handle_sigquit(int sig, siginfo_t *info, void *context)
 		return ;
 	}
 }
-
+*/
 
 
 int	setup_signals(void)
@@ -138,8 +139,10 @@ int	setup_signals(void)
 	ft_bzero(&sa_quit, sizeof(sigaction));
 	(void)sigemptyset(&sa_quit.sa_mask);
 	(void)sigaddset(&sa_quit.sa_mask, SIGQUIT);
-	sa_quit.sa_flags = SA_SIGINFO | SA_RESTART;
-	sa_quit.sa_sigaction = &handle_sigquit;
+//	sa_quit.sa_flags = SA_RESTART;
+//	sa_quit.sa_sigaction = &handle_sigquit;
+//	sa_quit.sa_flags = SA_SIGINFO | SA_RESTART;
+//	sa_quit.sa_sigaction = &handle_sigquit;
 
 	// version which ONLY ignores the signal:
 	// (it works: but it doesn't work for cat in interactive mode, where sigquit

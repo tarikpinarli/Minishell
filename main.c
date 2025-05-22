@@ -22,18 +22,12 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	env = copy_env(envp);
-//	rl_catch_signals = 0;
-	// FIXME: Disabling read_line()s default signal handling.
-	// It violates the subject;
-	// but it resolves the issue of SIGQUIT signal Ctrl+\, which is not supposed
-	// to do anything, but now it prints that and brings the cursor back to the
-	// start of the line... UPDATE: To solve this, we need to use a sigaction
-	// with a handler that tells our shell to ignore the signal SIGQUIT (basically
-	// to not do anything)
 	if (setup_signals() <= -500)
 		return (-500); // WARN: this is a totally random value, just to handle the sig function failures...
 	while (1)
 	{
+		if (setup_signals(SETUP_PARENT) == -1)
+			return (-500); // WARN: this is a totally random value, just to handle the sig function failures... how about simply voiding out the return here? or setting some other return value which is not too random looking.
 		input = NULL;
 		tokens = NULL;
 		cmd = NULL;

@@ -49,6 +49,13 @@ typedef enum e_redir_type
 	REDIR_HEREDOC	// <<
 }	t_redir_type;
 
+typedef enum e_process_setup
+{
+//	SETUP_START,
+	SETUP_PARENT,
+	SETUP_CHILD
+}	t_process_setup;
+
 typedef struct s_redir
 {
 	t_redir_type	type;
@@ -72,9 +79,7 @@ typedef struct s_command
 }	t_command;
 
 // signal functions
-int			setup_signals(void);
-void		handle_sigint(int sig);
-void		handle_sigquit(int sig, siginfo_t *info, void *context);
+int			setup_signals(t_process_setup sig_setup);
 
 // tokenizer functions
 int			tokenize(char *input, t_token **tokens);
@@ -98,9 +103,11 @@ uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 int			last_exit_code(int set, int value);
 
 // executor functions
-void		exec_command(t_command *cmd, char ***env);
+int			exec_command(t_command *cmd, char ***env);
+//void		exec_command(t_command *cmd, char ***env);
 char		*find_in_path(char **env, char *cmd);
-void		execute_pipeline(t_command *cmd, char ***env);
+int			execute_pipeline(t_command *cmd, char ***env);
+//void		execute_pipeline(t_command *cmd, char ***env); // WARN: remove when ready
 void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);

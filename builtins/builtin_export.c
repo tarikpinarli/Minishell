@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/15 13:54:02 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/22 18:32:42 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,13 @@ void	sort_and_print_env(char **env)
 	}
 	print_env(copy);
 }
+
+void	print_export_err(char *str)
+{
+	ft_putstr_fd("export: `", 2);
+	ft_putstr_fd(str, 2);
+	ft_putendl_fd("': not a valid identifier", 2);
+}
 int	valid_identifier(char *str)
 {
 	char	*eq;
@@ -86,9 +93,7 @@ int	valid_identifier(char *str)
 		*eq = '\0';
 		if (!ft_isalpha(*str) && *str != '_')
 		{
-			ft_putstr_fd("export: `", 2);
-			ft_putstr_fd(str, 2);
-			ft_putendl_fd("': not a valid identifier", 2);
+			print_export_err(str);
 			*eq = '=';
 			return (0);
 		}
@@ -96,9 +101,7 @@ int	valid_identifier(char *str)
 		{
 			if (!ft_isalnum(*str) && *str != '_')
 			{
-				ft_putstr_fd("export: `", 2);
-				ft_putstr_fd(head, 2);
-				ft_putendl_fd("': not a valid identifier", 2);
+				print_export_err(head);
 				*eq = '=';
 				return (0);
 			}
@@ -110,18 +113,14 @@ int	valid_identifier(char *str)
 	{
 		if (!ft_isalpha(*head) && *head != '_')
 		{
-			ft_putstr_fd("export: `", 2);
-			ft_putstr_fd(head, 2);
-			ft_putendl_fd("': not a valid identifier", 2);
+			print_export_err(head);
 			return (0);
 		}
 		while (*head)
 		{
 			if (!ft_isalnum(*head) && *head != '_')
 			{
-				ft_putstr_fd("export: `", 2);
-				ft_putstr_fd(head, 2);
-				ft_putendl_fd("': not a valid identifier", 2);
+				print_export_err(head);
 				return (0);
 			}
 			head++;

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 12:48:37 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/21 19:33:57 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/22 18:45:52 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,18 @@ static int	is_numeric(const char *str)
 	return (1);
 }
 
+void	close_and_free(char **env, t_command *cmd)
+{
+	rl_clear_history();
+	free_env(env);
+	free_cmd(cmd);
+	close(3);
+	close(4);
+	close(STDIN_FILENO);
+	close(STDOUT_FILENO);
+	close(STDERR_FILENO);
+}
+
 int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 {
 	int	arg_count;
@@ -58,10 +70,7 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 	while (argv[arg_count])
 		arg_count++;
 	if (arg_count > 2)
-	{
-		ft_putendl_fd("exit: too many arguments", 2);
-		return (1);
-	}
+		return (ft_putendl_fd("exit: too many arguments", 2), 1);
 	if (pid_flag)
 		ft_putendl_fd("exit", 1);
 	if (arg_count >= 2 && (!is_numeric(argv[1]) || is_too_big(argv[1])))
@@ -76,13 +85,6 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 		exit_code = ft_atoi(argv[1]);
 	else
 		exit_code = 0;
-	rl_clear_history();
-	free_env(*env);
-	free_cmd(cmd);
-	close(3);
-	close(4);
-	close(STDIN_FILENO);
-	close(STDOUT_FILENO);
-	close(STDERR_FILENO);
+	close_and_free(*env, cmd);
 	exit(exit_code);
 }

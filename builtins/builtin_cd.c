@@ -6,14 +6,29 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:22 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/21 16:11:05 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/22 18:17:44 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+char	*get_env_value(char **env, char *key)
+{
+	int	key_len;
+	int	i;
 
-static char	*make_env_entry(const char *key, const char *value)
+	i = 0;
+	key_len = ft_strlen(key);
+	while (env[i])
+	{
+		if (ft_strncmp(env[i], key, key_len) == 0 && env[i][key_len] == '=')
+			return (env[i] + key_len + 1);
+		i++;
+	}
+	return (NULL);
+}
+
+char	*make_env_entry(const char *key, const char *value)
 {
 	size_t	key_len;
 	size_t	total_len;
@@ -30,7 +45,7 @@ static char	*make_env_entry(const char *key, const char *value)
 	return (entry);
 }
 
-static void	append_env(char ***env, char *new_entry)
+void	append_env(char ***env, char *new_entry)
 {
 	int		i;
 	char	**new_env;
@@ -69,7 +84,7 @@ void	update_env_var(char ***env, const char *key, const char *value)
 	i = 0;
 	while ((*env)[i])
 	{
-		if (ft_strncmp((*env)[i], key, key_len) == 0 &&
+		if (!ft_strncmp((*env)[i], key, key_len)&&
             (*env)[i][key_len] == '=')
 		{
 			free((*env)[i]);
@@ -89,28 +104,59 @@ void	update_pwd_vars(char ***env, const char *oldpwd, const char *newpwd)
 	update_env_var(env, "PWD", newpwd);
 }
 
-
-int builtin_cd(char **argv, char ***env)
+int	too_mant_argument_err(char *arg)
 {
-    char oldpwd[PATH_MAX];
-    char newpwd[PATH_MAX];
+	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putendl_fd(": too many arguments", 2);
+	return (1);
+}
 
-    if (!argv || !argv[0])
-        return (0);
-    if (!argv[1])
-        return(ft_putendl_fd("cd: HOME/USER not set", 2), 1);
-    if (argv[2])
-        return(ft_putstr_fd("minishell: ", 2),
-        ft_putstr_fd(argv[0], 2),
-        ft_putendl_fd(": too many arguments", 2), 1);
-    if (!getcwd(oldpwd, sizeof(oldpwd)))
-        return (1);
-    if (chdir(argv[1]) != 0)
-    {
-        perror("cd");
-        return (1);
-    }
-    if (getcwd(newpwd, sizeof(newpwd)))
-        update_pwd_vars(env, oldpwd, newpwd);
-    return (0);
+
+int	builtin_cd(char **argv, char ***env)
+{
+	char	oldpwd[PATH_MAX];
+	char	newpwd[PATH_MAX];
+	char	*target;
+	int		arg_count;
+
+	if (!argv || !argv[0])
+		return (0);
+	arg_count = 0;
+	while(argv[arg_count])
+		arg_count++;
+	if (arg_count > 2)
+		return(too_mant_argument_err(argv[0]));
+	if (arg_count == 1 || !ft_strcmp(argv[1], "~"))
+	{
+		target = get_env_value(*env, "HOME");
+		if (!target)
+		{
+			ft_putendl_fd("minishell: cd: HOME not set", 2);
+			return (1);
+		}
+	}
+	else if (ft_strcmp(argv[1], "-") == 0)
+	{
+		target = get_env_value(*env, "OLDPWD");
+		if (!target)
+		{
+			ft_putendl_fd("minishell: cd: OLDPWD not set", 2);
+			return (1);
+		}
+		ft_putendl_fd(target, 1);
+	}
+	else
+		target = argv[1];
+
+	if (!getcwd(oldpwd, sizeof(oldpwd)))
+		return (1);
+	if (chdir(target) != 0)
+	{
+		perror("cd");
+		return (1);
+	}
+	if (getcwd(newpwd, sizeof(newpwd)))
+		update_pwd_vars(env, oldpwd, newpwd);
+	return (0);
 }

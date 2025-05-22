@@ -122,7 +122,7 @@ void	handle_sigquit(int sig, siginfo_t *info, void *context)
 */
 
 
-int	setup_signals(void)
+int	setup_signals(uint8_t )
 {
 	struct sigaction sa_int;
 	struct sigaction sa_quit;

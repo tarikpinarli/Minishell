@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/21 19:52:36 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/22 17:48:41 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,7 @@ void		cleanup_heredocs(t_command *cmd);
 char 		**copy_env(char **envp);
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
-int			builtin_pwd(void);
+int			builtin_pwd(char **argv);
 int			builtin_cd(char **argv, char ***env);
 int			builtin_export(char **argv, int pid_flag, char ***env);
 int			builtin_unset(char **argv, char ***env);

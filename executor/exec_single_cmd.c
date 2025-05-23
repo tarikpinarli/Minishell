@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/22 20:11:33 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 16:16:50 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,18 +37,6 @@ int	exec_isolated_builtin(t_command *cmd, char ***env)
 	last_exit_code(1, ret);
 	cleanup_heredocs(cmd);
 	return (1);
-}
-
-void	check_if_directory(char *path)
-{
-	struct stat	st;
-
-	if (stat(path, &st) == 0 && S_ISDIR(st.st_mode))
-	{
-		ft_putstr_fd(path, 2);
-		ft_putendl_fd(": Is a directory", 2);
-		exit(126);
-	}
 }
 
 void	exec_single_cmd_child(t_command *cmd, char **env)

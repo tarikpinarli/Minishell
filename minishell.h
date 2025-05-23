@@ -49,12 +49,11 @@ typedef enum e_redir_type
 	REDIR_HEREDOC	// <<
 }	t_redir_type;
 
-typedef enum e_process_setup
+typedef enum e_process
 {
-//	SETUP_START,
-	SETUP_PARENT,
-	SETUP_CHILD
-}	t_process_setup;
+	PARENT,
+	CHILD
+}	t_process;
 
 typedef struct s_redir
 {
@@ -78,8 +77,8 @@ typedef struct s_command
 	struct s_command	*next;		// Next command in pipeline
 }	t_command;
 
-// signal functions
-int			setup_signals(t_process_setup sig_setup);
+// signal handling
+int			setup_signals(t_process process);
 
 // tokenizer functions
 int			tokenize(char *input, t_token **tokens);

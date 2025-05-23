@@ -26,8 +26,12 @@ int	main(int argc, char **argv, char **envp)
 		return (-500); // WARN: this is a totally random value, just to handle the sig function failures...
 	while (1)
 	{
-		if (setup_signals(SETUP_PARENT) == -1)
-			return (-500); // WARN: this is a totally random value, just to handle the sig function failures... how about simply voiding out the return here? or setting some other return value which is not too random looking.
+		if (setup_signals(PARENT) == -1)
+			return (-500); // WARN: this is a random value, just to handle the sig function failures. How about simply voiding out the return here? or setting some other return value which is not too random looking.
+
+
+//		printf("We have just set up the signal handling for the PARENT\n\n");
+
 		input = NULL;
 		tokens = NULL;
 		cmd = NULL;

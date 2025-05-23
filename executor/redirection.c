@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:35 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/21 19:52:24 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 15:42:02 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,12 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int	file_num)
 	char	*file_number;
 	char	*file_name;
 	char	*line;
-	int		fd;
 
 	file_number = ft_itoa(file_num);
-	file_name = ft_strjoin("heredoc_", file_number);
+	file_name  = ft_strjoin("heredoc_", file_number);
 	free(file_number);
-	fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+
+	int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd < 0)
 		return (-1);
 	while (1)
@@ -34,46 +34,35 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int	file_num)
 		write(fd, "\n", 1);
 		free(line);
 	}
-	if (fd < 0)
-	{
-		free(file_number);
-		free(file_name);
-		return (-1);
-	}
+	free(line);
 	close(fd);
-	fd = open(file_name, O_RDONLY);
-	if (fd < 0)
-		return (-1);
-	if (file_name)
-	{
-		free(in_redir->filename);
-		in_redir->filename = ft_strdup(file_name);
-	}
-	free(file_name);
-	return (fd);
+	free(in_redir->filename);
+	in_redir->filename = file_name;
+	return (0);
 }
+
 
 
 int	prepare_heredoc_file(t_command *cmd)
 {
-	int	i;
 	t_redir *in;
-	int		fd;
+	int i;
 
 	in = cmd->in_redir;
 	i = 1;
-	fd = -1;
 	while (in)
 	{
 		if (in->type == REDIR_HEREDOC)
 		{
-			fd = handle_heredoc(in, in->filename, i);
+			if (handle_heredoc(in, in->filename, i) < 0)
+				return (0);
 			i++;
 		}
 		in = in->next;
 	}
-	return (fd);
+	return (1);
 }
+
 
 int	handle_in_redir(t_command *cmd)
 {

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 20:12:11 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 21:02:39 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,16 +69,26 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 	exit(1);
 }
 
+void	handle_missing_command(t_command *cmd)
+{
+	if (cmd->in_redir)
+		prepare_heredoc_file(cmd);
+	else
+	{
+		ft_putstr_fd("Command ''", 2);
+		ft_putendl_fd(" not found, but can be installed", 2);
+	}
+}
+
 void	exec_command(t_command *cmd, char ***env)
 {
 	pid_t	pid;
 	int		status;
 
-	if (!cmd || !cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
+	if ((!cmd || !cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0'))
 	{
-		ft_putstr_fd("Command ''", 2);
-		ft_putendl_fd(" not found, but can be installed", 2);
-		return ;
+		handle_missing_command(cmd);
+		return;
 	}
 	if (is_builtin(cmd->argv[0]) && !cmd->next)
 		if (exec_isolated_builtin(cmd, env) == 1)

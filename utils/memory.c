@@ -6,11 +6,21 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/19 16:53:14 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 17:42:31 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+void	free_2D_char(char **arr)
+{
+	int i;
+
+	i = 0;
+	while (arr[i])
+		free(arr[i++]);
+	free(arr);
+}
 
 void	ft_free_split(char **arr)
 {
@@ -94,9 +104,11 @@ void	free_tokens(t_token *tokens)
 		while (tokens[i].str != NULL)
 		{
 			free(tokens[i].str);
+			tokens[i].str =  NULL;
 			i++;
 		}
 		free(tokens);
+		tokens = NULL;
 	}
 }
 
@@ -135,12 +147,13 @@ void cleanup_heredocs(t_command *cmd)
 }
 void	free_all(char *input, t_token *tokens, t_command *cmd)
 {
+	(void)tokens;
 	if (cmd)
 		cleanup_heredocs(cmd);
 	if (input)
 		free_input(input);
-	if (tokens)
-		free_tokens(tokens);
+	// if (tokens)
+	// 	free_tokens(tokens);
 	if (cmd)
 		free_cmd(cmd);
 }

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 16:16:50 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 18:12:13 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 {
 	char	*path;
 
+	pid_son = 0;
 	if (!cmd->argv || !cmd->argv[0])
 		exit(0);
 	if (cmd->argv[0][0] == '\0')
@@ -58,11 +59,13 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 	{
 		ft_putstr_fd(cmd->argv[0], 2);
 		ft_putendl_fd(": command not found", 2);
+		free_cmd(cmd);
+		free_env(env);
 		exit(127);
     }
-    check_if_directory(path);
+    check_if_directory(path, cmd, env);
 	if (execve(path, cmd->argv, env) == -1)
-        handle_execve_error(cmd->argv[0], path);
+        handle_execve_error(cmd->argv[0], path, cmd, env);
 	free(path);
 	exit(1);
 }

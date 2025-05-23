@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:40:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/22 17:02:13 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 17:53:27 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,9 @@ int	main(int argc, char **argv, char **envp)
 		input = NULL;
 		tokens = NULL;
 		cmd = NULL;
+		g_signal_status = 42;
 		input = readline("minishell$ ");
+		g_signal_status = 0;
 		if (!input)
 		{
 			printf("exit\n");
@@ -58,6 +60,7 @@ int	main(int argc, char **argv, char **envp)
 		merge_tokens(tokens, input);
 
 		cmd = parse_tokens(tokens);
+		free_tokens(tokens);
 		if (!cmd)
 		{
 			free_all(input, tokens, cmd);
@@ -84,7 +87,10 @@ int	main(int argc, char **argv, char **envp)
 			execute_pipeline(cmd, &env);
 		else if (cmd)
 			exec_command(cmd, &env); // If its a single command
-		free_all(input, tokens, cmd);
+		cleanup_heredocs(cmd);
+		free_cmd(cmd);
+		free_input(input);
+		//free_all(input, tokens, cmd);
 	}
 	free_env(env);
 	rl_clear_history();

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/22 20:35:08 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 17:06:12 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 		ft_putendl_fd(": command not found", 2);
 		exit(127);
 	}
-	check_if_directory(path);
+	check_if_directory(path, cmd, *env);
 	if (execve(path, cmd->argv, *env) == -1)
-		handle_execve_error(cmd->argv[0], path);
+		handle_execve_error(cmd->argv[0], path, cmd, *env);
 	free(path);
 	exit(1);
 }

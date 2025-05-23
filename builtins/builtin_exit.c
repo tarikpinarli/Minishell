@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 12:48:37 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 20:03:04 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 20:36:51 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 	while (argv[arg_count])
 		arg_count++;
 	if (arg_count > 2)
-		return (ft_putendl_fd("exit: too many arguments", 2), 1);
+		return (ft_putendl_fd("exit\nexit: too many arguments", 2), 1);
 	if (pid_flag)
 		ft_putendl_fd("exit", 1);
 	if (arg_count >= 2 && (!is_numeric(argv[1]) || is_too_big(argv[1])))

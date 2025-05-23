@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:40:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/23 17:53:27 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 20:29:22 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,9 +88,7 @@ int	main(int argc, char **argv, char **envp)
 		else if (cmd)
 			exec_command(cmd, &env); // If its a single command
 		cleanup_heredocs(cmd);
-		free_cmd(cmd);
-		free_input(input);
-		//free_all(input, tokens, cmd);
+		free_all(input, tokens, cmd);
 	}
 	free_env(env);
 	rl_clear_history();

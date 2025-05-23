@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 18:12:13 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 20:12:11 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,6 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 {
 	char	*path;
 
-	pid_son = 0;
 	if (!cmd->argv || !cmd->argv[0])
 		exit(0);
 	if (cmd->argv[0][0] == '\0')

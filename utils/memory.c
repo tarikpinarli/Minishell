@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 17:42:31 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 20:21:29 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,11 +124,12 @@ void	free_deprecated_strings(t_token *tokens, size_t k)
 
 void cleanup_heredocs(t_command *cmd)
 {
-	t_redir *in = cmd->in_redir;
+	t_redir *in;
 	char	*heredoc_file_name;
 	char	*heredoc_number;
 	int		i;
 
+	in = cmd->in_redir;
 	i = 1;
 	while (in)
 	{

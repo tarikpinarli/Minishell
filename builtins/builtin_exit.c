@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 12:48:37 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/22 18:45:52 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 20:03:04 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 		ft_putstr_fd("exit: ", 2);
 		ft_putstr_fd(argv[1], 2);
 		ft_putendl_fd(": numeric argument required", 2);
-		free_cmd(cmd);
+		close_and_free(*env, cmd);
 		exit(2);
 	}
 	if (arg_count == 2)

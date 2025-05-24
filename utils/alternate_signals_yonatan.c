@@ -77,6 +77,11 @@ int	setup_signal_handling(uint32_t is_parent)
 }
 
 
+// TODO: the function for rl_event_hook !
+void	readline_signal_handler(
+
+
+
 /* WARN: remove this block when ready with the signals!
  * older version, functioining, but using the process enum and redeclaring the
  * SIGINT every single time...

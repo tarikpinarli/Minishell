@@ -15,6 +15,7 @@
 
 volatile sig_atomic_t	g_signal_status = 0;
 
+
 // TODO: do not hard code the global variable:
 // assign it to the signal, or to zero when you need to reset it.
 // look into: rl_event_hook macro: I think it will allow your parent process to notice when a signal has been received
@@ -32,17 +33,53 @@ void	handle_sigint(int sig)
 	*/
 }
 
-//  TODO: I suppose we do not need a separate function for the child for SIGINT? but for now it messes up the file descriptors...
-//  it does not make any sense however: If I merge them together, file descriptors get closed or something, not allowing me to use cat,
-//  but if I put them separately, it does work - but it is basically the SAME function
-//  UPDATE: Maybe you do need to have a START setup as well, so that you won't touch the
-//  handling of SIGQUIT every time - only SIGINT!
-//  because for now you are redoing the setup for it every single time again.
+
+static int	setup_sigint_handler(void)
+{
+	struct sigaction	sa_int;
+
+	ft_bzero(&sa_int, sizeof(sigaction));
+	(void)sigemptyset(&sa_int.sa_mask);
+	(void)sigaddset(&sa_int.sa_mask, SIGINT);
+	sa_int.sa_flags = SA_RESTART;
+	sa_int.sa_handler = &handle_sigint;
+	if (sigaction(SIGINT, &sa_int, NULL) == -1)
+		return (-1); // WARN: it is important to handle failure of sigaction().
+	return (0);
+}
 
 /*
 * sets up signal handling for SIGINT (^C) and SIGQUIT (^\);
 * return values: -1 if sigaction() fails, otherwise 0
 */
+int	setup_signal_handling(uint32_t is_parent)
+{
+	static uint32_t		has_run;
+	struct sigaction	sa_quit;
+
+	ft_bzero(&sa_quit, sizeof(sigaction));
+	(void)sigemptyset(&sa_quit.sa_mask);
+	(void)sigaddset(&sa_quit.sa_mask, SIGQUIT);
+	sa_quit.sa_flags = SA_RESTART;
+	if (is_parent)
+		sa_quit.sa_handler = SIG_IGN;
+	else
+		sa_quit.sa_handler = SIG_DFL;
+	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
+		return (-1); // WARN: it is important to handle failure of sigaction().
+	if (!has_run)
+	{
+		has_run = 1;
+		if (setup_sigint_handler() == -1)
+			return (-1);
+	}
+	return (0);
+}
+
+
+/* WARN: remove this block when ready with the signals!
+ * older version, functioining, but using the process enum and redeclaring the
+ * SIGINT every single time...
 int	setup_signals(t_process process)
 {
 	struct sigaction	sa_int;
@@ -72,7 +109,7 @@ int	setup_signals(t_process process)
 		return (-1); // WARN: random value!! but it is important to handle failure of sigaction().
 	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
 		return (-1); // WARN: random value! but it is important to handle failure of sigaction().
-//	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
-//		return (-1); // WARN: random value! but it is important to handle failure of sigaction().
+
 	return (0);
 }
+*/

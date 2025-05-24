@@ -49,12 +49,6 @@ typedef enum e_redir_type
 	REDIR_HEREDOC	// <<
 }	t_redir_type;
 
-typedef enum e_process
-{
-	PARENT,
-	CHILD
-}	t_process;
-
 typedef struct s_redir
 {
 	t_redir_type	type;
@@ -78,7 +72,7 @@ typedef struct s_command
 }	t_command;
 
 // signal handling
-int			setup_signals(t_process process);
+int			setup_signal_handling(uint32_t is_parent);
 
 // tokenizer functions
 int			tokenize(char *input, t_token **tokens);

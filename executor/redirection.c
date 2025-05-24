@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:35 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 20:45:42 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/24 15:39:52 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,11 +43,12 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int	file_num)
 
 
 
-int	prepare_heredoc_file(t_command *cmd)
+int	prepare_heredoc_file(t_command *cmd, int process_flag)
 {
 	t_redir *in;
 	int i;
 
+	(void)process_flag;
 	in = cmd->in_redir;
 	i = 1;
 	while (in)
@@ -126,7 +127,7 @@ int	setup_redirections(t_command *cmd, int pipeline_flag)
 
 	if (!pipeline_flag)
 	{
-		heredoc = prepare_heredoc_file(cmd);
+		heredoc = prepare_heredoc_file(cmd, 0);
 		if (heredoc == 0)
 			return (0);
 	}

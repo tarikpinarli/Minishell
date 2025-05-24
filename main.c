@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:40:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/23 20:29:22 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/24 15:40:54 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,9 +36,7 @@ int	main(int argc, char **argv, char **envp)
 		input = NULL;
 		tokens = NULL;
 		cmd = NULL;
-		g_signal_status = 42;
 		input = readline("minishell$ ");
-		g_signal_status = 0;
 		if (!input)
 		{
 			printf("exit\n");

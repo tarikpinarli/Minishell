@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:46 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/14 16:31:29 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/24 14:32:09 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,14 +50,14 @@ static char	*build_cmd_path(char *dir, char *cmd)
 	return (full);
 }
 
-char	*find_in_path(char *cmd)
+char	*find_in_path(char **env, char *cmd)
 {
 	char	*path;
 	char	**dirs;
 	char	*full;
 	int		i;
 
-	path = getenv("PATH");
+	path = get_env_value(env ,"PATH");
 	i = 0;
 	if (!path || !cmd)
 		return (NULL);

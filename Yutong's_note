@@ -124,3 +124,15 @@ $HOME
 ==212405== Open file descriptor 3: /home/tpinarli/Desktop/Minishell/heredoc_1
 ==212405==    <inherited from parent>
 
+
+
+minishell$ cat > ./bin
+./bin: Is a directory
+
+==3499379== LEAK SUMMARY:
+==3499379==    definitely lost: 0 bytes in 0 blocks
+==3499379==    indirectly lost: 0 bytes in 0 blocks
+==3499379==      possibly lost: 0 bytes in 0 blocks
+==3499379==    still reachable: 4,064 bytes in 62 blocks
+==3499379==         suppressed: 208,957 bytes in 249 blocks
+==3499379== 

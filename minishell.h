@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 20:15:16 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/24 14:34:07 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@
 # endif
 
 // Signal handling
-extern int g_signal_status;
+extern volatile sig_atomic_t	g_signal_status;
 
 typedef enum e_quote_type
 {
@@ -99,7 +99,7 @@ int			last_exit_code(int set, int value);
 
 // executor functions
 void		exec_command(t_command *cmd, char ***env);
-char		*find_in_path(char *cmd);
+char		*find_in_path(char **env, char *cmd);
 void		execute_pipeline(t_command *cmd, char ***env);
 void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
 int			setup_pipe(int *pipefd);
@@ -110,7 +110,7 @@ void		check_if_directory(char *path, t_command *cmd, char **env);
 
 // Redirection functions
 int			setup_redirections(t_command *cmd, int pipeline_flag);
-int			prepare_heredoc_file(t_command *cmd);
+int			prepare_heredoc_file(t_command *cmd, int process_flag);
 
 // free
 void		free_env(char **env);
@@ -122,6 +122,7 @@ void		ft_free_split(char **arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
 void		cleanup_heredocs(t_command *cmd);
 void		free_2D_char(char **arr);
+void		free_rest(char *path, t_command *cmd, char **env);
 
 // NOTE: Question to Tarik: Do you think we should consider changing the variable
 // name of "argv" that is used for the builtins, because there is already one
@@ -137,6 +138,7 @@ int			builtin_unset(char **argv, char ***env);
 int			builtin_env(char ***env);
 int			builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env);
 int			builtin_echo(char **argv);
+char		*get_env_value(char **env, char *key);
 // builtin export and unset utils
 int			var_exist(char *arg, char **env);
 int			remove_env_var(char ***env, int index);

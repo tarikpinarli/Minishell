@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 17:06:12 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/24 14:34:28 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,7 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
         !ft_strncmp(cmd->argv[0], "../", 3))
 		path = ft_strdup(cmd->argv[0]);
 	else
-		path = find_in_path(cmd->argv[0]);
+		path = find_in_path(*env, cmd->argv[0]);
 	if (!path)
 	{
 		ft_putstr_fd(cmd->argv[0], 2);
@@ -68,7 +68,7 @@ void	execute_pipeline(t_command *cmd, char ***env)
 	prev_fd = -1;
 	while (cmd)
 	{
-		if (!prepare_heredoc_file(cmd))
+		if (!prepare_heredoc_file(cmd, 1))
     		return ;
 		curr_pipefd = NULL;
 		if (cmd->next)

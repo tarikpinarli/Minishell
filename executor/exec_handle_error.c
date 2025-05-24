@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 20:11:12 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 17:05:46 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/23 21:14:58 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,8 @@ void	handle_execve_error(char *command, char *path, t_command *cmd, char **env)
 		free_rest(path, cmd, env);
 		exit(127);
 	}
-	else
-	{
-		perror(command);
-		exit(1);
-	}
+	perror(command);
+	exit(1);
 }
 
 void	check_if_directory(char *path, t_command *cmd, char **env)

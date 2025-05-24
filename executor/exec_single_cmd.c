@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 21:02:39 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/24 14:43:10 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,36 +43,38 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 {
 	char	*path;
 
+	path = NULL;
 	if (!cmd->argv || !cmd->argv[0])
 		exit(0);
 	if (cmd->argv[0][0] == '\0')
 		exit(0);
 	if (!setup_redirections(cmd, 0))
+	{
+		free_rest(path, cmd, env);
 		exit(1);
+	}	
 	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2) ||
         !ft_strncmp(cmd->argv[0], "../", 3))
 		path = ft_strdup(cmd->argv[0]);
 	else
-		path = find_in_path(cmd->argv[0]);
+		path = find_in_path(env, cmd->argv[0]);
 	if (!path)
 	{
 		ft_putstr_fd(cmd->argv[0], 2);
 		ft_putendl_fd(": command not found", 2);
-		free_cmd(cmd);
-		free_env(env);
+		free_rest(path, cmd, env);
 		exit(127);
     }
     check_if_directory(path, cmd, env);
 	if (execve(path, cmd->argv, env) == -1)
         handle_execve_error(cmd->argv[0], path, cmd, env);
-	free(path);
 	exit(1);
 }
 
 void	handle_missing_command(t_command *cmd)
 {
 	if (cmd->in_redir)
-		prepare_heredoc_file(cmd);
+		prepare_heredoc_file(cmd, 0);
 	else
 	{
 		ft_putstr_fd("Command ''", 2);

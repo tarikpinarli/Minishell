@@ -24,7 +24,8 @@ volatile sig_atomic_t	g_signal_status = 0;
 void	handle_sigint(int sig)
 {
 	g_signal_status = sig;
-	(void)last_exit_code(1, 128 + sig);
+//	(void)last_exit_code(1, 128 + sig); // TODO: Can I also avoid having this line here, make the handling function even more concise and atomic? UPDATE: It is working! But I keep this to be checked on Linux first
+
 	/* WARN: these are now commented out on purpose, because I don't want this to be done from here - plus, it causes the prompt to be displayed twice!
 	rl_replace_line("", 0); // clear current line
 	write(1, "\n", 1);		// move to next line
@@ -78,7 +79,25 @@ int	setup_signal_handling(uint32_t is_parent)
 
 
 // TODO: the function for rl_event_hook !
-void	readline_signal_handler(
+// WARN: rl_event_hook can be assigned a function which has no return value and
+// does not take in any parameters at all. This means that no malloc'ed memory
+// can be freed from within that function, and no flag can be returned from it:
+// But I suppose that no memory will be allocated before SIGINT would be
+// intercepted from the readline, since readline only operates before Enter is
+// pressed by the user?
+int	readline_signal_hook(void)
+{
+	if (g_signal_status == SIGINT)
+	{
+		(void)last_exit_code(1, 128 + g_signal_status);
+		rl_replace_line("", 0);
+		(void)write(1, "\n", 1);
+		rl_on_new_line();
+		rl_redisplay();
+		g_signal_status = 0;
+	}
+	return (0);
+}
 
 
 

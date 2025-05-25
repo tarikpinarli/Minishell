@@ -30,7 +30,6 @@
 #  define PATH_MAX 4096
 # endif
 
-// Signal handling
 extern volatile sig_atomic_t	g_signal_status;
 
 typedef enum e_quote_type
@@ -73,6 +72,7 @@ typedef struct s_command
 
 // signal handling
 int			setup_signal_handling(uint32_t is_parent);
+int			readline_signal_hook(void);
 
 // tokenizer functions
 int			tokenize(char *input, t_token **tokens);

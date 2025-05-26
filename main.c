@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
@@ -32,6 +32,7 @@ int	main(int argc, char **argv, char **envp)
 		input = NULL;
 		tokens = NULL;
 		cmd = NULL;
+		rl_event_hook = &readline_signal_hook;
 		input = readline("minishell$ ");
 		if (!input)
 		{
@@ -48,7 +49,6 @@ int	main(int argc, char **argv, char **envp)
 			free(input);
 			continue ;
 		}
-		rl_event_hook = &readline_signal_hook;  // TODO: write the function for it.
 		if (!tokenize(input, &tokens)) // it returns 0 if a quotation mark was left unclosed or if no tokens were counted (whitespace input)
 			continue ;
 		expand_tokens(tokens, input);

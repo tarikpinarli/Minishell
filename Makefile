@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/05/26 13:04:46 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/05/26 13:43:34 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -65,6 +65,8 @@ SRC = main.c \
 	utils/signals.c \
 	utils/env_utils.c \
 	utils/memory.c \
+	utils/memory_2.c \
+	utils/memory_3.c \
 	utils/status.c \
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 12:41:26 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 13:05:34 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -132,22 +132,27 @@ char 		**copy_env(char **envp);
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(char **argv);
-int			builtin_export(char **argv, int pid_flag, char ***env);
+
 int			builtin_unset(char **argv, char ***env);
 int			builtin_env(char ***env);
 int			builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env);
 int			builtin_echo(char **argv);
 // builtin_cd functions
 int			builtin_cd(char **argv, char ***env);
-char	*get_env_value(char **env, char *key);
-char	*make_env_entry(const char *key, const char *value);
-void	append_env(char ***env, char *new_entry);
-void	update_env_var(char ***env, const char *key, const char *value);
+char		*get_env_value(char **env, char *key);
+char		*make_env_entry(const char *key, const char *value);
+void		append_env(char ***env, char *new_entry);
+void		update_env_var(char ***env, const char *key, const char *value);
+// builtin_export
+int			builtin_export(char **argv, int pid_flag, char ***env);
+void		sort_and_print_env(char **env);
+int			valid_identifier(char *str);
+
 
 char		*get_env_value(char **env, char *key);
 // builtin export and unset utils
-int			var_exist(char *arg, char **env);
 int			remove_env_var(char ***env, int index);
+int			var_exist(char *arg, char **env);
 
 // debug functions // WARN: remove before evaluation if just for debugging
 void		print_command(t_command *cmd);

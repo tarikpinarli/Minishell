@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 16:30:38 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/10 15:15:08 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 13:07:34 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,10 @@ int char_exist(char *str)
             return (1);
         i++;
     }
-    return(0);
+    return (0);
 }
 
-int    builtin_env(char ***env)
+int builtin_env(char ***env)
 {
     int i;
 

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 13:00:52 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 13:01:02 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 13:24:48 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,6 @@ static int	is_valid_key(char *key)
 	}
 	return (1);
 }
-
 
 static int	check_with_equal(char *str, char *eq)
 {

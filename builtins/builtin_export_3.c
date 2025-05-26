@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 12:58:44 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 13:00:07 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 13:25:24 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ static int	match_env_key_only(char *head, char **env)
 	}
 	return (-1);
 }
+
 int	var_exist(char *arg, char **env)
 {
 	char	*eq;

@@ -6,15 +6,15 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 13:01:32 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 13:24:13 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int remove_env_var(char ***env, int index)
+int	remove_env_var(char ***env, int index)
 {
-	int 	i;
+	int		i;
 	int		j;
 	int		count;
 	char	**new_env;
@@ -40,8 +40,7 @@ int remove_env_var(char ***env, int index)
 	return (1);
 }
 
-
-char **append_env_var(char *new_var, char **env)
+char	**append_env_var(char *new_var, char **env)
 {
 	int		i;
 	int		j;
@@ -62,16 +61,15 @@ char **append_env_var(char *new_var, char **env)
 	new_env[i] = ft_strdup(new_var);
 	new_env[i + 1] = NULL;
 	free_env(env);
-	return new_env;
+	return (new_env);
 }
-
 
 int	builtin_export(char **argv, int pid_flag, char ***env)
 {
-	int		i;
-	int exist_index;
-	(void)pid_flag;
+	int	i;
+	int	exist_index;
 
+	(void)pid_flag;
 	i = 1;
 	if (!argv[1])
 	{

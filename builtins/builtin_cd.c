@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:22 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 12:42:09 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 13:29:28 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,12 @@
 
 static char	*cd_get_target(char **argv, char **env)
 {
+	char	*home;
+	char	*oldpwd;
+
 	if (!argv[1] || !ft_strcmp(argv[1], "~"))
 	{
-		char *home = get_env_value(env, "HOME");
+		home = get_env_value(env, "HOME");
 		if (!home)
 		{
 			ft_putendl_fd("minishell: cd: HOME not set", 2);
@@ -26,7 +29,7 @@ static char	*cd_get_target(char **argv, char **env)
 	}
 	if (!ft_strcmp(argv[1], "-"))
 	{
-		char *oldpwd = get_env_value(env, "OLDPWD");
+		oldpwd = get_env_value(env, "OLDPWD");
 		if (!oldpwd)
 		{
 			ft_putendl_fd("minishell: cd: OLDPWD not set", 2);
@@ -61,7 +64,6 @@ static int	cd_change_directory(char *target, char ***env)
 	return (0);
 }
 
-
 int	too_mant_argument_err(char *arg)
 {
 	ft_putstr_fd("minishell: ", 2);
@@ -87,4 +89,3 @@ int	builtin_cd(char **argv, char ***env)
 		return (1);
 	return (cd_change_directory(target, env));
 }
-

@@ -6,13 +6,13 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/27 13:27:12 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/22 17:48:08 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 13:19:36 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int is_builtin(char *cmd)
+int	is_builtin(char *cmd)
 {
 	if (!cmd)
 		return (0);
@@ -25,11 +25,11 @@ int is_builtin(char *cmd)
 		|| !ft_strcmp(cmd, "echo"));
 }
 
-int execute_builtin(t_command *cmd, int pid_flag, char ***env)
+int	execute_builtin(t_command *cmd, int pid_flag, char ***env)
 {
 	if (!ft_strcmp(cmd->argv[0], "pwd"))
 		return (builtin_pwd(cmd->argv));
-    else if (!ft_strcmp(cmd->argv[0], "echo"))
+	else if (!ft_strcmp(cmd->argv[0], "echo"))
 		return (builtin_echo(cmd->argv));
 	else if (!ft_strcmp(cmd->argv[0], "cd"))
 		return (builtin_cd(cmd->argv, env));

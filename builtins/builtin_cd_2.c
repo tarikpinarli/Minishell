@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 12:38:07 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 12:41:32 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 13:30:32 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -84,8 +84,8 @@ void	update_env_var(char ***env, const char *key, const char *value)
 	i = 0;
 	while ((*env)[i])
 	{
-		if (!ft_strncmp((*env)[i], key, key_len)&&
-            (*env)[i][key_len] == '=')
+		if (!ft_strncmp((*env)[i], key, key_len) &&
+			(*env)[i][key_len] == '=')
 		{
 			free((*env)[i]);
 			(*env)[i] = new_entry;

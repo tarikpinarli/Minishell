@@ -6,30 +6,30 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:35 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/24 16:01:38 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:08:57 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int	handle_heredoc(t_redir *in_redir, char *delimiter, int	file_num)
+int	handle_heredoc(t_redir *in_redir, char *delimiter, int file_num)
 {
 	char	*file_number;
 	char	*file_name;
 	char	*line;
+	int		fd;
 
 	file_number = ft_itoa(file_num);
-	file_name  = ft_strjoin("heredoc_", file_number);
+	file_name = ft_strjoin("heredoc_", file_number);
 	free(file_number);
-
-	int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd < 0)
 		return (-1);
 	while (1)
 	{
 		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
 		if (!line || !ft_strcmp(line, delimiter))
-			break;
+			break ;
 		write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
 		free(line);
@@ -41,12 +41,10 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int	file_num)
 	return (0);
 }
 
-
-
 int	prepare_heredoc_file(t_command *cmd, int process_flag)
 {
-	t_redir *in;
-	int i;
+	t_redir	*in;
+	int		i;
 
 	(void)process_flag;
 	in = cmd->in_redir;
@@ -63,7 +61,6 @@ int	prepare_heredoc_file(t_command *cmd, int process_flag)
 	}
 	return (1);
 }
-
 
 int	handle_in_redir(t_command *cmd)
 {
@@ -92,7 +89,6 @@ int	handle_in_redir(t_command *cmd)
 	}
 	return (1);
 }
-
 
 int	handle_out_redir(t_command *cmd)
 {

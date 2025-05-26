@@ -6,11 +6,19 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 20:11:12 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 21:14:58 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:04:22 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
+
+void	command_not_found_err(t_command *cmd, char *path, char **env)
+{
+	ft_putstr_fd(cmd->argv[0], 2);
+	ft_putendl_fd(": command not found", 2);
+	free_rest(path, cmd, env);
+	exit(127);
+}
 
 void	free_rest(char *path, t_command *cmd, char **env)
 {
@@ -19,10 +27,10 @@ void	free_rest(char *path, t_command *cmd, char **env)
 	if (env)
 		free_2D_char(env);
 	if (cmd)
-		free_cmd(cmd);	
+		free_cmd(cmd);
 }
 
-void	handle_execve_error(char *command, char *path, t_command *cmd, char **env)
+void	handle_execve_error(char *arg, char *path, t_command *cmd, char **env)
 {
 	if (errno == EISDIR)
 	{
@@ -45,7 +53,7 @@ void	handle_execve_error(char *command, char *path, t_command *cmd, char **env)
 		free_rest(path, cmd, env);
 		exit(127);
 	}
-	perror(command);
+	perror(arg);
 	exit(1);
 }
 

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 13:05:34 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:05:00 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # include <stdint.h>
 # include <sys/wait.h>
 # include <errno.h>
-# include <sys/stat.h> 
+# include <sys/stat.h>
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
@@ -101,12 +101,13 @@ int			last_exit_code(int set, int value);
 void		exec_command(t_command *cmd, char ***env);
 char		*find_in_path(char **env, char *cmd);
 void		execute_pipeline(t_command *cmd, char ***env);
-void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
+void		handle_execve_error(char *arg, char *path, t_command *cmd, char **env);
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
 void		wait_for_children(void);
 void		check_if_directory(char *path, t_command *cmd, char **env);
+void		command_not_found_err(t_command *cmd, char *path, char **env);
 
 // Redirection functions
 int			setup_redirections(t_command *cmd, int pipeline_flag);

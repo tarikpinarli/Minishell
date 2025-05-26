@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/24 14:34:28 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:04:17 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,16 +25,12 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 		exit(ret);
 	}
 	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2) ||
-        !ft_strncmp(cmd->argv[0], "../", 3))
+		!ft_strncmp(cmd->argv[0], "../", 3))
 		path = ft_strdup(cmd->argv[0]);
 	else
 		path = find_in_path(*env, cmd->argv[0]);
 	if (!path)
-	{
-		ft_putstr_fd(cmd->argv[0], 2);
-		ft_putendl_fd(": command not found", 2);
-		exit(127);
-	}
+		command_not_found_err(cmd, path, *env);
 	check_if_directory(path, cmd, *env);
 	if (execve(path, cmd->argv, *env) == -1)
 		handle_execve_error(cmd->argv[0], path, cmd, *env);
@@ -69,7 +65,7 @@ void	execute_pipeline(t_command *cmd, char ***env)
 	while (cmd)
 	{
 		if (!prepare_heredoc_file(cmd, 1))
-    		return ;
+			return ;
 		curr_pipefd = NULL;
 		if (cmd->next)
 		{

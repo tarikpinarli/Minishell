@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/05/22 20:19:29 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/05/26 12:42:28 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -53,6 +53,7 @@ SRC = main.c \
 	builtins/builtin.c \
 	builtins/builtin_echo.c \
 	builtins/builtin_cd.c \
+	builtins/builtin_cd_2.c \
 	builtins/builtin_env.c \
 	builtins/builtin_exit.c \
 	builtins/builtin_export.c \

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 20:11:12 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 14:04:22 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:16:03 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,7 @@ void	free_rest(char *path, t_command *cmd, char **env)
 	if (path)
 		free(path);
 	if (env)
-		free_2D_char(env);
+		free_two_dimention_char(env);
 	if (cmd)
 		free_cmd(cmd);
 }

@@ -6,17 +6,17 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:46 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/24 14:32:09 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:19:26 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char **copy_env(char **envp)
+char	**copy_env(char **envp)
 {
-	int i;
-	int count;
-	char **copy;
+	int		i;
+	int		count;
+	char	**copy;
 
 	i = 0;
 	count = 0;
@@ -33,7 +33,6 @@ char **copy_env(char **envp)
 	copy[i] = NULL;
 	return (copy);
 }
-
 
 static char	*build_cmd_path(char *dir, char *cmd)
 {
@@ -57,7 +56,7 @@ char	*find_in_path(char **env, char *cmd)
 	char	*full;
 	int		i;
 
-	path = get_env_value(env ,"PATH");
+	path = get_env_value(env, "PATH");
 	i = 0;
 	if (!path || !cmd)
 		return (NULL);

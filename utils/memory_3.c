@@ -6,15 +6,15 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/26 13:42:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 13:43:12 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:17:41 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void	free_2D_char(char **arr)
+void	free_two_dimention_char(char **arr)
 {
-	int i;
+	int	i;
 
 	i = 0;
 	while (arr[i])
@@ -39,13 +39,13 @@ void	ft_free_split(char **arr)
 
 void	free_env(char **env)
 {
-	int i = 0;
+	int	i;
+
+	i = 0;
 	while (env[i])
 		free(env[i++]);
 	free(env);
 }
-
-
 
 void	free_input(char *input)
 {
@@ -63,7 +63,7 @@ void	free_tokens(t_token *tokens)
 		while (tokens[i].str != NULL)
 		{
 			free(tokens[i].str);
-			tokens[i].str =  NULL;
+			tokens[i].str = NULL;
 			i++;
 		}
 		free(tokens);

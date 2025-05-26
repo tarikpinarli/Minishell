@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/26 13:43:48 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/26 14:13:57 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,9 @@ void	free_deprecated_strings(t_token *tokens, size_t k)
 	}
 }
 
-void cleanup_heredocs(t_command *cmd)
+void	cleanup_heredocs(t_command *cmd)
 {
-	t_redir *in;
+	t_redir	*in;
 	char	*heredoc_file_name;
 	char	*heredoc_number;
 	int		i;
@@ -33,7 +33,6 @@ void cleanup_heredocs(t_command *cmd)
 	i = 1;
 	while (in)
 	{
-
 		if (in->type == REDIR_HEREDOC)
 		{
 			heredoc_number = ft_itoa(i);
@@ -46,6 +45,7 @@ void cleanup_heredocs(t_command *cmd)
 		in = in->next;
 	}
 }
+
 void	free_all(char *input, t_token *tokens, t_command *cmd)
 {
 	(void)tokens;

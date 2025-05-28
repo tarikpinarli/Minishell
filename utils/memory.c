@@ -101,13 +101,28 @@ void	free_tokens(t_token *tokens)
 	free(tokens);
 }
 
-void	free_all(char *input, t_token *tokens, t_command *cmd)
+// WARN: MAKE 100% sure that you are passing from main a double pointer,
+// freeing the memory properly and resetting to NULL both tokens and input!!!!
+// Same for 'cmd'!!!
+// UPDATE: this is done, but we HAVE to test it once the project compiles.
+void	free_all(char **input, t_token **tokens, t_command **cmd)
 {
-	free(input);
-	if (tokens)
-		free_tokens(tokens);
-	if (cmd)
-		free_cmd(cmd);
+	if (*input)
+	{
+		free(*input);
+		*input = NULL;
+	}
+	if (*tokens)
+	{
+		free_tokens(*tokens);
+		*tokens = NULL;
+	}
+	if (*cmd)
+	{
+		cleanup_heredocs(*cmd);
+		free_cmd(*cmd);
+		*cmd = NULL;
+	}
 }
 
 void	free_deprecated_strings(t_token *tokens, size_t k)
@@ -120,7 +135,7 @@ void	free_deprecated_strings(t_token *tokens, size_t k)
 	}
 }
 
-void cleanup_heredocs(t_command *cmd)
+void	cleanup_heredocs(t_command *cmd)
 {
 	t_redir *in;
 	char	*heredoc_file_name;
@@ -143,16 +158,4 @@ void cleanup_heredocs(t_command *cmd)
 		}
 		in = in->next;
 	}
-}
-void	free_all(char *input, t_token *tokens, t_command *cmd)
-{
-	(void)tokens;
-	if (cmd)
-		cleanup_heredocs(cmd);
-	if (input)
-		free_input(input);
-	// if (tokens)
-	// 	free_tokens(tokens);
-	if (cmd)
-		free_cmd(cmd);
 }

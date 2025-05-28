@@ -6,42 +6,82 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:51 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/24 15:40:23 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/28 20:06:07 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include <signal.h>
 
 volatile sig_atomic_t	g_signal_status = 0;
 
 void	handle_sigint(int sig)
 {
-	(void)sig;
-	g_signal_status = 130;
-	rl_replace_line("", 0); // Clear current line
-	write(1, "\n", 1);		// Move to next line
-	rl_on_new_line();		// Prepare readline for new input
-	rl_redisplay();			// Redraw the prompt
+	g_signal_status = sig;
 }
 
-void	handle_sigquit(int sig)
+static int	setup_sigint_handler(void)
 {
-	(void)sig;
-	g_signal_status = 131;
-}
+	struct sigaction	sa_int;
 
-void	setup_signals(void)
-{
-	struct sigaction sa_int;
-	struct sigaction sa_quit;
-
-	sa_int.sa_handler = handle_sigint;
-	sigemptyset(&sa_int.sa_mask);
+	ft_bzero(&sa_int, sizeof(sigaction));
+	(void)sigemptyset(&sa_int.sa_mask);
+	(void)sigaddset(&sa_int.sa_mask, SIGINT);
 	sa_int.sa_flags = SA_RESTART;
-	sigaction(SIGINT, &sa_int, NULL);
+	sa_int.sa_handler = &handle_sigint;
+	if (sigaction(SIGINT, &sa_int, NULL) == -1)
+		return (-1); // WARN: it is important to handle failure of sigaction().
+	return (0);
+}
 
-	sa_quit.sa_handler = handle_sigquit;
-	sigemptyset(&sa_quit.sa_mask);
+/*
+* sets up signal handling for SIGINT (^C) and SIGQUIT (^\);
+* return values: -1 if sigaction() fails, otherwise 0
+*/
+int	setup_signal_handling(uint32_t is_parent)
+{
+	static uint32_t		has_run;
+	struct sigaction	sa_quit;
+
+	ft_bzero(&sa_quit, sizeof(sigaction));
+	(void)sigemptyset(&sa_quit.sa_mask);
+	(void)sigaddset(&sa_quit.sa_mask, SIGQUIT);
 	sa_quit.sa_flags = SA_RESTART;
-	sigaction(SIGQUIT, &sa_quit, NULL);
+	if (is_parent)
+		sa_quit.sa_handler = SIG_IGN;
+	else
+		sa_quit.sa_handler = SIG_DFL;
+	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
+		return (-1); // WARN: it is important to handle failure of sigaction().
+	if (!has_run)
+	{
+		has_run = 1;
+		if (setup_sigint_handler() == -1)
+			return (-1);
+	}
+	return (0);
+}
+
+/*
+* The function assigned to the function pointer "rl_event_hook", which is
+* defined by the Readline library. It is called periodically (typically several
+* times per second) by Readline while it is waiting for terminal input.
+* This function allows the Minishell program to check if SIGINT has been
+* intercepted, thanks to the SIGINT handler which assigns the value of that
+* signal to the global variable g_signal_status. Minishell can then redisplay
+* the shell's prompt and set the correct exit code, just like bash does, if
+* SIGINT is intercepted during readline.
+*/
+int	readline_signal_hook(void)
+{
+	if (g_signal_status == SIGINT)
+	{
+		(void)last_exit_code(1, 128 + g_signal_status);
+		rl_replace_line("", 0);
+		(void)write(1, "\n", 1);
+		rl_on_new_line();
+		rl_redisplay();
+		g_signal_status = 0;
+	}
+	return (0);
 }

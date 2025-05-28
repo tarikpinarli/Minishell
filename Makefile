@@ -57,7 +57,7 @@ SRC = main.c \
 	builtins/builtin_export.c \
 	builtins/builtin_pwd.c \
 	builtins/builtin_unset.c \
-	utils/alternate_signals_yonatan.c \
+	utils/signals.c \
 	utils/env_utils.c \
 	utils/memory.c \
 	utils/status.c \

@@ -66,7 +66,8 @@ int	main(int argc, char **argv, char **envp)
 		else if (cmd)
 			exec_command(cmd, &env); // If its a single command
 		cleanup_heredocs(cmd); // WARN: does this not segfault if cmd is NULL?
-		free_all(input, tokens, cmd);
+		free_cmd(&cmd); // WARN: When arriving here, tokens and input are already freed. We can just free_cmd().
+		// free_all(input, tokens, cmd);
 	}
 	free_env(env);
 	rl_clear_history();

@@ -73,6 +73,7 @@ static void	free_redir_list(t_redir *redir)
 	}
 }
 
+/*
 void	free_cmd(t_command *cmd)
 {
 	t_command	*next;
@@ -86,6 +87,27 @@ void	free_cmd(t_command *cmd)
 		free(cmd);
 		cmd = next;
 	}
+}
+*/
+
+//WARN: alternate version that sets the original cmd pointer to NULL.
+void	free_cmd(t_command **cmd)
+{
+	t_command	*next;
+	t_command	*current;
+
+	current = *cmd;
+	while (current)
+	{
+		next = current->next;
+		free_argv(current->argv);
+		free_redir_list(current->in_redir);
+		free_redir_list(current->out_redir);
+		free(current);
+		current = next;
+	}
+	free(*cmd);
+	*cmd = NULL;
 }
 
 void	free_tokens(t_token **tokens)
@@ -118,8 +140,7 @@ void	free_all(char **input, t_token **tokens, t_command **cmd)
 	if (*cmd)
 	{
 		cleanup_heredocs(*cmd);
-		free_cmd(*cmd);
-		*cmd = NULL;
+		free_cmd(cmd);
 	}
 }
 

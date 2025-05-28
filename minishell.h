@@ -114,7 +114,7 @@ int			prepare_heredoc_file(t_command *cmd, int process_flag);
 
 // free
 void		free_env(char **env);
-void		free_cmd(t_command *cmd);
+void		free_cmd(t_command **cmd);
 void		free_argv(char **argv);
 void		free_tokens(t_token **tokens);
 void		free_tokens_and_input(char **input, t_token **tokens)

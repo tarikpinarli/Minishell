@@ -45,6 +45,7 @@ int	main(int argc, char **argv, char **envp)
 		else  // this is for when the input string is empty - just a null terminator
 		{
 			free(input);
+			input = NULL;
 			continue ;
 		}
 		if (!tokenize(input, &tokens)) // it returns 0 if a quotation mark was left unclosed or if no tokens were counted (whitespace input)
@@ -58,13 +59,13 @@ int	main(int argc, char **argv, char **envp)
 			// printf("Parsing failed.\n"); // NOTE: are we certain we want this "Parsing failed" message? Because we already output different parsing syntax error messages in parse_tokens(), so removing this should be just fine!
 			continue ;
 		}
-		free_tokens(tokens);
+		free_tokens_and_input(&input, &tokens)
 
 		if (cmd && cmd->next) // If there is pipe cmd->next exists
 			execute_pipeline(cmd, &env);
 		else if (cmd)
 			exec_command(cmd, &env); // If its a single command
-		cleanup_heredocs(cmd);
+		cleanup_heredocs(cmd); // WARN: does this not segfault if cmd is NULL?
 		free_all(input, tokens, cmd);
 	}
 	free_env(env);

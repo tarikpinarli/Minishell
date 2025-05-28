@@ -116,7 +116,8 @@ int			prepare_heredoc_file(t_command *cmd, int process_flag);
 void		free_env(char **env);
 void		free_cmd(t_command *cmd);
 void		free_argv(char **argv);
-void		free_tokens(t_token *tokens);
+void		free_tokens(t_token **tokens);
+void		free_tokens_and_input(char **input, t_token **tokens)
 void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		ft_free_split(char **arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);

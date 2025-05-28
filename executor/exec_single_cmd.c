@@ -53,8 +53,8 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 		free_rest(path, cmd, env);
 		exit(1);
 	}	
-	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2) ||
-        !ft_strncmp(cmd->argv[0], "../", 3))
+	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2)
+		|| !ft_strncmp(cmd->argv[0], "../", 3))
 		path = ft_strdup(cmd->argv[0]);
 	else
 		path = find_in_path(env, cmd->argv[0]);
@@ -64,10 +64,10 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 		ft_putendl_fd(": command not found", 2);
 		free_rest(path, cmd, env);
 		exit(127);
-    }
-    check_if_directory(path, cmd, env);
+	}
+	check_if_directory(path, cmd, env);
 	if (execve(path, cmd->argv, env) == -1)
-        handle_execve_error(cmd->argv[0], path, cmd, env);
+		handle_execve_error(cmd->argv[0], path, cmd, env);
 	exit(1);
 }
 
@@ -85,9 +85,10 @@ void	handle_missing_command(t_command *cmd)
 void	exec_command(t_command *cmd, char ***env)
 {
 	pid_t	pid;
+	pid_t	wpid;
 	int		status;
 
-	if ((!cmd || !cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0'))
+	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
 	{
 		handle_missing_command(cmd);
 		return;

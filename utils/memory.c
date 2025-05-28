@@ -88,17 +88,18 @@ void	free_cmd(t_command *cmd)
 	}
 }
 
-void	free_tokens(t_token *tokens)
+void	free_tokens(t_token **tokens)
 {
 	int	i;
 
 	i = 0;
-	while (tokens[i].str != NULL)
+	while ((*tokens)[i].str != NULL)
 	{
-		free(tokens[i].str);
+		free((*tokens)[i].str);
 		i++;
 	}
-	free(tokens);
+	free(*tokens);
+	*tokens = NULL;
 }
 
 // WARN: MAKE 100% sure that you are passing from main a double pointer,
@@ -113,16 +114,24 @@ void	free_all(char **input, t_token **tokens, t_command **cmd)
 		*input = NULL;
 	}
 	if (*tokens)
-	{
-		free_tokens(*tokens);
-		*tokens = NULL;
-	}
+		free_tokens(tokens);
 	if (*cmd)
 	{
 		cleanup_heredocs(*cmd);
 		free_cmd(*cmd);
 		*cmd = NULL;
 	}
+}
+
+void	free_tokens_and_input(char **input, t_token **tokens)
+{
+	if (*input)
+	{
+		free(*input);
+		*input = NULL;
+	}
+	if (*tokens)
+		free_tokens(tokens);
 }
 
 void	free_deprecated_strings(t_token *tokens, size_t k)

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/12 19:38:24 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/24 14:34:07 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,13 +22,16 @@
 # include <unistd.h>
 # include <fcntl.h>
 # include <stdint.h>
+# include <sys/wait.h>
+# include <errno.h>
+# include <sys/stat.h> 
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
 # endif
 
 // Signal handling
-extern int g_signal_status;
+extern volatile sig_atomic_t	g_signal_status;
 
 typedef enum e_quote_type
 {
@@ -95,32 +98,50 @@ uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 int			last_exit_code(int set, int value);
 
 // executor functions
-int			setup_redirections(t_command *cmd);
 void		exec_command(t_command *cmd, char ***env);
-char		*find_in_path(char *cmd);
+char		*find_in_path(char **env, char *cmd);
 void		execute_pipeline(t_command *cmd, char ***env);
+void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
+int			setup_pipe(int *pipefd);
+void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
+void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
+void		wait_for_children(void);
+void		check_if_directory(char *path, t_command *cmd, char **env);
+
+// Redirection functions
+int			setup_redirections(t_command *cmd, int pipeline_flag);
+int			prepare_heredoc_file(t_command *cmd, int process_flag);
 
 // free
+void		free_env(char **env);
 void		free_input(char *input);
 void		free_tokens(t_token *tokens);
 void		free_cmd(t_command *cmd);
 void		free_all(char *input, t_token *tokens, t_command *cmd);
 void		ft_free_split(char **arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
+void		cleanup_heredocs(t_command *cmd);
+void		free_2D_char(char **arr);
+void		free_rest(char *path, t_command *cmd, char **env);
 
 // NOTE: Question to Tarik: Do you think we should consider changing the variable
 // name of "argv" that is used for the builtins, because there is already one
 // argv variable in the main? Or is it the same one?
 // builtin commands
+char 		**copy_env(char **envp);
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
-int			builtin_pwd(void);
-//int		builtin_cd(char **argv);
+int			builtin_pwd(char **argv);
+int			builtin_cd(char **argv, char ***env);
 int			builtin_export(char **argv, int pid_flag, char ***env);
-//int		builtin_unset(char **argv);
+int			builtin_unset(char **argv, char ***env);
 int			builtin_env(char ***env);
-int			builtin_exit(char **argv, t_command *cmd, int pid_flag);
+int			builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env);
 int			builtin_echo(char **argv);
+char		*get_env_value(char **env, char *key);
+// builtin export and unset utils
+int			var_exist(char *arg, char **env);
+int			remove_env_var(char ***env, int index);
 
 // debug functions // WARN: remove before evaluation if just for debugging
 void		print_command(t_command *cmd);

@@ -6,18 +6,23 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:35 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/08 17:19:41 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/24 15:39:52 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int	handle_heredoc(char *delimiter)
+int	handle_heredoc(t_redir *in_redir, char *delimiter, int	file_num)
 {
+	char	*file_number;
+	char	*file_name;
 	char	*line;
-	int		fd;
-	
-	fd = open(".heredoc.txt", O_WRONLY | O_CREAT | O_TRUNC, 0777);
+
+	file_number = ft_itoa(file_num);
+	file_name  = ft_strjoin("heredoc_", file_number);
+	free(file_number);
+
+	int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd < 0)
 		return (-1);
 	while (1)
@@ -31,48 +36,64 @@ int	handle_heredoc(char *delimiter)
 	}
 	free(line);
 	close(fd);
-	fd = open(".heredoc.txt", O_RDONLY);
-	if (fd < 0)
-		return (-1);
-	return (fd);
+	free(in_redir->filename);
+	in_redir->filename = file_name;
+	return (0);
 }
 
-int	handle_in_redir(t_command *cmd)
+
+
+int	prepare_heredoc_file(t_command *cmd, int process_flag)
 {
-	t_redir	*in;
-	int		fd;
-	int		i;
-	char	*failed_array[50];
-	
+	t_redir *in;
+	int i;
+
+	(void)process_flag;
 	in = cmd->in_redir;
-	i = 0;
+	i = 1;
 	while (in)
 	{
-		if (in->type == REDIR_IN)
-			fd = open(in->filename, O_RDONLY);
-		else if (in->type == REDIR_HEREDOC)
-			fd = handle_heredoc(in->filename);
-		if (fd < 0)
+		if (in->type == REDIR_HEREDOC)
 		{
-			failed_array[i] = in->filename;
-			i++;	
+			if (handle_heredoc(in, in->filename, i) < 0)
+				return (0);
+			i++;
 		}
 		in = in->next;
 	}
-	failed_array[i] = NULL;
-	if (failed_array[0])
+	return (1);
+}
+
+
+int	handle_in_redir(t_command *cmd)
+{
+	t_redir		*in;
+	struct stat	st;
+	int			fd;
+
+	in = cmd->in_redir;
+	while (in)
 	{
-		fd = open(failed_array[0], O_RDONLY);
+		if (stat(in->filename, &st) == -1)
+		{
+			perror(in->filename);
+			return (0);
+		}
+		fd = open(in->filename, O_RDONLY);
 		if (fd < 0)
-			return (perror(failed_array[0]), 0);	
-	}
-	else
-	{
-		dup2(fd, STDIN_FILENO);
-		close(fd);	
+		{
+			perror(in->filename);
+			return (0);
+		}
+		if (!in->next)
+			dup2(fd, STDIN_FILENO);
+		close(fd);
+		in = in->next;
 	}
 	return (1);
 }
+
+
 int	handle_out_redir(t_command *cmd)
 {
 	t_redir	*out;
@@ -90,21 +111,26 @@ int	handle_out_redir(t_command *cmd)
 			perror(out->filename);
 			return (0);
 		}
-		// If it's not the last redir just close it
 		if (out->next == NULL)
-			dup2(fd, STDOUT_FILENO); // Only last one gets applied
+			dup2(fd, STDOUT_FILENO);
 		close(fd);
 		out = out->next;
 	}
 	return (1);
 }
 
-
-int	setup_redirections(t_command *cmd)
+int	setup_redirections(t_command *cmd, int pipeline_flag)
 {
+	int	heredoc;
 	int	in_redir_flag;
 	int	out_redir_flag;
 
+	if (!pipeline_flag)
+	{
+		heredoc = prepare_heredoc_file(cmd, 0);
+		if (heredoc == 0)
+			return (0);
+	}
 	in_redir_flag = handle_in_redir(cmd);
 	if (in_redir_flag == 0)
 		return (0);

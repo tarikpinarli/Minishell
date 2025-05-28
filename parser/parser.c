@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 15:16:33 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/28 16:35:02 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/19 16:46:07 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,8 @@ char **argv_add(char **argv, char *new_arg)
 	int		i;
 	char	**new_argv;
 
-	// Count current size
+	if (!new_arg || new_arg[0] == '\0')
+		return (argv);
 	i = 0;
 	while (argv && argv[count])
 		count++;

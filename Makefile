@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/05/05 16:26:39 by ykadosh          ###   ########.fr        #
+#    Updated: 2025/05/22 20:19:29 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,8 +45,11 @@ SRC = main.c \
 	parser/expand.c \
 	parser/expansion_utils.c \
 	parser/merge_tokens.c \
-	executor/exec_cmd.c \
+	executor/exec_single_cmd.c \
+	executor/exec_pipe_cmd_1.c \
+	executor/exec_pipe_cmd_2.c \
 	executor/redirection.c \
+	executor/exec_handle_error.c \
 	builtins/builtin.c \
 	builtins/builtin_echo.c \
 	builtins/builtin_cd.c \

@@ -6,13 +6,13 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:51 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/04/14 14:36:02 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/24 15:40:23 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	g_signal_status = 0;
+volatile sig_atomic_t	g_signal_status = 0;
 
 void	handle_sigint(int sig)
 {

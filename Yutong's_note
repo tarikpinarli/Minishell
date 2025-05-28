@@ -1,0 +1,138 @@
+
+valgrind --show-reachable=yes --track-origins=yes --trace-children=yes --suppressions=readline.supp --leak-check=full --show-leak-kinds=all --track-fds=yes ./bin/minishell
+#FIXED#
+cat <<1 <<2 <<3
+     Open file descriptor 5: /home/tpinarli/Desktop/Minishell/heredoc_3
+==205115==    <inherited from parent>
+==205115== 
+==205115== Open file descriptor 4: /home/tpinarli/Desktop/Minishell/heredoc_2
+==205115==    <inherited from parent>
+==205115== 
+==205115== Open file descriptor 3: /home/tpinarli/Desktop/Minishell/heredoc_1
+==205115==    <inherited from parent>
+
+
+#TO FIX: In parcer.c change line 87 to this "if (!current || !tokens[i + 1].str)"
+echo |
+    leaks & should give syntax error **ASK YONATAN
+
+#TO FIX: signals.c add this line "last_exit_code(1, 130);" to handle_sigint()
+cat
+asdfasdf
+ctrl c
+    exit code should be 130 **ASK YONATAN
+
+#FIXED#
+"cat lol.c | cat > lol.c"
+      still reachable: 4,146 bytes in 65 blocks
+
+#THINK ABOUT IT
+ls something | cat Maekfile
+    exit code should be the one with cat Makefile
+
+#FIXED# (also the stat: Is a drectory case)
+./minishell
+    still reachable: 4,097 bytes in 63 blocks
+
+#FIXED#
+exit helloworld
+    ==207211== FILE DESCRIPTORS: 5 open (3 std) at exit.
+==207211== Open file descriptor 4: /dev/pts/0
+==207211==    at 0x4A33FEB: dup (syscall-template.S:120)
+==207211==    by 0x4036E3: exec_isolated_builtin (in /home/tpinarli/Desktop/Minishell/bin/minishell)
+==207211==    by 0x4039E0: exec_command (in /home/tpinarli/Desktop/Minishell/bin/minishell)
+==207211==    by 0x40148D: main (in /home/tpinarli/Desktop/Minishell/bin/minishell)
+==207211== 
+==207211== Open file descriptor 3: /dev/pts/0
+==207211==    at 0x4A33FEB: dup (syscall-template.S:120)
+==207211==    by 0x4036D6: exec_isolated_builtin (in /home/tpinarli/Desktop/Minishell/bin/minishell)
+==207211==    by 0x4039E0: exec_command (in /home/tpinarli/Desktop/Minishell/bin/minishell)
+==207211==    by 0x40148D: main (in /home/tpinarli/Desktop/Minishell/bin/minishell)
+
+exit -1000
+12 bytes in 2 blocks are still reachable in loss record 6 of 66
+==207741==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==207741==    by 0x402034: extract_simple_token (tokenizer_utils.c:77)
+==207741==    by 0x401C35: next_token (tokenizer_utils.c:104)
+==207741==    by 0x401A14: fill_up_tokens (tokenizer_utils.c:120)
+==207741==    by 0x401551: tokenize (tokenizer.c:39)
+==207741==    by 0x4013F3: main (main.c:55)
+==207741== 
+==207741== 48 bytes in 1 blocks are still reachable in loss record 18 of 66
+==207741==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==207741==    by 0x40701F: ft_calloc (in /home/tpinarli/Desktop/Minishell/bin/minishell)
+==207741==    by 0x40150D: tokenize (tokenizer.c:33)
+==207741==    by 0x4013F3: main (main.c:55)
+==207741== 
+==207741== LEAK SUMMARY:
+==207741==    definitely lost: 0 bytes in 0 blocks
+==207741==    indirectly lost: 0 bytes in 0 blocks
+==207741==      possibly lost: 0 bytes in 0 blocks
+==207741==    still reachable: 60 bytes in 3 blocks
+
+#FIXED#
+exit 100 200 300
+    exit: too many arguments ->should still be able to exit // bash is not exiting 
+
+#THINK ABOUT IT
+echo hello >file5 <file2 >file3 <file4
+file2: No such file or directory
+    file1 should still be created even other redirection files have issues
+
+<< a
+Command '' not found, but can be installed
+    should be able to open heredoc
+
+minishell$ exit
+exit
+==209383== 
+==209383== FILE DESCRIPTORS: 0 open (0 std) at exit.
+==209383== 
+==209383== HEAP SUMMARY:
+==209383==     in use at exit: 208,747 bytes in 234 blocks
+==209383==   total heap usage: 1,366 allocs, 1,132 frees, 249,361 bytes allocated
+==209383== 
+==209383== 5 bytes in 1 blocks are still reachable in loss record 3 of 75
+==209383==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==209383==    by 0x402034: extract_simple_token (tokenizer_utils.c:77)
+==209383==    by 0x401C35: next_token (tokenizer_utils.c:104)
+==209383==    by 0x401A14: fill_up_tokens (tokenizer_utils.c:120)
+==209383==    by 0x401551: tokenize (tokenizer.c:39)
+==209383==    by 0x4013F3: main (main.c:55)
+==209383== 
+==209383== 32 bytes in 1 blocks are still reachable in loss record 19 of 75
+==209383==    at 0x4848899: malloc (in /usr/libexec/valgrind/vgpreload_memcheck-amd64-linux.so)
+==209383==    by 0x40701F: ft_calloc (in /home/tpinarli/Desktop/Minishell/bin/minishell)
+==209383==    by 0x40150D: tokenize (tokenizer.c:33)
+==209383==    by 0x4013F3: main (main.c:55)
+
+unset PATH
+ls
+    ls shouldn't be able to execute
+
+cat <<$HOME
+heredoc> $HOME
+heredoc> /home/tpinarli
+==212405== Memcheck, a memory error detector
+==212405== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+==212405== Using Valgrind-3.18.1 and LibVEX; rerun with -h for copyright info
+==212405== Command: /usr/bin/cat
+==212405== 
+$HOME
+==212405== 
+==212405== FILE DESCRIPTORS: 1 open (0 std) at exit.
+==212405== Open file descriptor 3: /home/tpinarli/Desktop/Minishell/heredoc_1
+==212405==    <inherited from parent>
+
+
+
+minishell$ cat > ./bin
+./bin: Is a directory
+
+==3499379== LEAK SUMMARY:
+==3499379==    definitely lost: 0 bytes in 0 blocks
+==3499379==    indirectly lost: 0 bytes in 0 blocks
+==3499379==      possibly lost: 0 bytes in 0 blocks
+==3499379==    still reachable: 4,064 bytes in 62 blocks
+==3499379==         suppressed: 208,957 bytes in 249 blocks
+==3499379== 

@@ -23,8 +23,6 @@ int	main(int argc, char **argv, char **envp)
 	(void)argc;
 	(void)argv;
 	env = copy_env(envp);
-	if (setup_signals() <= -500)
-		return (-500); // WARN: this is a totally random value, just to handle the sig function failures...
 	while (1)
 	{
 		if (setup_signal_handling(1) == -1)
@@ -61,23 +59,7 @@ int	main(int argc, char **argv, char **envp)
 			continue ;
 		}
 		free_tokens(tokens);
-		/*
-		size_t	i = 0;
-		printf("in MAIN, at the very end of the loop, the tokens are:\n");
-		while (tokens[i].str)
-		{
-			printf("tokens[%zu].str:		<%s>\ntokens[%zu].quote:	<%d>\n"
-				"tokens[%zu].line_id:	<%d>\nlength of string:	<%zu>\n\n\n",
-				i, tokens[i].str, i, tokens[i].quote, i, tokens[i].line_id,
-				ft_strlen(tokens[i].str));
-			i++;
-		}
-		printf("\n\n");
-		*/
 
-		//if (is_builtin(cmd->arg[0]))
-			// if its a builtin command execute.
-		//print_command(cmd);
 		if (cmd && cmd->next) // If there is pipe cmd->next exists
 			execute_pipeline(cmd, &env);
 		else if (cmd)
@@ -87,6 +69,5 @@ int	main(int argc, char **argv, char **envp)
 	}
 	free_env(env);
 	rl_clear_history();
-//	clear_history(); // WARN: this function is not allowed by the subject, should we remove it? is it for running on mac()?
 	return (0);
 }

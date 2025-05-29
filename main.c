@@ -26,7 +26,10 @@ int	main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		if (setup_signal_handling(1) == -1)
-			return (-500); // WARN: this is a random value, just to handle the sig function failures. How about simply voiding out the return here? or setting some other return value which is not too random looking.
+		{
+			perror("sigaction");
+			continue ;
+		}
 		input = NULL;
 		tokens = NULL;
 		cmd = NULL;

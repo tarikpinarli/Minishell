@@ -35,20 +35,24 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	file_number = ft_itoa(i);
 	if (!file_number)
 		return (-2);
-	file_name  = ft_strjoin("heredoc_", file_number);
+	file_name = ft_strjoin("heredoc_", file_number);
 	free(file_number);
 	if (!file_name)
 		return (-2);
 	int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd < 0)
+	{
+		perror("file_name");
+		free(file_name);
 		return (-1);
+	}
 
-	// TODO: we are here as well!!
+	// TODO: we are here as well!! Need to add the heredoc specific rl_event_hook...
 	while (1)
 	{
 		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
 		if (!line || !ft_strcmp(line, delimiter))
-			break;
+			break ;
 		write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
 		free(line);
@@ -66,7 +70,7 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 * -2 if malloc() failed
 * 0, otherwise
 */
-int	prepare_heredoc_file(t_command *cmd)
+int	prepare_heredoc_file(t_command *cmd) // WARN: check all calls to this function, now that it has been modified. error handling has to follow
 {
 	t_redir *in;
 	int		i;
@@ -110,7 +114,15 @@ int	handle_in_redir(t_command *cmd)
 			return (0);
 		}
 		if (!in->next)
-			dup2(fd, STDIN_FILENO);
+		{
+			if (dup2(fd, STDIN_FILENO) == -1)
+			{
+				close(fd);
+				ft_putendl_fd("internal dup function has failed.", 2); // WARN: check that this is only done from the parent!!!
+				(void)last_exit_code(1, 1);
+				return (0); // WARN: is there a child process involved here?
+			}
+		}
 		close(fd);
 		in = in->next;
 	}
@@ -137,6 +149,12 @@ int	handle_out_redir(t_command *cmd)
 		}
 		if (out->next == NULL)
 			dup2(fd, STDOUT_FILENO);
+			{
+				close(fd);
+				ft_putendl_fd("internal dup function has failed.", 2); // WARN: check that this is only done from the parent!!!
+				(void)last_exit_code(1, 1);
+				return (0); // WARN: is there a child process involved here?
+			}
 		close(fd);
 		out = out->next;
 	}

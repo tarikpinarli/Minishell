@@ -12,7 +12,10 @@
 
 #include "../minishell.h"
 
-int	exec_isolated_builtin(t_command *cmd, char ***env)
+// TODO: check if there are failures in "execute_builtin()"
+// that are not caught here right now. UPDATE: there are, malloc failures
+// are unprotected there... perhaps other failures, that could be handled there.
+void	exec_isolated_builtin(t_command *cmd, char ***env)
 {
 	int	saved_stdin;
 	int	saved_stdout;
@@ -20,23 +23,42 @@ int	exec_isolated_builtin(t_command *cmd, char ***env)
 
 	saved_stdin = dup(STDIN_FILENO);
 	saved_stdout = dup(STDOUT_FILENO);
+	if (saved_stdin == -1 || saved_stdout == -1)
+	{
+		perror("dup");
+		//ft_putendl_fd("internal dup function has failed.", 2);
+		(void)last_exit_code(1, 1);
+		return ;
+	}
 	if (!setup_redirections(cmd))
 	{
-		dup2(saved_stdin, STDIN_FILENO);
-		dup2(saved_stdout, STDOUT_FILENO);
+		if (dup2(saved_stdin, STDIN_FILENO) == -1
+			|| dup2(saved_stdout, STDOUT_FILENO) == -1)
+		{
+			perror("dup");
+			//ft_putendl_fd("internal dup function has failed.", 2);
+			(void)last_exit_code(1, 1);
+			return ;
+		}
 		close(saved_stdin);
 		close(saved_stdout);
-		last_exit_code(1, 1);
-		return (1);
+		(void)last_exit_code(1, 1);
+		return ;
 	}
 	ret = execute_builtin(cmd, 1, env);
-	dup2(saved_stdin, STDIN_FILENO);
-	dup2(saved_stdout, STDOUT_FILENO);
+	if (dup2(saved_stdin, STDIN_FILENO) == -1
+		|| dup2(saved_stdout, STDOUT_FILENO) == -1)
+	{
+		perror("dup2");
+		//ft_putendl_fd("internal dup function has failed.", 2);
+		(void)last_exit_code(1, 1);
+		return ;
+	}
 	close(saved_stdin);
 	close(saved_stdout);
-	last_exit_code(1, ret);
-	cleanup_heredocs(cmd);
-	return (1);
+	(void)last_exit_code(1, ret);
+//	cleanup_heredocs(cmd); // is this call necessary, since if we return (1) here we just call this function from main after this?
+	return ;
 }
 
 void	exec_single_cmd_child(t_command *cmd, char **env)
@@ -78,53 +100,99 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 // 4. << ""
 // 5. '' << ""
 // 6. "" << ""
-void	exec_command(t_command *cmd, char ***env)
+
+/*
+* WARN: not finalized
+* Return values:
+* 1: open(), fork(), waitpid(), sigaction() failure
+* 2: command not found (or empty argument/s provided with heredocs)
+* 3: returned from child process to communicate a sigaction() failure
+* 0: if command was executed properly
+*/
+int	exec_command(t_command *cmd, char ***env)
 {
 	pid_t	pid;
 	pid_t	wpid;
 	int		status;
 	int		failure_flag;
 
-	failure_flag = prepare_heredoc_file(cmd);  // latest addition
+	failure_flag = prepare_heredoc_file(cmd);
 	if (failure_flag)
 	{
 		if (failure_flag == -2) // malloc() failed
 		{
 			cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
-			free_cmd(&cmd);
-			//free_path() ---> NOTE: I think it doesn't exist in this context!
-			free_env(*env);
+			free_rest(NULL, cmd, *env); // NOTE: I think 'path' doesn't exist in this context!
 			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-			exit(last_exit_code(1, 1));
+			exit (last_exit_code(1, 1));
 		}
 		else // open() failed, env() should not be freed - unless we are in the child process!
-			return ;
+			return (1);
 	}
 	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
 	{
 		if (!cmd->in_redir)
 		{
 			ft_putendl_fd("Command '' not found", 2);
-			last_exit_code(1, 127);
+			(void)last_exit_code(1, 127);
 		}
-		return ;
+		return (2);
 	}
-
-	// TODO: we are here.
 	if (is_builtin(cmd->argv[0]))
-		if (exec_isolated_builtin(cmd, env) == 1)
-			return ;
+		exec_isolated_builtin(cmd, env);
+			return (0);
 	pid = fork();
 	if (pid == -1)
 	{
 		perror("fork failed");
-		return ;
+		return (1);
 	}
 	if (pid == 0)
-		exec_single_cmd_child(cmd, (*env));
+	{
+		if (setup_signal_handling(0) == -1)
+		{
+			free_rest(NULL, cmd, *env); // we free those because we are freeing the heap copy in the child.
+			return (3); // this return value tells the parent to call perror("sigaction");
+		}
+		exec_single_cmd_child(cmd, *env); // WARN: this still needs to be checked
+	}
 	else
 	{
-		waitpid(pid, &status, 0);
-		last_exit_code(1, WEXITSTATUS(status));
+		wpid = waitpid(pid, &status, 0);
+		if (wpid == -1)
+		{
+			perror("waitpid");
+			return (1);
+		}
+		if (WIFSIGNALED(status))
+		{
+			if (WTERMSIG(status) == SIGQUIT)
+				write(1, "Quit (core dumped)\n",
+					(sizeof("Quit (core dumped)\n") - 1));
+			else if (WTERMSIG(status) == SIGINT)
+				write(1, "\n", 1);
+			last_exit_code(1, 128 + (WTERMSIG(status)));
+			g_signal_status = 0;
+		}
+		else if (WIFEXITED(status))
+		{
+			if (WEXITSTATUS(status) == 3)
+			{
+				perror("sigaction");
+				last_exit_code(1, 1);
+				return (1);
+			}
+		}
+		else
+			last_exit_code(1, WEXITSTATUS(status));
+		/*
+		 * other eventual status monitoring possibilities (might not be necessary for Minishell)
+		else if (WIFSTOPPED(status))
+		{
+			write(1, "Quit (core dumped)\n", (sizeof("Quit (core dumped)\n") - 1));
+			last_exit_code(1, 128 + (WSTOPSIG(status)));
+		}
+		*/
 	}
+	return (0); // WARN: random return value
 }

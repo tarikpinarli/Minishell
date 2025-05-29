@@ -12,6 +12,7 @@
 
 #include "../minishell.h"
 
+/*
 void	free_2D_char(char **arr)
 {
 	int i;
@@ -45,6 +46,7 @@ void	free_env(char **env)
 	free(env);
 }
 
+
 void	free_argv(char **argv)
 {
 	int	i;
@@ -58,6 +60,25 @@ void	free_argv(char **argv)
 		i++;
 	}
 	free(argv);
+}
+*/
+
+void	free_two_dimensional_array(char ***arr)
+{
+	char	*p_arr;
+	int		i;
+
+	p_arr = *arr;
+	i = 0;
+	if (!p_arr)
+		return ;
+	while (p_arr[i])
+	{
+		free(p_arr[i]);
+		i++;
+	}
+	free(p_arr);
+	*arr = NULL;
 }
 
 static void	free_redir_list(t_redir *redir)
@@ -74,6 +95,7 @@ static void	free_redir_list(t_redir *redir)
 }
 
 /*
+ * WARN:  delete this when ready.
 void	free_cmd(t_command *cmd)
 {
 	t_command	*next;

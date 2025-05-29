@@ -12,6 +12,20 @@
 
 #include "../minishell.h"
 
+void	free_rest(char **path, t_command **cmd, char ***env)
+{
+	if (*path)
+	{
+		free(*path);
+		*path = NULL;
+	}
+	if (*env)
+		free_two_dimensional_array(env);
+	if (*cmd)
+		free_cmd(cmd);	
+}
+
+/* earlier iteration, not setting the pointers to NULL.
 void	free_rest(char *path, t_command *cmd, char **env)
 {
 	if (path)
@@ -21,6 +35,7 @@ void	free_rest(char *path, t_command *cmd, char **env)
 	if (cmd)
 		free_cmd(cmd);	
 }
+*/
 
 void	handle_execve_error(char *command, char *path, t_command *cmd, char **env)
 {

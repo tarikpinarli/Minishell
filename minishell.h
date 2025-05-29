@@ -99,8 +99,7 @@ uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 int			last_exit_code(int set, int value);
 
 // executor functions
-int			exec_command(t_command *cmd, char ***env);
-//void		exec_command(t_command *cmd, char ***env);
+void		exec_command(t_command *cmd, char ***env);
 char		*find_in_path(char **env, char *cmd);
 int			execute_pipeline(t_command *cmd, char ***env);
 //void		execute_pipeline(t_command *cmd, char ***env); // WARN: remove when ready

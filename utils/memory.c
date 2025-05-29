@@ -181,8 +181,8 @@ void	cleanup_heredocs(t_command *cmd)
 		
 		if (in->type == REDIR_HEREDOC)
 		{
-			heredoc_number = ft_itoa(i);
-			heredoc_file_name = ft_strjoin("heredoc_", heredoc_number);
+			heredoc_number = ft_itoa(i); // WARN: unprotected
+			heredoc_file_name = ft_strjoin("heredoc_", heredoc_number); // WARN: unprotected
 			unlink(heredoc_file_name);
 			free(heredoc_file_name);
 			free(heredoc_number);

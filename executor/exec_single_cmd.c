@@ -71,44 +71,23 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 	exit(1);
 }
 
-// NOTE: Test to see the behaviour
-void	handle_missing_command(t_command *cmd)
-{
-	if (cmd->in_redir)
-		prepare_heredoc_file(cmd);
-		// WARN: ERROR HANDLING required
-	else
-	{
-		ft_putstr_fd("Command ''", 2);
-		ft_putendl_fd(" not found", 2);
-	}
-}
-
-int	exec_command(t_command *cmd, char ***env)
+// NOTE: The very first cases here need to be tested with the inputs:
+// 1. empty input
+// 2. '' or "" (empty string)
+// 3. << ''
+// 4. << ""
+// 5. '' << ""
+// 6. "" << ""
+void	exec_command(t_command *cmd, char ***env)
 {
 	pid_t	pid;
 	pid_t	wpid;
 	int		status;
 	int		failure_flag;
 
-	failure_flag = 0;
-	if (!cmd->in_redir && (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0'))
-	{
-		handle_missing_command(cmd);
-		return ???;
-	}
-	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
-	{
-		handle_missing_command(cmd);
-		return ???;
-	}
-
 	failure_flag = prepare_heredoc_file(cmd);  // latest addition
 	if (failure_flag)
 	{
-		cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
-		free_cmd(&cmd);
-		//free_path() ---> NOTE: I think it doesn't exist in this context!
 		if (failure_flag == -2) // malloc() failed
 		{
 			cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
@@ -121,7 +100,18 @@ int	exec_command(t_command *cmd, char ***env)
 		else // open() failed, env() should not be freed - unless we are in the child process!
 			return ;
 	}
-	if (is_builtin(cmd->argv[0]) && !cmd->next)
+	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
+	{
+		if (!cmd->in_redir)
+		{
+			ft_putendl_fd("Command '' not found", 2);
+			last_exit_code(1, 127);
+		}
+		return ;
+	}
+
+	// TODO: we are here.
+	if (is_builtin(cmd->argv[0]))
 		if (exec_isolated_builtin(cmd, env) == 1)
 			return ;
 	pid = fork();

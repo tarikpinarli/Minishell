@@ -42,6 +42,8 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd < 0)
 		return (-1);
+
+	// TODO: we are here as well!!
 	while (1)
 	{
 		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
@@ -58,6 +60,12 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	return (0);
 }
 
+/*
+* the return values are identical to those of handle_heredoc():
+* -1 if open() failed
+* -2 if malloc() failed
+* 0, otherwise
+*/
 int	prepare_heredoc_file(t_command *cmd)
 {
 	t_redir *in;
@@ -74,20 +82,12 @@ int	prepare_heredoc_file(t_command *cmd)
 			failure_flag = handle_heredoc(in, in->filename, i)
 			if (failure_flag)
 				return (failure_flag);
-			{
-				if (failure_flag == -2) // malloc() failed in handle_heredoc().
-					free_cmd(&cmd);
-					free_env(
-					// WARN: free_path????? Check with all calls to prepare_heredoc_file() whether path has been allocated.
-					
-				return (0);
 			i++;
 		}
 		in = in->next;
 	}
-	return (1);
+	return (0);
 }
-
 
 int	handle_in_redir(t_command *cmd)
 {

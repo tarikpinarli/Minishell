@@ -20,7 +20,7 @@ int	exec_isolated_builtin(t_command *cmd, char ***env)
 
 	saved_stdin = dup(STDIN_FILENO);
 	saved_stdout = dup(STDOUT_FILENO);
-	if (!setup_redirections(cmd, 0))
+	if (!setup_redirections(cmd))
 	{
 		dup2(saved_stdin, STDIN_FILENO);
 		dup2(saved_stdout, STDOUT_FILENO);
@@ -48,7 +48,7 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 		exit(0);
 	if (cmd->argv[0][0] == '\0')
 		exit(0);
-	if (!setup_redirections(cmd, 0))
+	if (!setup_redirections(cmd))
 	{
 		free_rest(path, cmd, env);
 		exit(1);
@@ -71,10 +71,12 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 	exit(1);
 }
 
+// NOTE: Test to see the behaviour
 void	handle_missing_command(t_command *cmd)
 {
 	if (cmd->in_redir)
 		prepare_heredoc_file(cmd);
+		// WARN: ERROR HANDLING required
 	else
 	{
 		ft_putstr_fd("Command ''", 2);
@@ -87,11 +89,37 @@ int	exec_command(t_command *cmd, char ***env)
 	pid_t	pid;
 	pid_t	wpid;
 	int		status;
+	int		failure_flag;
 
+	failure_flag = 0;
+	if (!cmd->in_redir && (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0'))
+	{
+		handle_missing_command(cmd);
+		return ???;
+	}
 	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
 	{
 		handle_missing_command(cmd);
 		return ???;
+	}
+
+	failure_flag = prepare_heredoc_file(cmd);  // latest addition
+	if (failure_flag)
+	{
+		cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
+		free_cmd(&cmd);
+		//free_path() ---> NOTE: I think it doesn't exist in this context!
+		if (failure_flag == -2) // malloc() failed
+		{
+			cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
+			free_cmd(&cmd);
+			//free_path() ---> NOTE: I think it doesn't exist in this context!
+			free_env(*env);
+			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+			exit(last_exit_code(1, 1));
+		}
+		else // open() failed, env() should not be freed - unless we are in the child process!
+			return ;
 	}
 	if (is_builtin(cmd->argv[0]) && !cmd->next)
 		if (exec_isolated_builtin(cmd, env) == 1)

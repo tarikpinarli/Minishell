@@ -30,6 +30,9 @@
 #  define PATH_MAX 4096
 # endif
 
+# define ALLOCATION_FAILURE "Memory allocation request has failed.\n\
+Exiting this shell for precaution\n"
+
 extern volatile sig_atomic_t	g_signal_status;
 
 typedef enum e_quote_type
@@ -109,8 +112,8 @@ void		wait_for_children(void);
 void		check_if_directory(char *path, t_command *cmd, char **env);
 
 // Redirection functions
-int			setup_redirections(t_command *cmd, int pipeline_flag);
 int			prepare_heredoc_file(t_command *cmd);
+int			setup_redirections(t_command *cmd);
 
 // free
 void		free_env(char **env);

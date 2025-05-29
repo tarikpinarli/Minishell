@@ -165,6 +165,8 @@ void	free_deprecated_strings(t_token *tokens, size_t k)
 	}
 }
 
+// WARN: ft_itoa() and ft_strjoin() are unprotected here.
+// Can we free the heredocs differently? This is on the dangerous side...
 void	cleanup_heredocs(t_command *cmd)
 {
 	t_redir *in;

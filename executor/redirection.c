@@ -24,12 +24,21 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	char	*file_name;
 	char	*line;
 
-	file_number = ft_itoa(file_num);
+// WARN: add O_EXCL to open()'s flags, and check against Errno's EEXIST, and
+// include this whole block in a loop incrementing i until a non pre-existing
+// file is created: this avoids a pre-existing file (called "heredoc_x")
+// from having its contains deleted and overwritten by Minishell's temporary
+// heredoc file creation....
+// CAREFUL however: this should be done in concert with cleanup_heredocs()...
+// The best would be to unlink everything already here and to cleanup
+// if something fails here...
+	file_number = ft_itoa(i);
 	if (!file_number)
 		return (-2);
 	file_name  = ft_strjoin("heredoc_", file_number);
 	free(file_number);
-
+	if (!file_name)
+		return (-2);
 	int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd < 0)
 		return (-1);
@@ -49,20 +58,11 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	return (0);
 }
 
-
-
-int	prepare_heredoc_file(t_command *cmd, int process_flag)
+int	prepare_heredoc_file(t_command *cmd)
 {
 	t_redir *in;
 	int		i;
 	int		failure_flag;
-
-	
-	if (!process_flag)
-
-
-
-	if (process_flag)
 
 	failure_flag = 0;
 	in = cmd->in_redir;
@@ -73,9 +73,12 @@ int	prepare_heredoc_file(t_command *cmd, int process_flag)
 		{
 			failure_flag = handle_heredoc(in, in->filename, i)
 			if (failure_flag)
+				return (failure_flag);
 			{
 				if (failure_flag == -2) // malloc() failed in handle_heredoc().
 					free_cmd(&cmd);
+					free_env(
+					// WARN: free_path????? Check with all calls to prepare_heredoc_file() whether path has been allocated.
 					
 				return (0);
 			i++;
@@ -140,18 +143,12 @@ int	handle_out_redir(t_command *cmd)
 	return (1);
 }
 
-int	setup_redirections(t_command *cmd, int pipeline_flag)
+int	setup_redirections(t_command *cmd)
 {
 	int	heredoc;
 	int	in_redir_flag;
 	int	out_redir_flag;
 
-	if (!pipeline_flag)
-	{
-		heredoc = prepare_heredoc_file(cmd, 0);
-		if (heredoc == 0)
-			return (0);
-	}
 	in_redir_flag = handle_in_redir(cmd);
 	if (in_redir_flag == 0)
 		return (0);

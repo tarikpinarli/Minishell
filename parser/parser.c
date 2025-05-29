@@ -69,7 +69,7 @@ char **argv_add(char **argv, char *new_arg)
 	new_argv = (char **)malloc(sizeof(char *) * (count + 2)); // NOTE: why do we add 2? because: 1 for the new_arg string, & 1 for the NULL
 	if (!new_argv)
 	{
-		free_argv(argv); // it is mandatory to free_argv() here, BEFORE returning NULL and calling free_all()!
+		free_two_dimensional_array(&argv); // it is mandatory to free_argv() here, BEFORE returning NULL and calling free_all()!
 		// Otherwise we replace argv with NULL, losing access to the memory that has to be freed!
 		return (NULL);
 	}
@@ -82,12 +82,12 @@ char **argv_add(char **argv, char *new_arg)
 	new_argv[count] = ft_strdup(new_arg);
 	if (!new_argv[count])
 	{
-		free(new_argv);
-		free_argv(argv);
+		free(new_argv); // frees the pointer, the strings will be freed in the next line
+		free_two_dimensional_array(&argv);
 		return (NULL);
 	}
 	new_argv[count + 1] = NULL;
-	free(argv); // free old array pointer
+	free(argv); // free old array pointer, no need to free the strings.
 	return (new_argv);
 }
 
@@ -240,7 +240,6 @@ t_command *parse_tokens(t_token *tokens, char *input)
 		i++;
 	}
 	*/
-
 	return (head);
 }
 

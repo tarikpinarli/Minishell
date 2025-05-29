@@ -230,7 +230,7 @@ char **append_env_var(char *new_var, char **env)
 	}
 	new_env[i] = ft_strdup(new_var);
 	new_env[i + 1] = NULL;
-	free_env(env);
+	free_two_dimensional_array(&env);
 	return new_env;
 }
 

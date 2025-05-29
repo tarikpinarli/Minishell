@@ -72,7 +72,7 @@ int	main(int argc, char **argv, char **envp)
 		free_cmd(&cmd); // WARN: When arriving here, tokens and input are already freed. We can just free_cmd().
 		// free_all(input, tokens, cmd);
 	}
-	free_env(env);
+	free_two_dimensional_array(&env);
 	rl_clear_history();
 	return (0);
 }

@@ -122,7 +122,8 @@ void	free_cmd(t_command **cmd)
 	while (current)
 	{
 		next = current->next;
-		free_argv(current->argv);
+		free_two_dimensional_array(&current->argv);
+//		free_argv(current->argv);
 		free_redir_list(current->in_redir);
 		free_redir_list(current->out_redir);
 		free(current);

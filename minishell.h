@@ -30,7 +30,7 @@
 #  define PATH_MAX 4096
 # endif
 
-# define ALLOCATION_FAILURE "Memory allocation request has failed.\n\
+# define ALLOCATION_FAILURE "Fatal: memory allocation request has failed.\n\
 Exiting this shell for precaution\n"
 
 extern volatile sig_atomic_t	g_signal_status;
@@ -115,11 +115,11 @@ int			prepare_heredoc_file(t_command *cmd);
 int			setup_redirections(t_command *cmd);
 
 // free
-void		free_two_dimensional_array(char ***arr);
 void		free_cmd(t_command **cmd);
 void		free_tokens(t_token **tokens);
 void		free_tokens_and_input(char **input, t_token **tokens)
 void		free_all(char **input, t_token **tokens, t_command **cmd);
+void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
 void		cleanup_heredocs(t_command *cmd);
 void		free_rest(char *path, t_command *cmd, char **env);
@@ -139,6 +139,7 @@ int			builtin_env(char ***env);
 int			builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env);
 int			builtin_echo(char **argv);
 char		*get_env_value(char **env, char *key);
+
 // builtin export and unset utils
 int			var_exist(char *arg, char **env);
 int			remove_env_var(char ***env, int index);

@@ -52,8 +52,8 @@ static int	is_numeric(const char *str)
 void	close_and_free(char **env, t_command *cmd)
 {
 	rl_clear_history();
-	free_env(env);
-	free_cmd(cmd);
+	free_two_dimensional_array(&env);
+	free_cmd(&cmd);
 	close(3);
 	close(4);
 	close(STDIN_FILENO);

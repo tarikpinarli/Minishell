@@ -23,6 +23,7 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	char	*file_number;
 	char	*file_name;
 	char	*line;
+	int		fd;
 
 // WARN: add O_EXCL to open()'s flags, and check against Errno's EEXIST, and
 // include this whole block in a loop incrementing i until a non pre-existing
@@ -39,10 +40,10 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	free(file_number);
 	if (!file_name)
 		return (-2);
-	int fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+	fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd < 0)
 	{
-		perror("file_name");
+		perror(file_name);
 		free(file_name);
 		return (-1);
 	}
@@ -118,7 +119,8 @@ int	handle_in_redir(t_command *cmd)
 			if (dup2(fd, STDIN_FILENO) == -1)
 			{
 				close(fd);
-				ft_putendl_fd("internal dup function has failed.", 2); // WARN: check that this is only done from the parent!!!
+				perror("dup2"); // WARN: check that this is only done from the parent!!!
+				// ft_putendl_fd("internal dup function has failed.", 2);
 				(void)last_exit_code(1, 1);
 				return (0); // WARN: is there a child process involved here?
 			}
@@ -151,7 +153,8 @@ int	handle_out_redir(t_command *cmd)
 			dup2(fd, STDOUT_FILENO);
 			{
 				close(fd);
-				ft_putendl_fd("internal dup function has failed.", 2); // WARN: check that this is only done from the parent!!!
+				perror("dup2"); // WARN: check that this is only done from the parent!!!
+				// ft_putendl_fd("internal dup function has failed.", 2);
 				(void)last_exit_code(1, 1);
 				return (0); // WARN: is there a child process involved here?
 			}

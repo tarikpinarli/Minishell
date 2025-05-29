@@ -66,15 +66,15 @@ char	*find_in_path(char **env, char *cmd)
 	{
 		full = build_cmd_path(dirs[i], cmd);
 		if (!full)
-			return (ft_free_split(dirs), NULL);
+			return (free_two_dimensional_array(&dirs), NULL);
 		if (access(full, X_OK) == 0)
 		{
-			ft_free_split(dirs);
+			free_two_dimensional_array(&dirs);
 			return (full);
 		}
 		free(full);
 		i++;
 	}
-	ft_free_split(dirs);
+	free_two_dimensional_array(&dirs);
 	return (NULL);
 }

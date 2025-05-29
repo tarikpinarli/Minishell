@@ -76,6 +76,7 @@ typedef struct s_command
 // signal handling
 int			setup_signal_handling(uint32_t is_parent);
 int			readline_signal_hook(void);
+int			heredoc_signal_hook(void);
 
 // tokenizer functions
 int			tokenize(char *input, t_token **tokens);

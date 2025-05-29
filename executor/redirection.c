@@ -51,6 +51,7 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	// TODO: we are here as well!! Need to add the heredoc specific rl_event_hook...
 	while (1)
 	{
+		rl_event_hook = &heredoc_signal_hook; // NOTE: to be done.
 		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
 		if (!line || !ft_strcmp(line, delimiter))
 			break ;

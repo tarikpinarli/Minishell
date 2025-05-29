@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include <readline/readline.h>
 
 int	main(int argc, char **argv, char **envp)
 {

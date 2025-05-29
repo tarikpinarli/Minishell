@@ -74,15 +74,15 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 void	handle_missing_command(t_command *cmd)
 {
 	if (cmd->in_redir)
-		prepare_heredoc_file(cmd, 0);
-	else
+		prepare_heredoc_file(cmd);
+	else // WARN: ask Tarik about this else block: do we really want to print "Command '' not found, but can be installed"? we are not actually eletting our user install something...)
 	{
 		ft_putstr_fd("Command ''", 2);
 		ft_putendl_fd(" not found, but can be installed", 2);
 	}
 }
 
-void	exec_command(t_command *cmd, char ***env)
+int	exec_command(t_command *cmd, char ***env)
 {
 	pid_t	pid;
 	pid_t	wpid;
@@ -91,7 +91,7 @@ void	exec_command(t_command *cmd, char ***env)
 	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
 	{
 		handle_missing_command(cmd);
-		return;
+		return ???;
 	}
 	if (is_builtin(cmd->argv[0]) && !cmd->next)
 		if (exec_isolated_builtin(cmd, env) == 1)

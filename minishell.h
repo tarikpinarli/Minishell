@@ -110,7 +110,7 @@ void		check_if_directory(char *path, t_command *cmd, char **env);
 
 // Redirection functions
 int			setup_redirections(t_command *cmd, int pipeline_flag);
-int			prepare_heredoc_file(t_command *cmd, int process_flag);
+int			prepare_heredoc_file(t_command *cmd);
 
 // free
 void		free_env(char **env);

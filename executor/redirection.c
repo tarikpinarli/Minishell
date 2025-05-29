@@ -12,13 +12,21 @@
 
 #include "../minishell.h"
 
-int	handle_heredoc(t_redir *in_redir, char *delimiter, int	file_num)
+/*
+* return values:
+* -1 upon failure of open()
+* -2 upon malloc() failure
+* 0, otherwise
+*/
+int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 {
 	char	*file_number;
 	char	*file_name;
 	char	*line;
 
 	file_number = ft_itoa(file_num);
+	if (!file_number)
+		return (-2);
 	file_name  = ft_strjoin("heredoc_", file_number);
 	free(file_number);
 
@@ -43,19 +51,25 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int	file_num)
 
 
 
-int	prepare_heredoc_file(t_command *cmd, int process_flag)
+int	prepare_heredoc_file(t_command *cmd)
 {
 	t_redir *in;
-	int i;
+	int		i;
+	int		failure_flag;
 
-	(void)process_flag;
+	failure_flag = 0;
 	in = cmd->in_redir;
 	i = 1;
 	while (in)
 	{
 		if (in->type == REDIR_HEREDOC)
 		{
-			if (handle_heredoc(in, in->filename, i) < 0)
+			failure_flag = handle_heredoc(in, in->filename, i)
+			if (failure_flag)
+			{
+				if (failure_flag == -1) // malloc() failed in handle_heredoc().
+					free_cmd(&cmd);
+					
 				return (0);
 			i++;
 		}

@@ -51,11 +51,18 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 
 
 
-int	prepare_heredoc_file(t_command *cmd)
+int	prepare_heredoc_file(t_command *cmd, int process_flag)
 {
 	t_redir *in;
 	int		i;
 	int		failure_flag;
+
+	
+	if (!process_flag)
+
+
+
+	if (process_flag)
 
 	failure_flag = 0;
 	in = cmd->in_redir;
@@ -67,7 +74,7 @@ int	prepare_heredoc_file(t_command *cmd)
 			failure_flag = handle_heredoc(in, in->filename, i)
 			if (failure_flag)
 			{
-				if (failure_flag == -1) // malloc() failed in handle_heredoc().
+				if (failure_flag == -2) // malloc() failed in handle_heredoc().
 					free_cmd(&cmd);
 					
 				return (0);

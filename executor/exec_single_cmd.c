@@ -75,10 +75,10 @@ void	handle_missing_command(t_command *cmd)
 {
 	if (cmd->in_redir)
 		prepare_heredoc_file(cmd);
-	else // WARN: ask Tarik about this else block: do we really want to print "Command '' not found, but can be installed"? we are not actually eletting our user install something...)
+	else
 	{
 		ft_putstr_fd("Command ''", 2);
-		ft_putendl_fd(" not found, but can be installed", 2);
+		ft_putendl_fd(" not found", 2);
 	}
 }
 

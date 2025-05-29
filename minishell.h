@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/28 19:34:41 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/29 20:24:38 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -118,7 +118,7 @@ int			setup_redirections(t_command *cmd);
 // free
 void		free_cmd(t_command **cmd);
 void		free_tokens(t_token **tokens);
-void		free_tokens_and_input(char **input, t_token **tokens)
+void		free_tokens_and_input(t_token **tokens, char **input);
 void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);

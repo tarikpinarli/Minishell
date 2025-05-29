@@ -6,7 +6,7 @@
 /*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/28 12:07:44 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/08 20:46:04 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/29 21:08:16 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,5 +129,7 @@ static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i)
 	}
 	free(tokens);
 	free(input);
+	rl_clear_history();
+	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 	exit (last_exit_code(1, 1));
 }

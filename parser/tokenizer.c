@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:43 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/11 20:25:08 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/29 20:43:33 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,12 +35,15 @@ int	tokenize(char *input, t_token **tokens)
 	if (!*tokens)
 	{
 		free(input);
+		rl_clear_histoy();
+		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 		exit (last_exit_code(1, 1));
 	}
 	if (fill_up_tokens(input, tokens, count) == -1)
 	{
-		free_all(input, *tokens, NULL);
-		*tokens = NULL;
+		free_tokens_and_input(tokens, &input);
+		rl_clear_histoy();
+		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 		exit (last_exit_code(1, 1));
 	}
 	return (count);

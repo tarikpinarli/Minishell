@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/12 20:40:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/28 19:34:29 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/29 20:26:14 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,9 @@ int	main(int argc, char **argv, char **envp)
 
 	(void)argc;
 	(void)argv;
+	input = NULL;
+	tokens = NULL;
+	cmd = NULL;
 	env = copy_env(envp);
 	while (1)
 	{
@@ -29,9 +32,12 @@ int	main(int argc, char **argv, char **envp)
 			perror("sigaction");
 			continue ;
 		}
+		/* Trying to set these outside of main, since those HAVE TO BE NULL by
+		 * this point!
 		input = NULL;
 		tokens = NULL;
 		cmd = NULL;
+		*/
 		rl_event_hook = &readline_signal_hook;
 		input = readline("minishell$ ");
 		if (!input)
@@ -61,7 +67,7 @@ int	main(int argc, char **argv, char **envp)
 			// printf("Parsing failed.\n"); // NOTE: are we certain we want this "Parsing failed" message? Because we already output different parsing syntax error messages in parse_tokens(), so removing this should be just fine!
 			continue ;
 		}
-		free_tokens_and_input(&input, &tokens)
+		free_tokens_and_input(&tokens, &input);
 
 		if (cmd && cmd->next) // If there is pipe cmd->next exists
 			execute_pipeline(cmd, &env);

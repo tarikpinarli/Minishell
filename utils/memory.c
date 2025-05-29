@@ -147,10 +147,12 @@ void	free_tokens(t_token **tokens)
 	*tokens = NULL;
 }
 
-// WARN: MAKE 100% sure that you are passing from main a double pointer,
+// WARN: MAKE 100% sure that you are passing a double pointer,
 // freeing the memory properly and resetting to NULL both tokens and input!!!!
 // Same for 'cmd'!!!
 // UPDATE: this is done, but we HAVE to test it once the project compiles.
+// never pass NULL to this function! The pointer can be a NULL pointer, and
+// then you pass its address - that's OK, but never pass simply "NULL"
 void	free_all(char **input, t_token **tokens, t_command **cmd)
 {
 	if (*input)
@@ -167,7 +169,7 @@ void	free_all(char **input, t_token **tokens, t_command **cmd)
 	}
 }
 
-void	free_tokens_and_input(char **input, t_token **tokens)
+void	free_tokens_and_input(t_token **tokens, char **input)
 {
 	if (*input)
 	{

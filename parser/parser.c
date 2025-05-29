@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 15:16:33 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/19 16:46:07 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/05/29 20:35:47 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,13 +120,15 @@ t_command *parse_tokens(t_token *tokens, char *input)
 					(void)printf("syntax error: parsing failed.\n");
 				else
 					(void)printf("syntax error near unexpected token `|'\n");
-				free_all(input, tokens, head);
+				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
 			new_cmd = (t_command *)ft_calloc(1, sizeof(t_command));
 			if (!new_cmd)
 			{
-				free_all(input, tokens, head);
+				free_all(&input, &tokens, &head);
+				rl_clear_history();
+				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
 			}
 
@@ -143,7 +145,9 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			current = (t_command *)ft_calloc(1, sizeof(t_command));
 			if (!current)
 			{
-				free_all(input, tokens, head);
+				free_all(&input, &tokens, &head);
+				rl_clear_history();
+				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
 			}
 			head = current;
@@ -156,7 +160,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!tokens[i].str)
 			{
 				(void)printf("syntax error near unexpected token `newline'\n");
-				free_all(input, tokens, head);
+				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
 			if (get_redirection_id(tokens[i].str, tokens[i].quote))
@@ -165,20 +169,22 @@ t_command *parse_tokens(t_token *tokens, char *input)
 					tokens[i].str); // this is quite similar to bash's behaviour,
 								// except some cases where it is slightly different: [ <> ] , [ <>> ] , [ <<< ] , [ <<<< ]
 								// but those (or some of those) start to behave in even other ways if there are more redirection sybols or valid arguments later; This is beyond the scope of this project. But since there are a lot of different behaviours, but most of them end up being parsing errors, so we can consider printing a more general "parsing failed\n" error instead... What does Tarik think?
-				free_all(input, tokens, head);
+				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
 			if (!ft_strcmp(tokens[i].str, "|"))
 			{
 				(void)printf("syntax error near unexpected token `|'\n");
-				free_all(input, tokens, head);
+				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
 
 			new_redir = create_redir(redir_id, tokens[i].str);
 			if (!new_redir)
 			{
-				free_all(input, tokens, head);
+				free_all(&input, &tokens, &head);
+				rl_clear_history();
+				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
 			}
 			append_redir(redir_id, new_redir, current);
@@ -188,7 +194,9 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			current->argv = argv_add(current->argv, tokens[i].str);
 			if (!current->argv)
 			{
-				free_all(input, tokens, head);
+				free_all(&input, &tokens, &head);
+				rl_clear_history();
+				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
 			}
 		}

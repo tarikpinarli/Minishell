@@ -6,7 +6,7 @@
 /*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/11 20:37:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/11 20:44:55 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/29 20:25:39 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,9 @@ void	expand_tokens(t_token *tokens, char *input)
 				failure_flag = rebuild_expandable_string(tokens, i);
 				if (failure_flag)
 				{
-					free_all(input, tokens, NULL);
+					free_tokens_and_input(&tokens, &input);
+					rl_clear_history();
+					write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
 					exit (last_exit_code(1, 1));
 				}
 			}

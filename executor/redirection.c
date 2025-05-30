@@ -47,13 +47,11 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 		free(file_name);
 		return (-1);
 	}
-
-	// TODO: we are here as well!! Need to add the heredoc specific rl_event_hook...
 	while (1)
 	{
 		rl_event_hook = &heredoc_signal_hook; // NOTE: to be done.
 		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
-		if (!line || !ft_strcmp(line, delimiter))
+		if (!line || !ft_strcmp(line, delimiter) || g_signal_status == SIGINT)
 			break ;
 		write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
@@ -63,6 +61,12 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	close(fd);
 	free(in_redir->filename);
 	in_redir->filename = file_name;
+	if (g_signal_status == SIGINT)
+	{
+		g_signal_status = 0;
+		return (-3);
+	}
+	(void)last_exit_code(1, 0);
 	return (0);
 }
 
@@ -131,7 +135,6 @@ int	handle_in_redir(t_command *cmd)
 	}
 	return (1);
 }
-
 
 int	handle_out_redir(t_command *cmd)
 {

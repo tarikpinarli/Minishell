@@ -1,4 +1,4 @@
-/* ************************************************************************** */
+
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
@@ -38,6 +38,7 @@ int	main(int argc, char **argv, char **envp)
 		tokens = NULL;
 		cmd = NULL;
 		*/
+//		rl_done = 0; // is it necessary?
 		rl_event_hook = &readline_signal_hook;
 		input = readline("minishell$ ");
 		if (!input)
@@ -72,7 +73,7 @@ int	main(int argc, char **argv, char **envp)
 		if (cmd && cmd->next) // If there is pipe cmd->next exists
 			execute_pipeline(cmd, &env);
 		else if (cmd) // If its a single command
-			exec_command(cmd, &env);
+			(void)exec_command(cmd, &env);
 		cleanup_heredocs(cmd); // WARN: does this not segfault if cmd is NULL?
 		free_cmd(&cmd); // WARN: When arriving here, tokens and input are already freed. We can just free_cmd().
 		// free_all(input, tokens, cmd);

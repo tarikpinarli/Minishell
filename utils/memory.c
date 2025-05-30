@@ -154,7 +154,6 @@ void	free_cmd(t_command **cmd)
 			free(current);
 			current = next;
 		}
-		free(*cmd);
 		*cmd = NULL;
 	}
 }

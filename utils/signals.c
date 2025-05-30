@@ -11,7 +11,6 @@
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include <signal.h>
 
 volatile sig_atomic_t	g_signal_status = 0;
 
@@ -30,7 +29,7 @@ static int	setup_sigint_handler(void)
 	sa_int.sa_flags = SA_RESTART;
 	sa_int.sa_handler = &handle_sigint;
 	if (sigaction(SIGINT, &sa_int, NULL) == -1)
-		return (-1); // WARN: it is important to handle failure of sigaction().
+		return (-1);
 	return (0);
 }
 
@@ -52,7 +51,7 @@ int	setup_signal_handling(uint32_t is_parent)
 	else
 		sa_quit.sa_handler = SIG_DFL;
 	if (sigaction(SIGQUIT, &sa_quit, NULL) == -1)
-		return (-1); // WARN: it is important to handle failure of sigaction().
+		return (-1);
 	if (!has_run)
 	{
 		has_run = 1;
@@ -77,26 +76,20 @@ int	readline_signal_hook(void)
 	if (g_signal_status == SIGINT)
 	{
 		(void)last_exit_code(1, 128 + g_signal_status);
+		g_signal_status = 0;
 		rl_replace_line("", 0);
 		(void)write(1, "\n", 1);
 		rl_on_new_line();
 		rl_redisplay();
-		g_signal_status = 0;
 	}
 	return (0);
 }
 
-// TODO: this probably needs many adjustments!
 int	heredoc_signal_hook(void)
 {
 	if (g_signal_status == SIGINT)
 	{
 		(void)last_exit_code(1, 128 + g_signal_status);
-		rl_replace_line("", 0);
-		(void)write(1, "\n", 1);
-		rl_on_new_line();
-		rl_redisplay();
-		g_signal_status = 0;
 		rl_done = 1;
 	}
 	return (0);

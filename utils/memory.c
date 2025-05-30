@@ -77,10 +77,11 @@ void	free_two_dimensional_array(char ***arr)
 		free(p_arr[i]);
 		i++;
 	}
-	free(p_arr);
+	free(*arr);
 	*arr = NULL;
 }
 
+/*
 static void	free_redir_list(t_redir *redir)
 {
 	t_redir	*next;
@@ -92,6 +93,24 @@ static void	free_redir_list(t_redir *redir)
 		free(redir);
 		redir = next;
 	}
+}
+*/
+
+static void	free_redir_list(t_redir **redir)
+{
+	t_redir	*p_redir;
+	t_redir	*next;
+
+	p_redir = *redir;
+	while (p_redir)
+	{
+		next = p_redir->next;
+		free(p_redir->filename);
+		p_redir->filename = NULL;
+		free(p_redir);
+		p_redir = next;
+	}
+	*redir = NULL;
 }
 
 /*
@@ -123,9 +142,8 @@ void	free_cmd(t_command **cmd)
 	{
 		next = current->next;
 		free_two_dimensional_array(&current->argv);
-//		free_argv(current->argv);
-		free_redir_list(current->in_redir);
-		free_redir_list(current->out_redir);
+		free_redir_list(&current->in_redir);
+		free_redir_list(&current->out_redir);
 		free(current);
 		current = next;
 	}
@@ -180,6 +198,10 @@ void	free_tokens_and_input(t_token **tokens, char **input)
 		free_tokens(tokens);
 }
 
+/*
+* frees the heap allocated strings in the tokens' array of structs, from index
+* 'k' onwards. Strings in indices lower than k are not freed by this function.
+*/
 void	free_deprecated_strings(t_token *tokens, size_t k)
 {
 	while (tokens[k].str)

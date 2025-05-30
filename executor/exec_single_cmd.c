@@ -100,6 +100,9 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 // 4. << ""
 // 5. '' << ""
 // 6. "" << ""
+// 7. echo hi | ""
+// 8. echo hello | ''
+// 9. echo hello | echo hi | ''
 
 /*
 * Return values:

@@ -33,12 +33,12 @@ int	main(int argc, char **argv, char **envp)
 			continue ;
 		}
 		/* Trying to set these outside of main, since those HAVE TO BE NULL by
-		 * this point!
+		 * this point, otherwise our program is not safe and there would still
+		 * be accessible memory!
 		input = NULL;
 		tokens = NULL;
 		cmd = NULL;
 		*/
-//		rl_done = 0; // is it necessary?
 		rl_event_hook = &readline_signal_hook;
 		input = readline("minishell$ ");
 		if (!input)

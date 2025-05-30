@@ -58,7 +58,7 @@ char **argv_add(char **argv, char *new_arg)
 	int		i;
 	char	**new_argv;
 
-	if (!new_arg || new_arg[0] == '\0') // important, but could eventually be done before calling this function, instead
+	if (!new_arg)
 		return (argv);
 	// Count current size
 	count = 0;

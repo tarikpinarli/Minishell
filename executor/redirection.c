@@ -49,7 +49,7 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	}
 	while (1)
 	{
-		rl_event_hook = &heredoc_signal_hook; // NOTE: to be done.
+		rl_event_hook = &heredoc_signal_hook;
 		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
 		if (!line || !ft_strcmp(line, delimiter) || g_signal_status == SIGINT)
 			break ;

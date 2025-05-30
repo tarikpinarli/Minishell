@@ -153,7 +153,7 @@ void	free_cmd(t_command **cmd)
 			free_redir_list(&current->out_redir);
 			free(current);
 			current = next;
-	}
+		}
 		free(*cmd);
 		*cmd = NULL;
 	}

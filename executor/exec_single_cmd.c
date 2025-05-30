@@ -154,7 +154,7 @@ int	exec_command(t_command *cmd, char ***env)
 			free_rest(NULL, &cmd, env); // we free those because we are freeing the heap copy in the child. It is safe to pass NULL for 'path', free_rest() checks for it.
 			return (3); // this return value tells the parent to call perror("sigaction");
 		}
-		exec_single_cmd_child(cmd, *env); // WARN: this still needs to be checked
+		exec_single_cmd_child(cmd, *env); // WARN: this still needs to be checked. Memory (at Hive...) should be freed from the child if execve is not given the power over the program....
 	}
 	else
 	{

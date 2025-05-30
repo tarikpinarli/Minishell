@@ -17,7 +17,7 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 	char	*path;
 	int		ret;
 
-	if (!setup_redirections(cmd, 1))
+	if (!setup_redirections(cmd))
 		exit(1);
 	if (is_builtin(cmd->argv[0]))
 	{
@@ -68,7 +68,7 @@ void	execute_pipeline(t_command *cmd, char ***env)
 	prev_fd = -1;
 	while (cmd)
 	{
-		if (!prepare_heredoc_file(cmd, 1))
+		if (!prepare_heredoc_file(cmd))
     		return ;
 		curr_pipefd = NULL;
 		if (cmd->next)

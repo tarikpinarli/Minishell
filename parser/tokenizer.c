@@ -35,14 +35,14 @@ int	tokenize(char *input, t_token **tokens)
 	if (!*tokens)
 	{
 		free(input);
-		rl_clear_histoy();
+		rl_clear_history();
 		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 		exit (last_exit_code(1, 1));
 	}
 	if (fill_up_tokens(input, tokens, count) == -1)
 	{
 		free_tokens_and_input(tokens, &input);
-		rl_clear_histoy();
+		rl_clear_history();
 		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 		exit (last_exit_code(1, 1));
 	}

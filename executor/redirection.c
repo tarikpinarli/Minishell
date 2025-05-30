@@ -85,7 +85,7 @@ int	prepare_heredoc_file(t_command *cmd) // WARN: check all calls to this functi
 	{
 		if (in->type == REDIR_HEREDOC)
 		{
-			failure_flag = handle_heredoc(in, in->filename, i)
+			failure_flag = handle_heredoc(in, in->filename, i);
 			if (failure_flag)
 				return (failure_flag);
 			i++;
@@ -151,7 +151,8 @@ int	handle_out_redir(t_command *cmd)
 			return (0);
 		}
 		if (out->next == NULL)
-			dup2(fd, STDOUT_FILENO);
+		{
+			if (dup2(fd, STDOUT_FILENO) == -1)
 			{
 				close(fd);
 				perror("dup2"); // WARN: check that this is only done from the parent!!!
@@ -159,6 +160,7 @@ int	handle_out_redir(t_command *cmd)
 				(void)last_exit_code(1, 1);
 				return (0); // WARN: is there a child process involved here?
 			}
+		}
 		close(fd);
 		out = out->next;
 	}
@@ -167,7 +169,6 @@ int	handle_out_redir(t_command *cmd)
 
 int	setup_redirections(t_command *cmd)
 {
-	int	heredoc;
 	int	in_redir_flag;
 	int	out_redir_flag;
 

@@ -102,8 +102,7 @@ int			last_exit_code(int set, int value);
 // executor functions
 int			exec_command(t_command *cmd, char ***env);
 char		*find_in_path(char **env, char *cmd);
-int			execute_pipeline(t_command *cmd, char ***env);
-//void		execute_pipeline(t_command *cmd, char ***env); // WARN: remove when ready
+void		execute_pipeline(t_command *cmd, char ***env);
 void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
@@ -117,13 +116,12 @@ int			setup_redirections(t_command *cmd);
 
 // free
 void		free_cmd(t_command **cmd);
-void		free_tokens(t_token **tokens);
 void		free_tokens_and_input(t_token **tokens, char **input);
 void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
 void		cleanup_heredocs(t_command *cmd);
-void		free_rest(char *path, t_command *cmd, char **env);
+void		free_rest(char **path, t_command **cmd, char ***env);
 
 // NOTE: Question to Tarik: Do you think we should consider changing the variable
 // name of "argv" that is used for the builtins, because there is already one

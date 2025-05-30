@@ -72,7 +72,7 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 		exit(0);
 	if (!setup_redirections(cmd))
 	{
-		free_rest(path, cmd, env);
+		free_rest(&path, &cmd, &env);
 		exit(1);
 	}	
 	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2)
@@ -84,7 +84,7 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 	{
 		ft_putstr_fd(cmd->argv[0], 2);
 		ft_putendl_fd(": command not found", 2);
-		free_rest(path, cmd, env);
+		free_rest(&path, &cmd, &env);
 		exit(127);
 	}
 	check_if_directory(path, cmd, env);
@@ -122,7 +122,7 @@ int	exec_command(t_command *cmd, char ***env)
 		if (failure_flag == -2) // malloc() failed
 		{
 			cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
-			free_rest(NULL, cmd, *env); // NOTE: I think 'path' doesn't exist in this context!
+			free_rest(NULL, &cmd, env); // NOTE: I think 'path' doesn't exist in this context! It is safe to pass NULL for 'path', free_rest() checks for it.
 			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 			exit (last_exit_code(1, 1));
 		}
@@ -151,7 +151,7 @@ int	exec_command(t_command *cmd, char ***env)
 	{
 		if (setup_signal_handling(0) == -1)
 		{
-			free_rest(NULL, cmd, *env); // we free those because we are freeing the heap copy in the child.
+			free_rest(NULL, &cmd, env); // we free those because we are freeing the heap copy in the child. It is safe to pass NULL for 'path', free_rest() checks for it.
 			return (3); // this return value tells the parent to call perror("sigaction");
 		}
 		exec_single_cmd_child(cmd, *env); // WARN: this still needs to be checked

@@ -12,6 +12,8 @@
 
 #include "../minishell.h"
 
+static void	free_tokens(t_token **tokens);
+
 /*
 void	free_2D_char(char **arr)
 {
@@ -65,13 +67,13 @@ void	free_argv(char **argv)
 
 void	free_two_dimensional_array(char ***arr)
 {
-	char	*p_arr;
+	char	**p_arr;
 	int		i;
 
+	if (!arr || !*arr)
+		return ;
 	p_arr = *arr;
 	i = 0;
-	if (!p_arr)
-		return ;
 	while (p_arr[i])
 	{
 		free(p_arr[i]);
@@ -101,16 +103,19 @@ static void	free_redir_list(t_redir **redir)
 	t_redir	*p_redir;
 	t_redir	*next;
 
-	p_redir = *redir;
-	while (p_redir)
+	if (redir && *redir)
 	{
-		next = p_redir->next;
-		free(p_redir->filename);
-		p_redir->filename = NULL;
-		free(p_redir);
-		p_redir = next;
+		p_redir = *redir;
+		while (p_redir)
+		{
+			next = p_redir->next;
+			free(p_redir->filename);
+			p_redir->filename = NULL;
+			free(p_redir);
+			p_redir = next;
+		}
+		*redir = NULL;
 	}
-	*redir = NULL;
 }
 
 /*
@@ -137,21 +142,24 @@ void	free_cmd(t_command **cmd)
 	t_command	*next;
 	t_command	*current;
 
-	current = *cmd;
-	while (current)
+	if (cmd && *cmd)
 	{
-		next = current->next;
-		free_two_dimensional_array(&current->argv);
-		free_redir_list(&current->in_redir);
-		free_redir_list(&current->out_redir);
-		free(current);
-		current = next;
+		current = *cmd;
+		while (current)
+		{
+			next = current->next;
+			free_two_dimensional_array(&current->argv);
+			free_redir_list(&current->in_redir);
+			free_redir_list(&current->out_redir);
+			free(current);
+			current = next;
 	}
-	free(*cmd);
-	*cmd = NULL;
+		free(*cmd);
+		*cmd = NULL;
+	}
 }
 
-void	free_tokens(t_token **tokens)
+static void	free_tokens(t_token **tokens)
 {
 	int	i;
 
@@ -189,12 +197,12 @@ void	free_all(char **input, t_token **tokens, t_command **cmd)
 
 void	free_tokens_and_input(t_token **tokens, char **input)
 {
-	if (*input)
+	if (input && *input)
 	{
 		free(*input);
 		*input = NULL;
 	}
-	if (*tokens)
+	if (tokens && *tokens)
 		free_tokens(tokens);
 }
 
@@ -204,11 +212,14 @@ void	free_tokens_and_input(t_token **tokens, char **input)
 */
 void	free_deprecated_strings(t_token *tokens, size_t k)
 {
-	while (tokens[k].str)
+	if (tokens)
 	{
-		free(tokens[k].str);
-		tokens[k].str = NULL;
-		k++;
+		while (tokens[k].str)
+		{
+			free(tokens[k].str);
+			tokens[k].str = NULL;
+			k++;
+		}
 	}
 }
 
@@ -225,7 +236,6 @@ void	cleanup_heredocs(t_command *cmd)
 	i = 1;
 	while (in)
 	{
-		
 		if (in->type == REDIR_HEREDOC)
 		{
 			heredoc_number = ft_itoa(i); // WARN: unprotected

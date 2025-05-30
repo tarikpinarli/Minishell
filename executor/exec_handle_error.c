@@ -14,14 +14,14 @@
 
 void	free_rest(char **path, t_command **cmd, char ***env)
 {
-	if (*path)
+	if (path && *path)
 	{
 		free(*path);
 		*path = NULL;
 	}
-	if (*env)
+	if (env && *env)
 		free_two_dimensional_array(env);
-	if (*cmd)
+	if (cmd && *cmd)
 		free_cmd(cmd);	
 }
 
@@ -43,21 +43,21 @@ void	handle_execve_error(char *command, char *path, t_command *cmd, char **env)
 	{
 		ft_putstr_fd(path, 2);
 		ft_putendl_fd(": Is a directory", 2);
-		free_rest(path, cmd, env);
+		free_rest(&path, &cmd, &env);
 		exit(126);
 	}
 	else if (errno == EACCES)
 	{
 		ft_putstr_fd(path, 2);
 		ft_putendl_fd(": Permission denied", 2);
-		free_rest(path, cmd, env);
+		free_rest(&path, &cmd, &env);
 		exit(126);
 	}
 	else if (errno == ENOENT)
 	{
 		ft_putstr_fd(path, 2);
 		ft_putendl_fd(": No such file or directory", 2);
-		free_rest(path, cmd, env);
+		free_rest(&path, &cmd, &env);
 		exit(127);
 	}
 	perror(command);
@@ -72,7 +72,7 @@ void	check_if_directory(char *path, t_command *cmd, char **env)
 	{
 		ft_putstr_fd(path, 2);
 		ft_putendl_fd(": Is a directory", 2);
-		free_rest(path, cmd, env);
+		free_rest(&path, &cmd, &env);
 		exit(126);
 	}
 }

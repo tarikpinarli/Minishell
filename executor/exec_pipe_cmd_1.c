@@ -68,7 +68,7 @@ void	execute_pipeline(t_command *cmd, char ***env)
 	prev_fd = -1;
 	while (cmd)
 	{
-		if (!prepare_heredoc_file(cmd))
+		if (prepare_heredoc_file(cmd))
     		return ;
 		curr_pipefd = NULL;
 		if (cmd->next)

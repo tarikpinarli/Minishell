@@ -132,10 +132,10 @@ int	exec_command(t_command *cmd, char ***env)
 		else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
 			return (1);
 	}
-	printf("HELLO FROM EXEC_COMMAND()!\n\n");
+//	printf("HELLO FROM EXEC_COMMAND()!\n\n");
 	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
 	{
-		if (!cmd->in_redir)
+		if (!cmd->in_redir || cmd->in_redir->type == REDIR_HEREDOC)
 		{
 			ft_putendl_fd("Command '' not found", 2);
 			(void)last_exit_code(1, 127);

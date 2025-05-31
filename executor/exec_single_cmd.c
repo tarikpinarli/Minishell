@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/29 20:38:33 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/05/31 18:09:11 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,15 @@ void	exec_isolated_builtin(t_command *cmd, char ***env)
 		return ;
 	}
 	ret = execute_builtin(cmd, 1, env);
+	if (ret == -1)
+	{
+		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
+		free_two_dimensional_array(env);
+		free_cmd(&cmd);
+		close(saved_stdin);
+		close(saved_stdout);
+		exit(1);
+	}
 	if (dup2(saved_stdin, STDIN_FILENO) == -1
 		|| dup2(saved_stdout, STDOUT_FILENO) == -1)
 	{
@@ -84,7 +93,7 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 	{
 		ft_putstr_fd(cmd->argv[0], 2);
 		ft_putendl_fd(": command not found", 2);
-//		free_rest(&path, &cmd, &env); // WARN: let's try again to free everything from the child before exiting without execve().
+		free_rest(&path, &cmd, &env); // WARN: let's try again to free everything from the child before exiting without execve().
 		exit(127);
 	}
 	check_if_directory(path, cmd, env);

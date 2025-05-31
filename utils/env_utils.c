@@ -22,28 +22,27 @@ char **copy_env(char **envp)
 	count = 0;
 	while (envp[count])
 		count++;
-	copy = malloc(sizeof(char *) * (count + 1));
+	copy = malloc(sizeof(char *) * (count + 1)); // WARN: is this really protected
 	if (!copy)
 		return (NULL);
 	while (i < count)
 	{
-		copy[i] = ft_strdup(envp[i]);
+		copy[i] = ft_strdup(envp[i]); // WARN: unprotected malloc() failure
 		i++;
 	}
 	copy[i] = NULL;
 	return (copy);
 }
 
-
 static char	*build_cmd_path(char *dir, char *cmd)
 {
 	char	*tmp;
 	char	*full;
 
-	tmp = ft_strjoin(dir, "/");
+	tmp = ft_strjoin(dir, "/"); // WARN: is this really protected
 	if (!tmp)
 		return (NULL);
-	full = ft_strjoin(tmp, cmd);
+	full = ft_strjoin(tmp, cmd); // WARN: is this really protected
 	free(tmp);
 	if (!full)
 		return (NULL);
@@ -61,7 +60,7 @@ char	*find_in_path(char **env, char *cmd)
 	i = 0;
 	if (!path || !cmd)
 		return (NULL);
-	dirs = ft_split(path, ':');
+	dirs = ft_split(path, ':'); // WARN: malloc() failre unprotected here!
 	while (dirs[i])
 	{
 		full = build_cmd_path(dirs[i], cmd);

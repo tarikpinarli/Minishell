@@ -144,6 +144,6 @@ int			var_exist(char *arg, char **env);
 int			remove_env_var(char ***env, int index);
 
 // debug functions // WARN: remove before evaluation if just for debugging
-void		print_command(t_command *cmd);
+void		print_command_list(t_command *cmd);
 
 #endif

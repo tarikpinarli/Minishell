@@ -70,6 +70,13 @@ int	main(int argc, char **argv, char **envp)
 		}
 		free_tokens_and_input(&tokens, &input);
 
+		if (tokens || input) // just debugging
+			printf("tokens and/or input seem to not be NULL after free_tokens_and_input() call from main()!!\n\n");
+
+		// debugging:
+		print_command_list(cmd);
+
+
 		if (cmd && cmd->next) // If there is pipe cmd->next exists
 			execute_pipeline(cmd, &env);
 		else if (cmd) // If its a single command

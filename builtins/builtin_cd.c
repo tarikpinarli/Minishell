@@ -36,7 +36,7 @@ char	*make_env_entry(const char *key, const char *value)
 
 	key_len = ft_strlen(key);
 	total_len = key_len + 1 + ft_strlen(value) + 1;
-	entry = malloc(total_len);
+	entry = malloc(total_len); // WARN: is this protected?
 	if (!entry)
 		return (NULL);
 	ft_strlcpy(entry, key, key_len + 1);
@@ -53,7 +53,7 @@ void	append_env(char ***env, char *new_entry)
 	i = 0;
 	while ((*env)[i])
 		i++;
-	new_env = malloc(sizeof(char *) * (i + 2));
+	new_env = malloc(sizeof(char *) * (i + 2));  // WARN: is this protected?
 	if (!new_env)
 	{
 		free(new_entry);
@@ -77,14 +77,14 @@ void	update_env_var(char ***env, const char *key, const char *value)
 	size_t	key_len;
 	char	*new_entry;
 
-	new_entry = make_env_entry(key, value);
+	new_entry = make_env_entry(key, value); // WARN: malloc() fail seems unprotected
 	if (!new_entry)
 		return ;
 	key_len = ft_strlen(key);
 	i = 0;
 	while ((*env)[i])
 	{
-		if (!ft_strncmp((*env)[i], key, key_len)&&
+		if (!ft_strncmp((*env)[i], key, key_len) &&
             (*env)[i][key_len] == '=')
 		{
 			free((*env)[i]);

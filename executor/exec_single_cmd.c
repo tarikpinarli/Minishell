@@ -84,7 +84,7 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 	{
 		ft_putstr_fd(cmd->argv[0], 2);
 		ft_putendl_fd(": command not found", 2);
-//		free_rest(&path, &cmd, &env); // WARN: it seems wrong to free() the parent's heap memory from the child.
+//		free_rest(&path, &cmd, &env); // WARN: let's try again to free everything from the child before exiting without execve().
 		exit(127);
 	}
 	check_if_directory(path, cmd, env);
@@ -132,6 +132,7 @@ int	exec_command(t_command *cmd, char ***env)
 		else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
 			return (1);
 	}
+	printf("HELLO FROM EXEC_COMMAND()!\n\n");
 	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
 	{
 		if (!cmd->in_redir)

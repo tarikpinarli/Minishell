@@ -11,9 +11,6 @@
 /* ************************************************************************** */
 
 #include "../minishell.h"
-#include <unistd.h>
-//#include <sys/types.h>
-//#include <sys/wait.h>
 
 // WARN: shouldn't we set the exit statuses here?
 

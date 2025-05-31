@@ -120,6 +120,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 					(void)printf("syntax error: parsing failed.\n");
 				else
 					(void)printf("syntax error near unexpected token `|'\n");
+				(void)last_exit_code(1, 2);
 				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
@@ -160,6 +161,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!tokens[i].str)
 			{
 				(void)printf("syntax error near unexpected token `newline'\n");
+				(void)last_exit_code(1, 2);
 				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
@@ -169,12 +171,14 @@ t_command *parse_tokens(t_token *tokens, char *input)
 					tokens[i].str); // this is quite similar to bash's behaviour,
 								// except some cases where it is slightly different: [ <> ] , [ <>> ] , [ <<< ] , [ <<<< ]
 								// but those (or some of those) start to behave in even other ways if there are more redirection sybols or valid arguments later; This is beyond the scope of this project. But since there are a lot of different behaviours, but most of them end up being parsing errors, so we can consider printing a more general "parsing failed\n" error instead... What does Tarik think?
+				(void)last_exit_code(1, 2);
 				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
 			if (!ft_strcmp(tokens[i].str, "|"))
 			{
 				(void)printf("syntax error near unexpected token `|'\n");
+				(void)last_exit_code(1, 2);
 				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
@@ -202,52 +206,6 @@ t_command *parse_tokens(t_token *tokens, char *input)
 		}
 		i++;
 	}
-
-	/*
-	 * WARN: printf() debugging block:
-	size_t	j;
-	t_redir	*next_node;
-
-	next_node = NULL;
-	current = head;
-	i = 0;
-	printf("at the end of parse_tokens():\n");
-	while (current)
-	{
-		printf("CMD node n. <%d>, our lists are the following:\n", i);
-		j = 0;
-		if (current->in_redir)
-		{
-			next_node = current->in_redir;
-			while (next_node)
-			{
-				printf("in_redir node n. <%zu>:\n", j);
-				printf("filename is:	<%s>\n", next_node->filename);
-				printf("type is:	<%u>\n", next_node->type);
-				next_node = next_node->next;
-				j++;
-				printf("\n");
-			}
-		}
-		j = 0;
-		if (current->out_redir)
-		{
-			next_node = current->out_redir;
-			while (next_node)
-			{
-				printf("out_redir node n. <%zu>:\n", j);
-				printf("filename is:	<%s>\n", next_node->filename);
-				printf("type is:	<%u>\n", next_node->type);
-				next_node = next_node->next;
-				j++;
-				printf("\n");
-			}
-		}
-		printf("\n\n");
-		current = current->next;
-		i++;
-	}
-	*/
 	return (head);
 }
 

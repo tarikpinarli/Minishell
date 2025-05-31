@@ -102,7 +102,7 @@ int			last_exit_code(int set, int value);
 // executor functions
 int			exec_command(t_command *cmd, char ***env);
 char		*find_in_path(char **env, char *cmd);
-void		execute_pipeline(t_command *cmd, char ***env);
+int			execute_pipeline(t_command *cmd, char ***env);
 void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);

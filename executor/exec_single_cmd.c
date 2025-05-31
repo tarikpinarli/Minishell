@@ -124,7 +124,7 @@ int	exec_command(t_command *cmd, char ***env)
 	{
 		if (failure_flag == -2) // malloc() failed
 		{
-			cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
+			cleanup_heredocs(cmd);
 			free_rest(NULL, &cmd, env);
 			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 			exit (last_exit_code(1, 1));
@@ -132,14 +132,14 @@ int	exec_command(t_command *cmd, char ***env)
 		else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
 			return (1);
 	}
-//	printf("HELLO FROM EXEC_COMMAND()!\n\n");
-	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
+	// TODO: this section needs to be reviewed.
+	// TODO: put here the rEDIRECTIONS, and only execute commands afterwards!
+	if (!cmd->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
+		return (0);
+	if (cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string
 	{
-		if (!cmd->in_redir || cmd->in_redir->type == REDIR_HEREDOC)
-		{
-			ft_putendl_fd("Command '' not found", 2);
-			(void)last_exit_code(1, 127);
-		}
+		ft_putendl_fd("Command '' not found", 2);
+		(void)last_exit_code(1, 127);
 		return (2);
 	}
 	if (is_builtin(cmd->argv[0]))
@@ -157,7 +157,7 @@ int	exec_command(t_command *cmd, char ***env)
 	{
 		if (setup_signal_handling(0) == -1)
 		{
-//			free_rest(NULL, &cmd, env); // WARN: I am not sure at all anymore
+			free_rest(NULL, &cmd, env); // WARN: I am not sure at all anymore
 			//	regarding freeing the allocated memory in the child!
 			return (3); // this return value tells the parent to call perror("sigaction");
 		}
@@ -200,5 +200,5 @@ int	exec_command(t_command *cmd, char ***env)
 		}
 		*/
 	}
-	return (0); // WARN: random return value
+	return (0);
 }

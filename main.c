@@ -64,21 +64,21 @@ int	main(int argc, char **argv, char **envp)
 
 		cmd = parse_tokens(tokens, input);
 		if (!cmd)
-		{
-			// printf("Parsing failed.\n"); // NOTE: are we certain we want this "Parsing failed" message? Because we already output different parsing syntax error messages in parse_tokens(), so removing this should be just fine!
 			continue ;
-		}
 		free_tokens_and_input(&tokens, &input);
+
+		// WARN: just debugging for Yonatan
+		if (tokens || input) // just debugging. If this ends up displaying on the screen, I need to review my pointers in the parsing...
+			printf("tokens and/or input seem to not be NULL after free_tokens_and_input() call from main()!!\n\n");
 
 		// debugging:
 //		print_command_list(cmd);
 
-
-		if (cmd && cmd->next) // If there is pipe cmd->next exists
+		if (cmd && cmd->next) // If there is a pipe, cmd->next exists
 			execute_pipeline(cmd, &env);
-		else if (cmd) // If its a single command
+		else if (cmd) // If it's a single command
 			(void)exec_command(cmd, &env);
-		cleanup_heredocs(cmd); // WARN: does this not segfault if cmd is NULL?
+		cleanup_heredocs(cmd); // WARN: does this not segfault if cmd is NULL? also: needs malloc() protection.
 		free_cmd(&cmd); // WARN: When arriving here, tokens and input are already freed. We can just free_cmd().
 		// free_all(input, tokens, cmd);
 	}

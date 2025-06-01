@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 20:18:08 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/22 20:21:09 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/01 11:43:55 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,23 +48,10 @@ void	update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd)
 		*prev_fd = -1;
 }
 
-/* Tarik's original function:
-void	wait_for_children(void)
+int	wait_for_children(pid_t pid)
 {
-	int	status;
-	int	wpid;
-
-	wpid = 1;
-	while (wpid > 0)
-		wpid = wait(&status);
-	last_exit_code(1, WEXITSTATUS(status));
-}
-*/
-
-int	wait_for_children(int pid)
-{
-	int	wpid;
-	int	status;
+	pid_t	wpid;
+	int		status;
 
 	wpid = waitpid(pid, &status, 0);
 	if (wpid == -1)

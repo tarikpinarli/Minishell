@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/24 14:34:28 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/01 11:47:52 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,11 +64,8 @@ int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env)
 */
 
 // TODO: Error handling! this is just a DRAFT!!!
-int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, int *pid)
+int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, pid_t *pid)
 {
-//	int	wpid;
-//	int	status;
-
 	*pid = fork();
 	if (*pid == -1)
 	{
@@ -86,37 +83,6 @@ int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, in
 		prepare_child(cmd, prev_fd, p_fd); // TODO: handle the malloc() failures.
 		exec_cmd_child_logic(cmd, env); // TODO : handle the malloc() failures (and others?)
 	}
-	/*
-	else // WARN: this should be done AFTER all children have been created
-	{
-		wpid = waitpid(pid, &status, 0);
-		if (wpid == -1)
-		{
-			perror("waitpid");
-			return (1);
-		}
-		if (WIFSIGNALED(status))
-		{
-			if (WTERMSIG(status) == SIGQUIT)
-				write(1, "Quit (core dumped)\n",
-					(sizeof("Quit (core dumped)\n") - 1));
-			else if (WTERMSIG(status) == SIGINT)
-				write(1, "\n", 1);
-			last_exit_code(1, 128 + (WTERMSIG(status)));
-			g_signal_status = 0;
-		}
-		else
-		{
-			if (WEXITSTATUS(status) == 3)
-			{
-				perror("sigaction");
-				last_exit_code(1, 1);
-				return (1);
-			}
-			last_exit_code(1, WEXITSTATUS(status));
-		}
-	}
-	*/
 	return (0);
 }
 
@@ -128,11 +94,11 @@ int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, in
 */
 int	execute_pipeline(t_command *cmd, char ***env)
 {
-	int	pipefd[2];
-	int	prev_fd;
-	int	*curr_pipefd;
-	int	failure_flag;
-	int	pid;
+	int		pipefd[2];
+	int		prev_fd;
+	int		*curr_pipefd;
+	int		failure_flag;
+	pid_t	pid;
 
 	prev_fd = -1;
 	failure_flag = 0;

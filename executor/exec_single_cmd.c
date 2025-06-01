@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/29 20:38:33 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/01 12:14:53 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,7 +174,7 @@ int	exec_command(t_command *cmd, char ***env)
 		if (WIFSIGNALED(status))
 		{
 			if (WTERMSIG(status) == SIGQUIT)
-				write(1, "Quit (core dumped)\n",
+				write(2, "Quit (core dumped)\n",
 					(sizeof("Quit (core dumped)\n") - 1));
 			else if (WTERMSIG(status) == SIGINT)
 				write(1, "\n", 1);

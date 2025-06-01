@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 20:18:08 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/01 11:43:55 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/01 12:13:18 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ int	wait_for_children(pid_t pid)
 	if (WIFSIGNALED(status))
 	{
 		if (WTERMSIG(status) == SIGQUIT)
-			write(1, "Quit (core dumped)\n",
+			write(2, "Quit (core dumped)\n",
 				(sizeof("Quit (core dumped)\n") - 1));
 		else if (WTERMSIG(status) == SIGINT)
 			write(1, "\n", 1);

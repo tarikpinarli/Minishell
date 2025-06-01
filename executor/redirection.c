@@ -68,8 +68,8 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	}
 	if (!line)
 	{
-		ft_putstr_fd("warning: here-document delimited by end-of-file "
-			"\(wanted `", 2);
+		ft_putstr_fd("minishell: warning: here-document delimited by "
+			"end-of-file (wanted `", 2);
 		write(2, delimiter, ft_strlen(delimiter));
 		write(2, "')\n", sizeof("')\n") - 1);
 	}

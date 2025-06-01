@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/29 20:24:38 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/01 10:52:41 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,8 @@ void		handle_execve_error(char *command, char *path, t_command *cmd, char **env)
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
-void		wait_for_children(void);
+//int			wait_for_children(void);
+int			wait_for_children(int pid);
 void		check_if_directory(char *path, t_command *cmd, char **env);
 
 // Redirection functions

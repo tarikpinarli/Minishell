@@ -17,16 +17,16 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 	char	*path;
 	int		ret;
 
-	if (!setup_redirections(cmd))
+	if (!setup_redirections(cmd))   // TODO: we need to free the child process' heap memory if we exit
 		exit(1);
 	if (is_builtin(cmd->argv[0]))
 	{
 		ret = execute_builtin(cmd, 0, env);
 		exit(ret);
 	}
-	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2) ||
-        !ft_strncmp(cmd->argv[0], "../", 3))
-		path = ft_strdup(cmd->argv[0]);
+	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2)
+		|| !ft_strncmp(cmd->argv[0], "../", 3))
+		path = ft_strdup(cmd->argv[0]); // TODO: malloc() failure protection
 	else
 		path = find_in_path(*env, cmd->argv[0]);
 	if (!path)
@@ -63,21 +63,19 @@ int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env)
 }
 */
 
-// TODO: add the signal setup?
 // TODO: Error handling! this is just a DRAFT!!!
-int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env)
+int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, int *pid)
 {
-	int	pid;
-	int	wpid;
-	int	status;
+//	int	wpid;
+//	int	status;
 
-	pid = fork();
-	if (pid == -1)
+	*pid = fork();
+	if (*pid == -1)
 	{
 		perror("fork");
 		return (1);
 	}
-	if (pid == 0)
+	if (*pid == 0)
 	{
 		if (setup_signal_handling(0) == -1) // WARN: recently added - but the parent processing the results hasn't been done yet.
 		{
@@ -88,7 +86,8 @@ int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env)
 		prepare_child(cmd, prev_fd, p_fd); // TODO: handle the malloc() failures.
 		exec_cmd_child_logic(cmd, env); // TODO : handle the malloc() failures (and others?)
 	}
-	else
+	/*
+	else // WARN: this should be done AFTER all children have been created
 	{
 		wpid = waitpid(pid, &status, 0);
 		if (wpid == -1)
@@ -117,6 +116,7 @@ int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env)
 			last_exit_code(1, WEXITSTATUS(status));
 		}
 	}
+	*/
 	return (0);
 }
 
@@ -132,6 +132,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	int	prev_fd;
 	int	*curr_pipefd;
 	int	failure_flag;
+	int	pid;
 
 	prev_fd = -1;
 	failure_flag = 0;
@@ -153,41 +154,39 @@ int	execute_pipeline(t_command *cmd, char ***env)
 
 		// TODO: this section needs to be reviewed.
 		// TODO: put here the rEDIRECTIONS, and only execute commands afterwards!
-		if (!cmd->argv)
+		if (!cmd->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
 			return (0);
-		if (cmd->argv[0] && !cmd->argv[0][0])
+		if (cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string
 		{
 			ft_putendl_fd("Command '' not found", 2);
 			(void)last_exit_code(1, 127);
 			return (2);
 		}
-
 		curr_pipefd = NULL;
 		if (cmd->next)
 		{
 			if (!setup_pipe(pipefd))
 			{
-				// WARN: how about all the other processes?
+				// TODO: how about all the other processes?
 				return (1); // if you need a return value: 1
 			}
 			curr_pipefd = pipefd;
 		}
-		// WARN: try to catch errors with failure_flag?
-		failure_flag = launch_child_process(cmd, prev_fd, curr_pipefd, env);
+		// TODO: try to catch errors with failure_flag?
+		failure_flag = launch_child_process(cmd, prev_fd, curr_pipefd, env, &pid);
 		if (failure_flag)
 		{
 			if (failure_flag == 1) // fork failed. no child process created. But there could be other children already open...
 				return (1);
-			// else // WARN: to do: handle errors from lanch child process
+			// else // TODO: handle errors from lanch child process
 
 		}
-
 		if (prev_fd != -1)
 			close(prev_fd);
 		update_prev_fd(cmd, &prev_fd, pipefd);
 		cmd = cmd->next;
 	}
-	wait_for_children();
+	wait_for_children(pid);
 	return (0);
 }
 

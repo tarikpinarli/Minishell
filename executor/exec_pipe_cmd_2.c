@@ -48,6 +48,7 @@ void	update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd)
 		*prev_fd = -1;
 }
 
+/* Tarik's original function:
 void	wait_for_children(void)
 {
 	int	status;
@@ -57,4 +58,39 @@ void	wait_for_children(void)
 	while (wpid > 0)
 		wpid = wait(&status);
 	last_exit_code(1, WEXITSTATUS(status));
+}
+*/
+
+int	wait_for_children(int pid)
+{
+	int	wpid;
+	int	status;
+
+	wpid = waitpid(pid, &status, 0);
+	if (wpid == -1)
+	{
+		perror("waitpid");
+		return (1);
+	}
+	if (WIFSIGNALED(status))
+	{
+		if (WTERMSIG(status) == SIGQUIT)
+			write(1, "Quit (core dumped)\n",
+				(sizeof("Quit (core dumped)\n") - 1));
+		else if (WTERMSIG(status) == SIGINT)
+			write(1, "\n", 1);
+		last_exit_code(1, 128 + (WTERMSIG(status)));
+		g_signal_status = 0;
+	}
+	else
+	{
+		if (WEXITSTATUS(status) == 3)
+		{
+			perror("sigaction");
+			last_exit_code(1, 1);
+			return (1);
+		}
+		last_exit_code(1, WEXITSTATUS(status));
+	}
+	return (0);
 }

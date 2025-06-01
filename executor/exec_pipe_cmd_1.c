@@ -83,6 +83,8 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	prev_fd = -1;
 	failure_flag = 0;
 	current = cmd;
+	// NOTE: It would be great to refactor this next while loop into a separate function, which would be called before
+	// exec_cmd() and before execute_pipeline - I believe it is the same for both!
 	while (current) // 1st loop: goes throught the whole command to open all heredocs (even ones in different pipes!)
 	{
 		failure_flag = prepare_heredoc_file(current);

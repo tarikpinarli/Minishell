@@ -59,13 +59,22 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	}
 	free(line);
 	close(fd);
-	free(in_redir->filename);
-	in_redir->filename = file_name;
 	if (g_signal_status == SIGINT)
 	{
+		free(in_redir->filename);
+		in_redir->filename = file_name;
 		g_signal_status = 0;
 		return (-3);
 	}
+	if (!line)
+	{
+		ft_putstr_fd("warning: here-document delimited by end-of-file "
+			"\(wanted `", 2);
+		write(2, delimiter, ft_strlen(delimiter));
+		write(2, "')\n", sizeof("')\n") - 1);
+	}
+	free(in_redir->filename);
+	in_redir->filename = file_name;
 	(void)last_exit_code(1, 0);
 	return (0);
 }

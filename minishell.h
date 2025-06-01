@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/01 11:44:19 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/01 12:42:28 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -120,7 +120,7 @@ void		free_tokens_and_input(t_token **tokens, char **input);
 void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
-void		cleanup_heredocs(t_command *cmd);
+int			cleanup_heredocs(t_command *cmd);
 void		free_rest(char **path, t_command **cmd, char ***env);
 
 // NOTE: Question to Tarik: Do you think we should consider changing the variable

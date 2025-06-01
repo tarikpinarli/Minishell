@@ -42,27 +42,6 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 	exit(1);
 }
 
-/*
- * more or less the original version
-int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env)
-{
-	int	pid;
-
-	pid = fork();
-	if (pid == -1)
-	{
-		perror("fork");
-		return (1);
-	}
-	if (pid == 0)
-	{
-		prepare_child(cmd, prev_fd, p_fd); // TODO: handle the malloc() failures.
-		exec_cmd_child_logic(cmd, env);
-	}
-	return (0);
-}
-*/
-
 // TODO: Error handling! this is just a DRAFT!!!
 int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, pid_t *pid)
 {
@@ -119,7 +98,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		}
 
 		// TODO: this section needs to be reviewed.
-		// TODO: put here the rEDIRECTIONS, and only execute commands afterwards!
+		// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
 		if (!cmd->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
 			return (0);
 		if (cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string
@@ -155,56 +134,3 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	wait_for_children(pid);
 	return (0);
 }
-
-
-/* more or less the original version
-void	execute_pipeline(t_command *cmd, char ***env)
-{
-	int	pipefd[2];
-	int	prev_fd;
-	int	*curr_pipefd;
-	int	failure_flag;
-
-	prev_fd = -1;
-	failure_flag = 0;
-	while (cmd)
-	{
-		failure_flag = prepare_heredoc_file(cmd);
-		if (failure_flag)
-		{
-			if (failure_flag == -2) // malloc() failed
-			{
-				cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
-				free_rest(NULL, &cmd, env); // WARN: is there at some point "path" being allocated and existing here?
-				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-				exit (last_exit_code(1, 1));
-			}
-			else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
-				return ; // if you need a return value: 1
-		}
-		curr_pipefd = NULL;
-		if (cmd->next)
-		{
-			if (!setup_pipe(pipefd))
-			{
-				// WARN: how about all the other processes?
-				return ; // if you need a return value: 1
-			}
-			curr_pipefd = pipefd;
-		}
-		// WARN: try to catch errors with failure_flag?
-		failure_flag = launch_child_process(cmd, prev_fd, curr_pipefd, env);
-		if (failure_flag)
-		{
-			if (failure_flag == 1) // fork failed. no child process created. But there could be other children already open...
-				return (1);
-
-
-		if (prev_fd != -1)
-			close(prev_fd);
-		update_prev_fd(cmd, &prev_fd, pipefd);
-		cmd = cmd->next;
-	}
-	wait_for_children();
-}
-*/

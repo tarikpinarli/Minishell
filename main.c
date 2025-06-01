@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:09:09 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/01 10:15:13 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/01 12:43:01 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,9 +78,17 @@ int	main(int argc, char **argv, char **envp)
 			execute_pipeline(cmd, &env);
 		else if (cmd) // If it's a single command
 			(void)exec_command(cmd, &env);
-		cleanup_heredocs(cmd); // WARN: does this not segfault if cmd is NULL? also: needs malloc() protection.
-		free_cmd(&cmd); // WARN: When arriving here, tokens and input are already freed. We can just free_cmd().
-		// free_all(input, tokens, cmd);
+		if (cmd)
+		{
+			if (!cleanup_heredocs(cmd))
+			{
+				free_rest(NULL, &cmd, &env);
+				rl_clear_history();
+				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+				exit (last_exit_code(1, 1));
+			}
+		}
+		free_cmd(&cmd);
 	}
 	free_two_dimensional_array(&env);
 	rl_clear_history();

@@ -108,9 +108,12 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	{
 		// TODO: this section needs to be reviewed.
 		// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
-		if (!current->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
-			return (0);
-		if (current->argv[0] && !current->argv[0][0]) // this means the first command is an empty string
+		if (!current->argv) // && !current->next) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
+		{
+			current = current->next;
+			continue ;
+		}
+		if (current->argv[0] && !current->argv[0][0]) // this means the first command is an empty string. WARN: the issue here is that the redirections are not happening because this is here. We have to put the redirections before.
 		{
 			ft_putendl_fd("Command '' not found", 2);
 			(void)last_exit_code(1, 127);

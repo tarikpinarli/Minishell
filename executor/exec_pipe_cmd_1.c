@@ -69,21 +69,23 @@ int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, pi
 * return values:
 * 1: open() failure or SIGINT intercepted during heredoc
 * 2: command not found (or empty argument/s provided with heredocs)
-* 
+* 0: if execution went smoothly
 */
 int	execute_pipeline(t_command *cmd, char ***env)
 {
-	int		pipefd[2];
-	int		prev_fd;
-	int		*curr_pipefd;
-	int		failure_flag;
-	pid_t	pid;
+	int			pipefd[2];
+	int			prev_fd;
+	int			*curr_pipefd;
+	int			failure_flag;
+	pid_t		pid;
+	t_command	*current;
 
 	prev_fd = -1;
 	failure_flag = 0;
-	while (cmd)
+	current = cmd;
+	while (current) // 1st loop: goes throught the whole command to open all heredocs (even ones in different pipes!)
 	{
-		failure_flag = prepare_heredoc_file(cmd);
+		failure_flag = prepare_heredoc_file(current);
 		if (failure_flag)
 		{
 			if (failure_flag == -2) // malloc() failed
@@ -96,19 +98,39 @@ int	execute_pipeline(t_command *cmd, char ***env)
 			else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
 				return (1); // if you need a return value: 1
 		}
+		current = current->next;
+	}
+	current = cmd;
+	while (current)
+	{
+		/*
+		failure_flag = prepare_heredoc_file(current);
+		if (failure_flag)
+		{
+			if (failure_flag == -2) // malloc() failed
+			{
+				cleanup_heredocs(current); // WARN: needs check for whether this is necessary...
+				free_rest(NULL, &current, env); // WARN: is there at some point "path" being allocated and existing here?
+				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+				exit (last_exit_code(1, 1));
+			}
+			else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
+				return (1); // if you need a return value: 1
+		}
+		*/
 
 		// TODO: this section needs to be reviewed.
 		// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
-		if (!cmd->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
+		if (!current->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
 			return (0);
-		if (cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string
+		if (current->argv[0] && !current->argv[0][0]) // this means the first command is an empty string
 		{
 			ft_putendl_fd("Command '' not found", 2);
 			(void)last_exit_code(1, 127);
 			return (2);
 		}
 		curr_pipefd = NULL;
-		if (cmd->next)
+		if (current->next)
 		{
 			if (!setup_pipe(pipefd))
 			{
@@ -118,7 +140,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 			curr_pipefd = pipefd;
 		}
 		// TODO: try to catch errors with failure_flag?
-		failure_flag = launch_child_process(cmd, prev_fd, curr_pipefd, env, &pid);
+		failure_flag = launch_child_process(current, prev_fd, curr_pipefd, env, &pid);
 		if (failure_flag)
 		{
 			if (failure_flag == 1) // fork failed. no child process created. But there could be other children already open...
@@ -128,8 +150,8 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		}
 		if (prev_fd != -1)
 			close(prev_fd);
-		update_prev_fd(cmd, &prev_fd, pipefd);
-		cmd = cmd->next;
+		update_prev_fd(current, &prev_fd, pipefd);
+		current = current->next;
 	}
 	wait_for_children(pid);
 	return (0);

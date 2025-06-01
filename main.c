@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:09:09 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/01 12:43:01 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/01 13:21:51 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ int	main(int argc, char **argv, char **envp)
 	env = copy_env(envp);
 	while (1)
 	{
+		if (cmd)
+			printf("WE MIGHT HAVE A PROBLEM, \'CMD\' IS NOT NULL AT THE START OF THE LOOP!\n\n"); // just debugging
 		if (setup_signal_handling(1) == -1)
 		{
 			perror("sigaction");

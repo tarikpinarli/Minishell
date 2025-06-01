@@ -68,7 +68,7 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 	}
 	if (!line)
 	{
-		ft_putstr_fd("minishell: warning: here-document delimited by "
+		ft_putstr_fd("warning: here-document delimited by "
 			"end-of-file (wanted `", 2);
 		write(2, delimiter, ft_strlen(delimiter));
 		write(2, "')\n", sizeof("')\n") - 1);
@@ -85,7 +85,7 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 * -2 if malloc() failed
 * 0, otherwise
 */
-int	prepare_heredoc_file(t_command *cmd) // WARN: check all calls to this function, now that it has been modified. error handling has to follow
+int	prepare_heredoc_file(t_command *cmd)
 {
 	t_redir *in;
 	int		i;

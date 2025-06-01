@@ -66,8 +66,9 @@ int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, pi
 }
 
 /*
+ * WARN: when this function is ready, review the return values
 * return values:
-* 1: open() failure or SIGINT intercepted during heredoc
+* 1: open() or fork() failure, OR SIGINT intercepted during heredoc
 * 2: command not found (or empty argument/s provided with heredocs)
 * 0: if execution went smoothly
 */
@@ -105,22 +106,6 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	current = cmd;
 	while (current)
 	{
-		/*
-		failure_flag = prepare_heredoc_file(current);
-		if (failure_flag)
-		{
-			if (failure_flag == -2) // malloc() failed
-			{
-				cleanup_heredocs(current); // WARN: needs check for whether this is necessary...
-				free_rest(NULL, &current, env); // WARN: is there at some point "path" being allocated and existing here?
-				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-				exit (last_exit_code(1, 1));
-			}
-			else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
-				return (1); // if you need a return value: 1
-		}
-		*/
-
 		// TODO: this section needs to be reviewed.
 		// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
 		if (!current->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.

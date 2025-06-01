@@ -93,17 +93,6 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 	exit(1);
 }
 
-// NOTE: The very first cases here need to be tested with the inputs:
-// 1. empty input
-// 2. '' or "" (empty string)
-// 3. << ''
-// 4. << ""
-// 5. '' << ""
-// 6. "" << ""
-// 7. echo hi | ""
-// 8. echo hello | ''
-// 9. echo hello | echo hi | ''
-
 /*
 * Return values:
 * 1: open(), fork(), waitpid(), sigaction() failure, OR sigint was intercepted
@@ -133,7 +122,7 @@ int	exec_command(t_command *cmd, char ***env)
 			return (1);
 	}
 	// TODO: this section needs to be reviewed.
-	// TODO: put here the rEDIRECTIONS, and only execute commands afterwards!
+	// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
 	if (!cmd->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
 		return (0);
 	if (cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string

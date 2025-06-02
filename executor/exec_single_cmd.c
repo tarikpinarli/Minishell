@@ -193,7 +193,7 @@ int	exec_command(t_command *cmd, char ***env)
 				last_exit_code(1, 1);
 				return (1);
 			}
-			else if (WEXITSTATUS(status) == 12)
+			else if (WEXITSTATUS(status) == 12) // WARN: maybe we don't want to do this here but rather from the child....
 			{
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				free_cmd(&cmd);

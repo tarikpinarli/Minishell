@@ -23,8 +23,8 @@
 # include <fcntl.h>
 # include <stdint.h>
 # include <sys/wait.h>
-# include <errno.h>
 # include <sys/stat.h>
+# include <errno.h>
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096

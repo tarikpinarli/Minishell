@@ -33,9 +33,17 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 	}
 	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2)
 		|| !ft_strncmp(cmd->argv[0], "../", 3))
-		path = ft_strdup(cmd->argv[0]); // TODO: malloc() failure protection
+	{
+		path = ft_strdup(cmd->argv[0]);
+		if (!path)
+		{
+			free_rest(&path, &cmd, env);
+			exit(12);
+		}
+	}
 	else if (find_in_path(*env, cmd->argv[0], &path) == -1)
 	{
+		printf("hello from here!!!! %s [%i]\n\n", __FILE__, __LINE__);
 		free_rest(&path, &cmd, env);
 		exit(12);
 	}
@@ -90,6 +98,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	int			failure_flag;
 	pid_t		pid;
 	t_command	*current;
+	size_t		n_of_children;
 
 	prev_fd = -1;
 	failure_flag = 0;
@@ -115,8 +124,10 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		current = current->next;
 	}
 	current = cmd;
+	n_of_children = 0;
 	while (current)
 	{
+		// TODO: DECREASE THE NUMBER OF CHILDREN IF FORK FAILS OR SOMETHING ELSE DOES!!!!!
 		// TODO: this section needs to be reviewed.
 		// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
 		if (!current->argv) // && !current->next) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
@@ -146,12 +157,14 @@ int	execute_pipeline(t_command *cmd, char ***env)
 			curr_pipefd = pipefd;
 		}
 		// TODO: try to catch errors with failure_flag?
+		n_of_children++; // WARN: if you go ahead with this logic, decrement n_of_children when there is some error that stops the 
+		// program from forking, but still continues with the rest of the children....
 		failure_flag = launch_child_process(current, prev_fd, curr_pipefd, env, &pid);
 		if (failure_flag)
 		{
 			if (failure_flag == 1) // fork failed. no child process created. But there could be other children already open...
 				return (1);
-			// else // TODO: handle errors from lanch child process
+			// else // TODO: handle errors from launch child process
 
 		}
 		if (prev_fd != -1)
@@ -160,6 +173,6 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		current = current->next;
 	}
 	if (pid)
-		wait_for_children(pid);
+		wait_for_children(pid, n_of_children);
 	return (0);
 }

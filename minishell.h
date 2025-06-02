@@ -74,6 +74,7 @@ typedef struct s_command
 }	t_command;
 
 // signal handling
+void		handle_sigint(int sig);
 int			setup_signal_handling(uint32_t is_parent);
 int			readline_signal_hook(void);
 int			heredoc_signal_hook(void);
@@ -107,7 +108,7 @@ void		handle_execve_error(char *command, char *path, t_command *cmd, char **env)
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
-int			wait_for_children(pid_t pid);
+int			wait_for_children(pid_t pid, size_t n_of_children);
 void		check_if_directory(char *path, t_command *cmd, char **env);
 
 // Redirection functions

@@ -65,7 +65,7 @@ int	find_in_path(char **env, char *cmd, char **path)
 	i = 0;
 	if (!get_path || !cmd)
 		return (-2);
-	dirs = ft_split(get_path, ':');
+	dirs = ft_split(get_path, ':'); // WARN: just checking the memory leaks with forced malloc() failure
 	if (!dirs)
 		return (-1);
 	while (dirs[i])

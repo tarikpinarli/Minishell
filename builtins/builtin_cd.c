@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:22 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 13:16:01 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/02 17:04:30 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -181,7 +181,7 @@ int	builtin_cd(char **argv, char ***env)
 		return (too_mant_argument_err(argv[0]));
 	target = cd_get_target(argv, *env);
 	if (!target)
-		return (1);
+		return (-1);
 	if (cd_change_directory(target, env) == -1)
 		return (-1);
 	else

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/01 11:49:16 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/02 16:23:53 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,12 +17,19 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 	char	*path;
 	int		ret;
 
+	path = NULL;
 	if (!setup_redirections(cmd))   // TODO: we need to free the child process' heap memory if we exit
 		exit(1);
 	if (is_builtin(cmd->argv[0]))
 	{
-		ret = execute_builtin(cmd, 0, env);
-		exit(ret);
+		ret = execute_builtin(cmd, 1, env);
+		if (ret == -1)
+		{
+			free_rest(&path, &cmd, env);
+			exit (12);
+		}
+		free_rest(&path, &cmd, env);
+		exit (ret);
 	}
 	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2)
 		|| !ft_strncmp(cmd->argv[0], "../", 3))
@@ -32,7 +39,7 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 	if (!path)
 	{
 		ft_putstr_fd(cmd->argv[0], 2);
-		ft_putendl_fd(": command not found", 2);
+		ft_putendl_fd(": command not foundaaa", 2);
 		exit(127);
 	}
 	check_if_directory(path, cmd, *env);
@@ -143,6 +150,6 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		update_prev_fd(current, &prev_fd, pipefd);
 		current = current->next;
 	}
-	wait_for_children(pid);
+	wait_for_children(pid, cmd, env);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 20:18:08 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/01 12:13:18 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/02 16:37:47 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,12 +48,13 @@ void	update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd)
 		*prev_fd = -1;
 }
 
-int	wait_for_children(pid_t pid)
+int	wait_for_children(pid_t pid, t_command *cmd, char ***env)
 {
 	pid_t	wpid;
 	int		status;
 
-	wpid = waitpid(pid, &status, 0);
+	(void)pid;
+	wpid = waitpid(-1, &status, 0);
 	if (wpid == -1)
 	{
 		perror("waitpid");
@@ -76,6 +77,13 @@ int	wait_for_children(pid_t pid)
 			perror("sigaction");
 			last_exit_code(1, 1);
 			return (1);
+		}
+		else if (WEXITSTATUS(status) == 12)
+		{
+			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+			free_cmd(&cmd);
+			free_two_dimensional_array(env);
+			exit(1);
 		}
 		last_exit_code(1, WEXITSTATUS(status));
 	}

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 20:18:08 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 16:37:47 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/02 19:32:41 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,44 +48,44 @@ void	update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd)
 		*prev_fd = -1;
 }
 
-int	wait_for_children(pid_t pid, t_command *cmd, char ***env)
+int	wait_for_children(pid_t pid)
 {
 	pid_t	wpid;
 	int		status;
 
-	(void)pid;
-	wpid = waitpid(-1, &status, 0);
-	if (wpid == -1)
+	while (1)
 	{
-		perror("waitpid");
-		return (1);
-	}
-	if (WIFSIGNALED(status))
-	{
-		if (WTERMSIG(status) == SIGQUIT)
-			write(2, "Quit (core dumped)\n",
-				(sizeof("Quit (core dumped)\n") - 1));
-		else if (WTERMSIG(status) == SIGINT)
-			write(1, "\n", 1);
-		last_exit_code(1, 128 + (WTERMSIG(status)));
-		g_signal_status = 0;
-	}
-	else
-	{
-		if (WEXITSTATUS(status) == 3)
+		wpid = waitpid(-1, &status, 0);
+		if (wpid == -1)
 		{
-			perror("sigaction");
-			last_exit_code(1, 1);
+			perror("waitpid");
 			return (1);
 		}
-		else if (WEXITSTATUS(status) == 12)
+		if (WIFSIGNALED(status))
 		{
-			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-			free_cmd(&cmd);
-			free_two_dimensional_array(env);
-			exit(1);
+			if (WTERMSIG(status) == SIGQUIT)
+				write(2, "Quit (core dumped)\n",
+					(sizeof("Quit (core dumped)\n") - 1));
+			else if (WTERMSIG(status) == SIGINT)
+				write(1, "\n", 1);
+			last_exit_code(1, 128 + (WTERMSIG(status)));
+			g_signal_status = 0;
 		}
-		last_exit_code(1, WEXITSTATUS(status));
+		else
+		{
+			if (WEXITSTATUS(status) == 3)
+			{
+				perror("sigaction");
+				last_exit_code(1, 1);
+				return (1);
+			}
+			if (wpid == pid)
+			{
+				last_exit_code(1, WEXITSTATUS(status));
+				printf("ALL CHILDREN EXITED CLEANLY\n\n"); // WARN: just debugging line here
+				break ;
+			}
+		}
 	}
 	return (0);
 }

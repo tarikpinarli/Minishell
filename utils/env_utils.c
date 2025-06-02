@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:46 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/24 14:32:09 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/02 19:35:19 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,17 @@ char **copy_env(char **envp)
 	count = 0;
 	while (envp[count])
 		count++;
-	copy = malloc(sizeof(char *) * (count + 1)); // WARN: is this really protected
+	copy = malloc(sizeof(char *) * (count + 1)); // Protected!
 	if (!copy)
 		return (NULL);
 	while (i < count)
 	{
-		copy[i] = ft_strdup(envp[i]); // WARN: unprotected malloc() failure
+		copy[i] = ft_strdup(envp[i]); // Protected!
+		if (!copy[i])
+		{
+			free_two_dimensional_array(&copy);
+			return (NULL);
+		}
 		i++;
 	}
 	copy[i] = NULL;
@@ -39,41 +44,42 @@ static char	*build_cmd_path(char *dir, char *cmd)
 	char	*tmp;
 	char	*full;
 
-	tmp = ft_strjoin(dir, "/"); // WARN: is this really protected
+	(void)cmd;
+	tmp = ft_strjoin(dir, "/"); // Protected!
 	if (!tmp)
 		return (NULL);
-	full = ft_strjoin(tmp, cmd); // WARN: is this really protected
+	full = ft_strjoin(tmp, cmd); // Protected!
 	free(tmp);
 	if (!full)
 		return (NULL);
 	return (full);
 }
 
-char	*find_in_path(char **env, char *cmd)
+int	find_in_path(char **env, char *cmd, char **path)
 {
-	char	*path;
+	char	*get_path;
 	char	**dirs;
-	char	*full;
 	int		i;
 
-	path = get_env_value(env ,"PATH");
+	get_path = get_env_value(env ,"PATH");
 	i = 0;
-	if (!path || !cmd)
-		return (NULL);
-	dirs = ft_split(path, ':'); // WARN: malloc() failre unprotected here!
+	if (!get_path || !cmd)
+		return (-2);
+	dirs = ft_split(get_path, ':'); // WARN: malloc() failre unprotected here!
+	if (!dirs)
+		return (-1);
 	while (dirs[i])
 	{
-		full = build_cmd_path(dirs[i], cmd);
-		if (!full)
-			return (free_two_dimensional_array(&dirs), NULL);
-		if (access(full, X_OK) == 0)
+		*path = build_cmd_path(dirs[i], cmd);
+		if (!*path)
+			return (free_two_dimensional_array(&dirs), -1);
+		if (access(*path, X_OK) == 0)
 		{
-			free_two_dimensional_array(&dirs);
-			return (full);
+			break;
 		}
-		free(full);
+		free(*path);
 		i++;
 	}
 	free_two_dimensional_array(&dirs);
-	return (NULL);
+	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 16:23:53 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/02 19:28:37 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,12 +34,15 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2)
 		|| !ft_strncmp(cmd->argv[0], "../", 3))
 		path = ft_strdup(cmd->argv[0]); // TODO: malloc() failure protection
-	else
-		path = find_in_path(*env, cmd->argv[0]);
+	else if (find_in_path(*env, cmd->argv[0], &path) == -1)
+	{
+		free_rest(&path, &cmd, env);
+		exit(12);
+	}
 	if (!path)
 	{
 		ft_putstr_fd(cmd->argv[0], 2);
-		ft_putendl_fd(": command not foundaaa", 2);
+		ft_putendl_fd(": command not found", 2);
 		exit(127);
 	}
 	check_if_directory(path, cmd, *env);

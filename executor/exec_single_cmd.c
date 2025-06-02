@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 15:03:05 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/02 19:15:03 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,13 +88,19 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 		|| !ft_strncmp(cmd->argv[0], "../", 3))
 		path = ft_strdup(cmd->argv[0]);
 	else
-		path = find_in_path(env, cmd->argv[0]);
-	if (!path)
 	{
-		ft_putstr_fd(cmd->argv[0], 2);
-		ft_putendl_fd(": command not found", 2);
-		free_rest(&path, &cmd, &env); // WARN: let's try again to free everything from the child before exiting without execve().
-		exit(127);
+		if (find_in_path(env, cmd->argv[0], &path) == -1)
+		{
+			free_rest(NULL, &cmd, &env);
+			exit (12);
+		}
+		if (!path)
+		{
+			ft_putstr_fd(cmd->argv[0], 2);
+			ft_putendl_fd(": command not found", 2);
+			free_rest(&path, &cmd, &env); // WARN: let's try again to free everything from the child before exiting without execve().
+			exit(127);
+		}
 	}
 	check_if_directory(path, cmd, env);
 	if (execve(path, cmd->argv, env) == -1)
@@ -186,6 +192,13 @@ int	exec_command(t_command *cmd, char ***env)
 				perror("sigaction");
 				last_exit_code(1, 1);
 				return (1);
+			}
+			else if (WEXITSTATUS(status) == 12)
+			{
+				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+				free_cmd(&cmd);
+				free_two_dimensional_array(env);
+				exit(1);
 			}
 			last_exit_code(1, WEXITSTATUS(status));
 		}

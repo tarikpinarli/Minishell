@@ -65,7 +65,7 @@ int	find_in_path(char **env, char *cmd, char **path)
 	i = 0;
 	if (!get_path || !cmd)
 		return (-2);
-	dirs = ft_split(get_path, ':'); // WARN: malloc() failre unprotected here!
+	dirs = ft_split(get_path, ':');
 	if (!dirs)
 		return (-1);
 	while (dirs[i])
@@ -74,10 +74,9 @@ int	find_in_path(char **env, char *cmd, char **path)
 		if (!*path)
 			return (free_two_dimensional_array(&dirs), -1);
 		if (access(*path, X_OK) == 0)
-		{
 			break;
-		}
 		free(*path);
+		*path = NULL;
 		i++;
 	}
 	free_two_dimensional_array(&dirs);

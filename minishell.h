@@ -107,7 +107,7 @@ void		handle_execve_error(char *command, char *path, t_command *cmd, char **env)
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
-int			wait_for_children(pid_t pid, t_command *cmd, char ***env);
+int			wait_for_children(pid_t pid);
 void		check_if_directory(char *path, t_command *cmd, char **env);
 
 // Redirection functions

@@ -102,17 +102,6 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 	exit(1);
 }
 
-// NOTE: The very first cases here need to be tested with the inputs:
-// 1. empty input
-// 2. '' or "" (empty string)
-// 3. << ''
-// 4. << ""
-// 5. '' << ""
-// 6. "" << ""
-// 7. echo hi | ""
-// 8. echo hello | ''
-// 9. echo hello | echo hi | ''
-
 /*
 * Return values:
 * 1: open(), fork(), waitpid(), sigaction() failure, OR sigint was intercepted
@@ -133,7 +122,7 @@ int	exec_command(t_command *cmd, char ***env)
 	{
 		if (failure_flag == -2) // malloc() failed
 		{
-			cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
+			cleanup_heredocs(cmd);
 			free_rest(NULL, &cmd, env);
 			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 			exit (last_exit_code(1, 1));
@@ -141,14 +130,14 @@ int	exec_command(t_command *cmd, char ***env)
 		else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
 			return (1);
 	}
-//	printf("HELLO FROM EXEC_COMMAND()!\n\n");
-	if (!cmd->argv || !cmd->argv[0] || cmd->argv[0][0] == '\0')
+	// TODO: this section needs to be reviewed.
+	// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
+	if (!cmd->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
+		return (0);
+	if (cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string
 	{
-		if (!cmd->in_redir || cmd->in_redir->type == REDIR_HEREDOC)
-		{
-			ft_putendl_fd("Command '' not found", 2);
-			(void)last_exit_code(1, 127);
-		}
+		ft_putendl_fd("Command '' not found", 2);
+		(void)last_exit_code(1, 127);
 		return (2);
 	}
 	if (is_builtin(cmd->argv[0]))
@@ -166,7 +155,7 @@ int	exec_command(t_command *cmd, char ***env)
 	{
 		if (setup_signal_handling(0) == -1)
 		{
-//			free_rest(NULL, &cmd, env); // WARN: I am not sure at all anymore
+			free_rest(NULL, &cmd, env); // WARN: I am not sure at all anymore
 			//	regarding freeing the allocated memory in the child!
 			return (3); // this return value tells the parent to call perror("sigaction");
 		}
@@ -183,7 +172,7 @@ int	exec_command(t_command *cmd, char ***env)
 		if (WIFSIGNALED(status))
 		{
 			if (WTERMSIG(status) == SIGQUIT)
-				write(1, "Quit (core dumped)\n",
+				write(2, "Quit (core dumped)\n",
 					(sizeof("Quit (core dumped)\n") - 1));
 			else if (WTERMSIG(status) == SIGINT)
 				write(1, "\n", 1);
@@ -209,5 +198,5 @@ int	exec_command(t_command *cmd, char ***env)
 		}
 		*/
 	}
-	return (0); // WARN: random return value
+	return (0);
 }

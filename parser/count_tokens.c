@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 13:07:24 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/11 20:25:09 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/01 12:06:58 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@ static int	index_through_single_token(const char *str, int *i, int *count)
 	{
 		if (index_through_quoted_token(str, i) == -1)
 		{
-			printf("Quote not properly opened or closed.\n");
+			ft_putendl_fd("Quote not properly opened or closed.", 2);
+			last_exit_code(1, 2);
 			return (-1);
 		}
 	}

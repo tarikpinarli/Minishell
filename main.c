@@ -1,12 +1,12 @@
-
+/* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/05/12 20:40:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/29 20:26:14 by ykadosh          ###   ########.fr       */
+/*   Created: 2025/06/01 10:09:09 by ykadosh           #+#    #+#             */
+/*   Updated: 2025/06/01 13:21:51 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ int	main(int argc, char **argv, char **envp)
 	env = copy_env(envp);
 	while (1)
 	{
+		if (cmd)
+			printf("WE MIGHT HAVE A PROBLEM, \'CMD\' IS NOT NULL AT THE START OF THE LOOP!\n\n"); // just debugging
 		if (setup_signal_handling(1) == -1)
 		{
 			perror("sigaction");
@@ -64,23 +66,31 @@ int	main(int argc, char **argv, char **envp)
 
 		cmd = parse_tokens(tokens, input);
 		if (!cmd)
-		{
-			// printf("Parsing failed.\n"); // NOTE: are we certain we want this "Parsing failed" message? Because we already output different parsing syntax error messages in parse_tokens(), so removing this should be just fine!
 			continue ;
-		}
 		free_tokens_and_input(&tokens, &input);
+
+		// WARN: just debugging for Yonatan
+		if (tokens || input) // just debugging. If this ends up displaying on the screen, I need to review my pointers in the parsing...
+			printf("tokens and/or input seem to not be NULL after free_tokens_and_input() call from main()!!\n\n");
 
 		// debugging:
 //		print_command_list(cmd);
 
-
-		if (cmd && cmd->next) // If there is pipe cmd->next exists
+		if (cmd && cmd->next) // If there is a pipe, cmd->next exists
 			execute_pipeline(cmd, &env);
-		else if (cmd) // If its a single command
+		else if (cmd) // If it's a single command
 			(void)exec_command(cmd, &env);
-		cleanup_heredocs(cmd); // WARN: does this not segfault if cmd is NULL?
-		free_cmd(&cmd); // WARN: When arriving here, tokens and input are already freed. We can just free_cmd().
-		// free_all(input, tokens, cmd);
+		if (cmd)
+		{
+			if (!cleanup_heredocs(cmd))
+			{
+				free_rest(NULL, &cmd, &env);
+				rl_clear_history();
+				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+				exit (last_exit_code(1, 1));
+			}
+		}
+		free_cmd(&cmd);
 	}
 	free_two_dimensional_array(&env);
 	rl_clear_history();

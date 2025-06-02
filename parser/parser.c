@@ -117,9 +117,10 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!current || !tokens[i + 1].str || !ft_strcmp(tokens[i + 1].str, "|"))
 			{
 				if (!tokens[i + 1].str)
-					(void)printf("syntax error: parsing failed.\n");
+					ft_putendl_fd("syntax error: parsing failed.", 2);
 				else
-					(void)printf("syntax error near unexpected token `|'\n");
+					ft_putendl_fd("syntax error near unexpected token `|'", 2);
+				(void)last_exit_code(1, 2);
 				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
@@ -131,13 +132,11 @@ t_command *parse_tokens(t_token *tokens, char *input)
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
 			}
-
 			current->next = new_cmd;
 			current = new_cmd;
 			new_cmd = NULL;
 			i++;
-
-			continue ; // contnue with next tokens[i].str
+			continue ; // continue with next tokens[i].str
 		}
 		// start of chain
 		if (!current)
@@ -159,22 +158,31 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			i++;
 			if (!tokens[i].str)
 			{
-				(void)printf("syntax error near unexpected token `newline'\n");
+				ft_putendl_fd("syntax error near unexpected token `newline'", 2);
+				(void)last_exit_code(1, 2);
 				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
 			if (get_redirection_id(tokens[i].str, tokens[i].quote))
 			{
-				(void)printf("syntax error near unexpected token `%s'\n",
-					tokens[i].str); // this is quite similar to bash's behaviour,
-								// except some cases where it is slightly different: [ <> ] , [ <>> ] , [ <<< ] , [ <<<< ]
-								// but those (or some of those) start to behave in even other ways if there are more redirection sybols or valid arguments later; This is beyond the scope of this project. But since there are a lot of different behaviours, but most of them end up being parsing errors, so we can consider printing a more general "parsing failed\n" error instead... What does Tarik think?
+				ft_putstr_fd("syntax error near unexpected token `", 2);
+				write(2, tokens[i].str, ft_strlen(tokens[i].str));
+				write(2, "'\n", 2);
+				// NOTE: this is quite similar to bash's behaviour,
+				// except some cases where it is slightly different:
+				// [ <> ] , [ <>> ] , [ <<< ] , [ <<<< ]
+				// but those (or some of those) start to behave in even other
+				// ways if there are more redirection sybols or valid arguments later;
+				// This is beyond the scope of this project. But since there are a lot of different behaviours,
+				// but most of them end up being parsing errors, so we can consider printing a more general "parsing failed\n" error instead... What does Tarik think?
+				(void)last_exit_code(1, 2);
 				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
 			if (!ft_strcmp(tokens[i].str, "|"))
 			{
-				(void)printf("syntax error near unexpected token `|'\n");
+				ft_putendl_fd("syntax error near unexpected token `|'", 2);
+				(void)last_exit_code(1, 2);
 				free_all(&input, &tokens, &head);
 				return (NULL);
 			}
@@ -202,52 +210,6 @@ t_command *parse_tokens(t_token *tokens, char *input)
 		}
 		i++;
 	}
-
-	/*
-	 * WARN: printf() debugging block:
-	size_t	j;
-	t_redir	*next_node;
-
-	next_node = NULL;
-	current = head;
-	i = 0;
-	printf("at the end of parse_tokens():\n");
-	while (current)
-	{
-		printf("CMD node n. <%d>, our lists are the following:\n", i);
-		j = 0;
-		if (current->in_redir)
-		{
-			next_node = current->in_redir;
-			while (next_node)
-			{
-				printf("in_redir node n. <%zu>:\n", j);
-				printf("filename is:	<%s>\n", next_node->filename);
-				printf("type is:	<%u>\n", next_node->type);
-				next_node = next_node->next;
-				j++;
-				printf("\n");
-			}
-		}
-		j = 0;
-		if (current->out_redir)
-		{
-			next_node = current->out_redir;
-			while (next_node)
-			{
-				printf("out_redir node n. <%zu>:\n", j);
-				printf("filename is:	<%s>\n", next_node->filename);
-				printf("type is:	<%u>\n", next_node->type);
-				next_node = next_node->next;
-				j++;
-				printf("\n");
-			}
-		}
-		printf("\n\n");
-		current = current->next;
-		i++;
-	}
-	*/
 	return (head);
 }
 

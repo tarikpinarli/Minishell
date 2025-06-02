@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/29 20:24:38 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/01 12:42:28 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,12 +102,12 @@ int			last_exit_code(int set, int value);
 // executor functions
 int			exec_command(t_command *cmd, char ***env);
 char		*find_in_path(char **env, char *cmd);
-void		execute_pipeline(t_command *cmd, char ***env);
+int			execute_pipeline(t_command *cmd, char ***env);
 void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
-void		wait_for_children(void);
+int			wait_for_children(pid_t pid);
 void		check_if_directory(char *path, t_command *cmd, char **env);
 
 // Redirection functions
@@ -120,7 +120,7 @@ void		free_tokens_and_input(t_token **tokens, char **input);
 void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
-void		cleanup_heredocs(t_command *cmd);
+int			cleanup_heredocs(t_command *cmd);
 void		free_rest(char **path, t_command **cmd, char ***env);
 
 // NOTE: Question to Tarik: Do you think we should consider changing the variable

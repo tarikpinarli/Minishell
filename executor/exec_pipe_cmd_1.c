@@ -94,6 +94,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	prev_fd = -1;
 	failure_flag = 0;
 	current = cmd;
+	pid = 0;
 	// NOTE: It would be great to refactor this next while loop into a separate function, which would be called before
 	// exec_cmd() and before execute_pipeline - I believe it is the same for both!
 	while (current) // 1st loop: goes throught the whole command to open all heredocs (even ones in different pipes!)
@@ -127,7 +128,12 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		{
 			ft_putendl_fd("Command '' not found", 2);
 			(void)last_exit_code(1, 127);
-			return (2);
+			current = current->next;
+			if (current)
+				continue ;
+			else
+				return (2);
+			continue ;
 		}
 		curr_pipefd = NULL;
 		if (current->next)
@@ -153,6 +159,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		update_prev_fd(current, &prev_fd, pipefd);
 		current = current->next;
 	}
-	wait_for_children(pid, cmd, env);
+	if (pid)
+		wait_for_children(pid);
 	return (0);
 }

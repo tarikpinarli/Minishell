@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 16:17:06 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/02 19:14:15 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ int			last_exit_code(int set, int value);
 
 // executor functions
 int			exec_command(t_command *cmd, char ***env);
-char		*find_in_path(char **env, char *cmd);
+int			find_in_path(char **env, char *cmd, char **path);
 int			execute_pipeline(t_command *cmd, char ***env);
 void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
 int			setup_pipe(int *pipefd);

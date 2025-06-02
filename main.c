@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:09:09 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/01 13:21:51 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/02 18:03:24 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,11 @@ int	main(int argc, char **argv, char **envp)
 	tokens = NULL;
 	cmd = NULL;
 	env = copy_env(envp);
+	if (!env)
+	{
+		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
+		exit(1);
+	}
 	while (1)
 	{
 		if (cmd)

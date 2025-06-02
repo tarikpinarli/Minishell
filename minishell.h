@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/01 12:42:28 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/02 16:17:06 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@
 # include <stdint.h>
 # include <sys/wait.h>
 # include <errno.h>
-# include <sys/stat.h> 
+# include <sys/stat.h>
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
@@ -107,7 +107,7 @@ void		handle_execve_error(char *command, char *path, t_command *cmd, char **env)
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
-int			wait_for_children(pid_t pid);
+int			wait_for_children(pid_t pid, t_command *cmd, char ***env);
 void		check_if_directory(char *path, t_command *cmd, char **env);
 
 // Redirection functions

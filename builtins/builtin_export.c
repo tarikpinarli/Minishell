@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/31 17:22:28 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/02 15:30:04 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,10 +212,7 @@ int	remove_env_var(char ***env, int index)
 		count++;
 	new_env = malloc(sizeof(char *) * count);
 	if (!new_env)
-	{
-		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
-		exit(1);
-	}
+		return (0);
 	i = 0;
 	j = 0;
 	while (i < count)
@@ -243,10 +240,7 @@ char	**append_env_var(char *new_var, char **env)
 		i++;
 	new_env = malloc(sizeof(char *) * (i + 2));
 	if (!new_env)
-	{
-		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
-		exit(1);
-	}
+		return (NULL);
 	while (j < i)
 	{
 		new_env[j] = ft_strdup(env[j]);
@@ -279,10 +273,12 @@ int	builtin_export(char **argv, int pid_flag, char ***env)
 		if (exist_index >= 0)
 		{
 			if (!remove_env_var(env, exist_index))
-				return(1);
+				return(-1);
 			temp = append_env_var(argv[i], *env);
 			if (!temp)
-				return(1);
+			{
+				return(-1);
+			}
 			else
 			{
 				*env = temp;
@@ -295,7 +291,7 @@ int	builtin_export(char **argv, int pid_flag, char ***env)
 			if (temp)
 				*env = temp;
 			else
-				return(free_two_dimensional_array(&temp), 1);
+				return(-1);
 		}
 		i++;
 	}

@@ -91,7 +91,7 @@ char **argv_add(char **argv, char *new_arg)
 	return (new_argv);
 }
 
-t_command *parse_tokens(t_token *tokens, char *input)
+t_command *parse_tokens(t_token *tokens, char *input, char ***env)
 {
 	t_command		*head;
 	t_command		*current;
@@ -128,6 +128,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!new_cmd)
 			{
 				free_all(&input, &tokens, &head);
+				free_two_dimensional_array(env);
 				rl_clear_history();
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
@@ -145,6 +146,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!current)
 			{
 				free_all(&input, &tokens, &head);
+				free_two_dimensional_array(env);
 				rl_clear_history();
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
@@ -191,6 +193,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!new_redir)
 			{
 				free_all(&input, &tokens, &head);
+				free_two_dimensional_array(env);
 				rl_clear_history();
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
@@ -203,6 +206,7 @@ t_command *parse_tokens(t_token *tokens, char *input)
 			if (!current->argv)
 			{
 				free_all(&input, &tokens, &head);
+				free_two_dimensional_array(env);
 				rl_clear_history();
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));

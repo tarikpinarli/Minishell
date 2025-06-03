@@ -85,14 +85,15 @@ int	readline_signal_hook(void)
 	return (0);
 }
 
+// WARN: recent change, those lines don't need to be there - but let's make sure while testing
 int	heredoc_signal_hook(void)
 {
 	if (g_signal_status == SIGINT)
 	{
 		(void)last_exit_code(1, 128 + g_signal_status);
-		rl_replace_line("", 0);
-		(void)write(1, "\n", 1);
-		rl_on_new_line();
+//		rl_replace_line("", 0);
+//		(void)write(1, "\n", 1);
+//		rl_on_new_line();
 		rl_done = 1;
 	}
 	return (0);

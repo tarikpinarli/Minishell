@@ -30,6 +30,10 @@ int	main(int argc, char **argv, char **envp)
 		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
 		exit(1);
 	}
+	/*
+	env = NULL;
+	copy_env(envp, &env);
+	*/
 	while (1)
 	{
 		if (cmd)
@@ -64,12 +68,12 @@ int	main(int argc, char **argv, char **envp)
 			input = NULL;
 			continue ;
 		}
-		if (!tokenize(input, &tokens)) // it returns 0 if a quotation mark was left unclosed or if no tokens were counted (whitespace input)
+		if (!tokenize(input, &tokens, &env)) // it returns 0 if a quotation mark was left unclosed or if no tokens were counted (whitespace input)
 			continue ;
-		expand_tokens(tokens, input);
-		merge_tokens(tokens, input);
+		expand_tokens(tokens, input, &env);
+		merge_tokens(tokens, input, &env);
 
-		cmd = parse_tokens(tokens, input);
+		cmd = parse_tokens(tokens, input, &env);
 		if (!cmd)
 			continue ;
 		free_tokens_and_input(&tokens, &input);
@@ -84,7 +88,7 @@ int	main(int argc, char **argv, char **envp)
 		if (cmd && cmd->next) // If there is a pipe, cmd->next exists
 			execute_pipeline(cmd, &env);
 		else if (cmd) // If it's a single command
-			(void)exec_command(cmd, &env);
+			(void)exec_single_command(cmd, &env);
 		if (cmd)
 		{
 			if (!cleanup_heredocs(cmd))

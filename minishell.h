@@ -23,8 +23,8 @@
 # include <fcntl.h>
 # include <stdint.h>
 # include <sys/wait.h>
-# include <errno.h>
 # include <sys/stat.h>
+# include <errno.h>
 
 # ifndef PATH_MAX
 #  define PATH_MAX 4096
@@ -74,24 +74,25 @@ typedef struct s_command
 }	t_command;
 
 // signal handling
+void		handle_sigint(int sig);
 int			setup_signal_handling(uint32_t is_parent);
 int			readline_signal_hook(void);
 int			heredoc_signal_hook(void);
 
 // tokenizer functions
-int			tokenize(char *input, t_token **tokens);
+int			tokenize(char *input, t_token **tokens, char ***env);
 int			count_tokens(const char *str);
 int			fill_up_tokens(char *input, t_token **tokens, int count);
 char		*ft_strncpy(char *dst, const char *src, size_t n);
 int			ft_isspace(char c);
 
 // parser functions
-t_command	*parse_tokens(t_token *tokens, char *input);
+t_command	*parse_tokens(t_token *tokens, char *input, char ***env);
 int			ft_strcmp(const char *s1, const char *s2);
-void		merge_tokens(t_token *tokens, char *input);
+void		merge_tokens(t_token *tokens, char *input, char ***env);
 
 // expansion functions
-void		expand_tokens(t_token *tokens, char *input);
+void		expand_tokens(t_token *tokens, char *input, char ***env);
 uint32_t	rebuild_expandable_string(t_token *tokens, int i);
 uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
@@ -100,15 +101,15 @@ uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 int			last_exit_code(int set, int value);
 
 // executor functions
-int			exec_command(t_command *cmd, char ***env);
+int			exec_single_command(t_command *cmd, char ***env);
 int			find_in_path(char **env, char *cmd, char **path);
 int			execute_pipeline(t_command *cmd, char ***env);
-void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
+void		handle_execve_error(char *str, char *path, t_command **cmd, char ***env);
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
-int			wait_for_children(pid_t pid, t_command *cmd, char ***env);
-void		check_if_directory(char *path, t_command *cmd, char **env);
+int			wait_for_children(pid_t pid, size_t n_of_children);
+void		check_if_directory(char **path, t_command **cmd, char ***env);
 
 // Redirection functions
 int			prepare_heredoc_file(t_command *cmd);
@@ -128,6 +129,7 @@ void		free_rest(char **path, t_command **cmd, char ***env);
 // argv variable in the main? Or is it the same one?
 // builtin commands
 char 		**copy_env(char **envp);
+//void		copy_env(char **envp, char ***env_copy); // alternate version.
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(char **argv);

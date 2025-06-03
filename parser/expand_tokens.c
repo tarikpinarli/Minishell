@@ -14,7 +14,7 @@
 
 static uint32_t	is_expandable(const char *string);
 
-void	expand_tokens(t_token *tokens, char *input)
+void	expand_tokens(t_token *tokens, char *input, char ***env)
 {
 	int			i;
 	uint32_t	failure_flag;
@@ -31,6 +31,7 @@ void	expand_tokens(t_token *tokens, char *input)
 				if (failure_flag)
 				{
 					free_tokens_and_input(&tokens, &input);
+					free_two_dimensional_array(env);
 					rl_clear_history();
 					write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
 					exit (last_exit_code(1, 1));

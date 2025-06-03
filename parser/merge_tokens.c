@@ -15,9 +15,10 @@
 static int	merge_string(t_token *tokens, size_t i, size_t *j, size_t k);
 static int	replace_string(t_token *tokens, size_t i, size_t k);
 static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len);
-static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i);
+static void	free_tokens_input_env_and_exit(t_token *tokens, char *input,
+				char ***env, size_t i);
 
-void	merge_tokens(t_token *tokens, char *input)
+void	merge_tokens(t_token *tokens, char *input, char ***env)
 {
 	size_t	i;
 	size_t	j;
@@ -32,12 +33,12 @@ void	merge_tokens(t_token *tokens, char *input)
 			&& tokens[i].line_id == tokens[i + 1].line_id)
 		{
 			if (merge_string(tokens, i, &j, k) == -1)
-				free_tokens_input_and_exit(tokens, input, i);
+				free_tokens_input_env_and_exit(tokens, input, env, i);
 		}
 		else if (k != i)
 		{
 			if (replace_string(tokens, i, k) == -1)
-				free_tokens_input_and_exit(tokens, input, i);
+				free_tokens_input_env_and_exit(tokens, input, env, i);
 		}
 		i = j + 1;
 		k++;
@@ -117,7 +118,8 @@ static char	*strjoin_multiple(t_token *ptr, size_t n_strs_to_join, size_t len)
 * merge_tokens() is executing - but all strings at tokens' index i onwards are
 * assured to be valid (until the last NULL, which marks the end of the array).
 */
-static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i)
+static void	free_tokens_input_env_and_exit(t_token *tokens, char *input,
+				char ***env, size_t i)
 {
 	while (tokens[i].str)
 		i++;
@@ -129,6 +131,7 @@ static void	free_tokens_input_and_exit(t_token *tokens, char *input, size_t i)
 	}
 	free(tokens);
 	free(input);
+	free_two_dimensional_array(env);
 	rl_clear_history();
 	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 	exit (last_exit_code(1, 1));

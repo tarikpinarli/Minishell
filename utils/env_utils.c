@@ -12,6 +12,38 @@
 
 #include "../minishell.h"
 
+/*
+// alternate version
+void	copy_env(char **envp, char ***env_copy)
+{
+	int	i;
+	int	count;
+
+	i = 0;
+	count = 0;
+	while (envp[count])
+		count++;
+	*env_copy = malloc(sizeof(char *) * (count + 1)); // Protected!
+	if (!*env_copy)
+	{
+		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
+		exit(1);
+	}
+	while (i < count)
+	{
+		*env_copy[i] = ft_strdup(envp[i]); // Protected!
+		if (!(*env_copy)[i])
+		{
+			free_two_dimensional_array(env_copy);
+			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
+			exit(1);
+		}
+		i++;
+	}
+	(*env_copy)[i] = NULL;
+}
+*/
+
 char **copy_env(char **envp)
 {
 	int i;
@@ -65,7 +97,7 @@ int	find_in_path(char **env, char *cmd, char **path)
 	i = 0;
 	if (!get_path || !cmd)
 		return (-2);
-	dirs = ft_split(get_path, ':'); // WARN: malloc() failre unprotected here!
+	dirs = ft_split(get_path, ':'); // WARN: This is the spot where we were checking the memory leaks with a forced dird = NULL; ("ls | a")
 	if (!dirs)
 		return (-1);
 	while (dirs[i])
@@ -74,10 +106,9 @@ int	find_in_path(char **env, char *cmd, char **path)
 		if (!*path)
 			return (free_two_dimensional_array(&dirs), -1);
 		if (access(*path, X_OK) == 0)
-		{
 			break;
-		}
 		free(*path);
+		*path = NULL;
 		i++;
 	}
 	free_two_dimensional_array(&dirs);

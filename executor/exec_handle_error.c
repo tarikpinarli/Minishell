@@ -36,43 +36,42 @@ void	free_rest(char *path, t_command *cmd, char **env)
 		free_cmd(cmd);	
 }
 */
-
-void	handle_execve_error(char *command, char *path, t_command *cmd, char **env)
+void	handle_execve_error(char *str, char *path, t_command **cmd, char ***env)
 {
 	if (errno == EISDIR)
 	{
 		ft_putstr_fd(path, 2);
 		ft_putendl_fd(": Is a directory", 2);
-		free_rest(&path, &cmd, &env);
+		free_rest(&path, cmd, env);
 		exit(126);
 	}
 	else if (errno == EACCES)
 	{
 		ft_putstr_fd(path, 2);
 		ft_putendl_fd(": Permission denied", 2);
-		free_rest(&path, &cmd, &env);
+		free_rest(&path, cmd, env);
 		exit(126);
 	}
 	else if (errno == ENOENT)
 	{
 		ft_putstr_fd(path, 2);
 		ft_putendl_fd(": No such file or directory", 2);
-		free_rest(&path, &cmd, &env);
+		free_rest(&path, cmd, env);
 		exit(127);
 	}
-	perror(command);
+	perror(str);
 	exit(1);
 }
 
-void	check_if_directory(char *path, t_command *cmd, char **env)
+void	check_if_directory(char **path, t_command **cmd, char ***env)
 {
 	struct stat	st;
 
-	if (stat(path, &st) == 0 && S_ISDIR(st.st_mode))
+	if (stat(*path, &st) == 0 && S_ISDIR(st.st_mode))
 	{
-		ft_putstr_fd(path, 2);
+		ft_putstr_fd(*path, 2);
 		ft_putendl_fd(": Is a directory", 2);
-		free_rest(&path, &cmd, &env);
+		free_rest(path, cmd, env);
 		exit(126);
 	}
 }

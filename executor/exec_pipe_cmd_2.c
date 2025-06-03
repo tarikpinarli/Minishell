@@ -22,14 +22,14 @@ int	setup_pipe(int *pipefd)
 	return (1);
 }
 
-void	prepare_child(t_command *cmd, int prev_fd, int *pipefd)
+void	prepare_child(t_command *current, int prev_fd, int *pipefd)
 {
 	if (prev_fd != -1)
 	{
 		dup2(prev_fd, STDIN_FILENO);
 		close(prev_fd);
 	}
-	if (cmd->next)
+	if (current->next)
 	{
 		close(pipefd[0]);
 		dup2(pipefd[1], STDOUT_FILENO);

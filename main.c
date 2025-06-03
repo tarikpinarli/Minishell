@@ -88,7 +88,7 @@ int	main(int argc, char **argv, char **envp)
 		if (cmd && cmd->next) // If there is a pipe, cmd->next exists
 			execute_pipeline(cmd, &env);
 		else if (cmd) // If it's a single command
-			(void)exec_command(cmd, &env);
+			(void)exec_single_command(cmd, &env);
 		if (cmd)
 		{
 			if (!cleanup_heredocs(cmd))

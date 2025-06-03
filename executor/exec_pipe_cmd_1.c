@@ -12,57 +12,57 @@
 
 #include "../minishell.h"
 
-void	exec_cmd_child_logic(t_command *cmd, char ***env)
+void	exec_cmd_child_logic(t_command *current, t_command **cmd, char ***env)
 {
 	char	*path;
 	int		ret;
 
 	path = NULL;
-	if (!setup_redirections(cmd))   // TODO: we need to free the child process' heap memory if we exit
+	if (!setup_redirections(current))   // TODO: we need to free the child process' heap memory if we exit
 		exit(1);
-	if (is_builtin(cmd->argv[0]))
+	if (is_builtin(current->argv[0]))
 	{
-		ret = execute_builtin(cmd, 1, env);
+		ret = execute_builtin(current, 1, env);
 		if (ret == -1)
 		{
-			free_rest(&path, &cmd, env);
+			free_rest(&path, cmd, env);
 			exit (12);
 		}
-		free_rest(&path, &cmd, env);
+		free_rest(&path, cmd, env);
 		exit (ret);
 	}
-	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2)
-		|| !ft_strncmp(cmd->argv[0], "../", 3))
+	if (current->argv[0][0] == '/' || !ft_strncmp(current->argv[0], "./", 2)
+		|| !ft_strncmp(current->argv[0], "../", 3))
 	{
-		path = ft_strdup(cmd->argv[0]);
+		path = ft_strdup(current->argv[0]);
 		if (!path)
 		{
-			free_rest(&path, &cmd, env);
+			free_rest(&path, cmd, env);
 			exit(12);
 		}
 	}
-	else if (find_in_path(*env, cmd->argv[0], &path) == -1)
+	else if (find_in_path(*env, current->argv[0], &path) == -1)
 	{
-		free_rest(&path, &cmd, env);
+		free_rest(&path, cmd, env);
 		exit(12);
 	}
 	if (!path)
 	{
 //		printf("hello from here!!!! %s [%i]\n\n", __FILE__, __LINE__); // NOTE: just debugging
-		ft_putstr_fd(cmd->argv[0], 2);
+		ft_putstr_fd(current->argv[0], 2);
 		ft_putendl_fd(": command not found", 2);
-		free_rest(&path, &cmd, env);
+		free_rest(&path, cmd, env);
 		exit(127);
 	}
-	check_if_directory(path, cmd, *env);
-	if (execve(path, cmd->argv, *env) == -1)
-		handle_execve_error(cmd->argv[0], path, cmd, *env);
-	free_rest(&path, &cmd, env);
+	check_if_directory(&path, cmd, env);
+	if (execve(path, current->argv, *env) == -1)
+		handle_execve_error(current->argv[0], path, cmd, env);
+	free_rest(&path, cmd, env);
 	exit(1);
 }
 
 // TODO: Error handling! this is just a DRAFT!!!
-int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, pid_t *pid)
+int	launch_child_process(t_command *current, t_command **cmd, int prev_fd, int *p_fd, char ***env, pid_t *pid)
 {
 	*pid = fork();
 	if (*pid == -1)
@@ -74,12 +74,12 @@ int	launch_child_process(t_command *cmd, int prev_fd, int *p_fd, char ***env, pi
 	{
 		if (setup_signal_handling(0) == -1) // WARN: recently added - but the parent processing the results hasn't been done yet.
 		{
-			free_rest(NULL, &cmd, env); // WARN: I am not sure at all anymore
+			free_rest(NULL, cmd, env); // WARN: I am not sure at all anymore
 			//	regarding freeing the allocated memory in the child!
 			return (3); // this return value tells the parent to call perror("sigaction");
 		}
-		prepare_child(cmd, prev_fd, p_fd); // TODO: handle the malloc() failures.
-		exec_cmd_child_logic(cmd, env); // TODO : handle the malloc() failures (and others?)
+		prepare_child(current, prev_fd, p_fd); // TODO: handle the malloc() failures.
+		exec_cmd_child_logic(current, cmd, env); // TODO : handle the malloc() failures (and others?)
 	}
 	return (0);
 }
@@ -159,7 +159,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		}
 		// TODO: try to catch errors with failure_flag?
 		// program from forking, but still continues with the rest of the children....
-		failure_flag = launch_child_process(current, prev_fd, curr_pipefd, env, &pid);
+		failure_flag = launch_child_process(current, &cmd, prev_fd, curr_pipefd, env, &pid);
 		if (failure_flag)
 		{
 			if (failure_flag == 1) // TODO: fork failed. cleanup here what is needed - wait for children that haven't finished! if fork failed, no child process created. But there could be prior subprocesses still active...

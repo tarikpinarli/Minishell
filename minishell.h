@@ -101,15 +101,15 @@ uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 int			last_exit_code(int set, int value);
 
 // executor functions
-int			exec_command(t_command *cmd, char ***env);
+int			exec_single_command(t_command *cmd, char ***env);
 int			find_in_path(char **env, char *cmd, char **path);
 int			execute_pipeline(t_command *cmd, char ***env);
-void		handle_execve_error(char *command, char *path, t_command *cmd, char **env);
+void		handle_execve_error(char *str, char *path, t_command **cmd, char ***env);
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
 int			wait_for_children(pid_t pid, size_t n_of_children);
-void		check_if_directory(char *path, t_command *cmd, char **env);
+void		check_if_directory(char **path, t_command **cmd, char ***env);
 
 // Redirection functions
 int			prepare_heredoc_file(t_command *cmd);

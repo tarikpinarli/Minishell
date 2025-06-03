@@ -70,41 +70,54 @@ void	exec_isolated_builtin(t_command *cmd, char ***env)
 	return ;
 }
 
-void	exec_single_cmd_child(t_command *cmd, char **env)
+void	exec_single_cmd_child(t_command **cmd, char ***env)
 {
-	char	*path;
+	char		*path;
+	t_command	*current;
 
 	path = NULL;
-	if (!cmd->argv || !cmd->argv[0] || !cmd->argv[0][0])
-		exit(0); // WARN: Do we need to free everything from the child here??
-//	if (cmd->argv[0][0] == '\0') // earlier version, merged into the tail of the first boolean statement
-//		exit(0);
-	if (!setup_redirections(cmd))
+	current = *cmd;
+	if (!current->argv || !current->argv[0] || !current->argv[0][0])
 	{
-		free_rest(&path, &cmd, &env);
+		free_rest(&path, cmd, env);
+		exit(0); // WARN: Do we need to free everything from the child here??
+	}
+//	if (current->argv[0][0] == '\0') // earlier version, merged into the tail of the first boolean statement
+//		exit(0);
+	if (!setup_redirections(current))
+	{
+		free_rest(&path, cmd, env);
 		exit(1);
 	}
-	if (cmd->argv[0][0] == '/' || !ft_strncmp(cmd->argv[0], "./", 2)
-		|| !ft_strncmp(cmd->argv[0], "../", 3))
-		path = ft_strdup(cmd->argv[0]);
+	if (current->argv[0][0] == '/' || !ft_strncmp(current->argv[0], "./", 2)
+		|| !ft_strncmp(current->argv[0], "../", 3))
+	{
+		path = ft_strdup(current->argv[0]);
+		if (!path)
+		{
+			free_rest(&path, cmd, env);
+			exit(12);
+		}
+	}
 	else
 	{
-		if (find_in_path(env, cmd->argv[0], &path) == -1)
+		if (find_in_path(*env, current->argv[0], &path) == -1)
 		{
-			free_rest(NULL, &cmd, &env);
+			free_rest(&path, cmd, env);
 			exit (12);
 		}
 		if (!path)
 		{
-			ft_putstr_fd(cmd->argv[0], 2);
+			ft_putstr_fd(current->argv[0], 2);
 			ft_putendl_fd(": command not found", 2);
-			free_rest(&path, &cmd, &env); // WARN: let's try again to free everything from the child before exiting without execve().
+			free_rest(&path, cmd, env);
 			exit(127);
 		}
 	}
-	check_if_directory(path, cmd, env);
-	if (execve(path, cmd->argv, env) == -1)
-		handle_execve_error(cmd->argv[0], path, cmd, env);
+	check_if_directory(&path, cmd, env);
+	if (execve(path, current->argv, *env) == -1)
+		handle_execve_error(current->argv[0], path, cmd, env);
+	free_rest(&path, cmd, env);
 	exit(1);
 }
 
@@ -116,7 +129,7 @@ void	exec_single_cmd_child(t_command *cmd, char **env)
 * 3: returned from child process to communicate a sigaction() failure
 * 0: if command was executed properly
 */
-int	exec_command(t_command *cmd, char ***env)
+int	exec_single_command(t_command *cmd, char ***env)
 {
 	pid_t	pid;
 	pid_t	wpid;
@@ -165,7 +178,7 @@ int	exec_command(t_command *cmd, char ***env)
 			//	regarding freeing the allocated memory in the child!
 			return (3); // this return value tells the parent to call perror("sigaction");
 		}
-		exec_single_cmd_child(cmd, *env); // WARN: this still needs to be checked. Memory (at Hive...) should be freed from the child if execve is not given the power over the program....
+		exec_single_cmd_child(&cmd, env); // WARN: this still needs to be checked. Memory (at Hive...) should be freed from the child if execve is not given the power over the program....
 	}
 	else
 	{

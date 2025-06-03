@@ -43,20 +43,21 @@ void	exec_cmd_child_logic(t_command *cmd, char ***env)
 	}
 	else if (find_in_path(*env, cmd->argv[0], &path) == -1)
 	{
-		printf("hello from here!!!! %s [%i]\n\n", __FILE__, __LINE__);
 		free_rest(&path, &cmd, env);
 		exit(12);
 	}
 	if (!path)
 	{
+//		printf("hello from here!!!! %s [%i]\n\n", __FILE__, __LINE__); // NOTE: just debugging
 		ft_putstr_fd(cmd->argv[0], 2);
 		ft_putendl_fd(": command not found", 2);
+		free_rest(&path, &cmd, env);
 		exit(127);
 	}
 	check_if_directory(path, cmd, *env);
 	if (execve(path, cmd->argv, *env) == -1)
 		handle_execve_error(cmd->argv[0], path, cmd, *env);
-	free(path);
+	free_rest(&path, &cmd, env);
 	exit(1);
 }
 
@@ -157,16 +158,15 @@ int	execute_pipeline(t_command *cmd, char ***env)
 			curr_pipefd = pipefd;
 		}
 		// TODO: try to catch errors with failure_flag?
-		n_of_children++; // WARN: if you go ahead with this logic, decrement n_of_children when there is some error that stops the 
 		// program from forking, but still continues with the rest of the children....
 		failure_flag = launch_child_process(current, prev_fd, curr_pipefd, env, &pid);
 		if (failure_flag)
 		{
-			if (failure_flag == 1) // fork failed. no child process created. But there could be other children already open...
+			if (failure_flag == 1) // TODO: fork failed. cleanup here what is needed - wait for children that haven't finished! if fork failed, no child process created. But there could be prior subprocesses still active...
 				return (1);
 			// else // TODO: handle errors from launch child process
-
 		}
+		n_of_children++;
 		if (prev_fd != -1)
 			close(prev_fd);
 		update_prev_fd(current, &prev_fd, pipefd);

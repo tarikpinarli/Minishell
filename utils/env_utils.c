@@ -12,6 +12,38 @@
 
 #include "../minishell.h"
 
+/*
+// alternate version
+void	copy_env(char **envp, char ***env_copy)
+{
+	int	i;
+	int	count;
+
+	i = 0;
+	count = 0;
+	while (envp[count])
+		count++;
+	*env_copy = malloc(sizeof(char *) * (count + 1)); // Protected!
+	if (!*env_copy)
+	{
+		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
+		exit(1);
+	}
+	while (i < count)
+	{
+		*env_copy[i] = ft_strdup(envp[i]); // Protected!
+		if (!(*env_copy)[i])
+		{
+			free_two_dimensional_array(env_copy);
+			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
+			exit(1);
+		}
+		i++;
+	}
+	(*env_copy)[i] = NULL;
+}
+*/
+
 char **copy_env(char **envp)
 {
 	int i;

@@ -80,19 +80,19 @@ int			readline_signal_hook(void);
 int			heredoc_signal_hook(void);
 
 // tokenizer functions
-int			tokenize(char *input, t_token **tokens);
+int			tokenize(char *input, t_token **tokens, char ***env);
 int			count_tokens(const char *str);
 int			fill_up_tokens(char *input, t_token **tokens, int count);
 char		*ft_strncpy(char *dst, const char *src, size_t n);
 int			ft_isspace(char c);
 
 // parser functions
-t_command	*parse_tokens(t_token *tokens, char *input);
+t_command	*parse_tokens(t_token *tokens, char *input, char ***env);
 int			ft_strcmp(const char *s1, const char *s2);
-void		merge_tokens(t_token *tokens, char *input);
+void		merge_tokens(t_token *tokens, char *input, char ***env);
 
 // expansion functions
-void		expand_tokens(t_token *tokens, char *input);
+void		expand_tokens(t_token *tokens, char *input, char ***env);
 uint32_t	rebuild_expandable_string(t_token *tokens, int i);
 uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
@@ -129,6 +129,7 @@ void		free_rest(char **path, t_command **cmd, char ***env);
 // argv variable in the main? Or is it the same one?
 // builtin commands
 char 		**copy_env(char **envp);
+//void		copy_env(char **envp, char ***env_copy); // alternate version.
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(char **argv);

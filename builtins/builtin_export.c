@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/04 15:33:53 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/04 17:47:23 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,68 +76,46 @@ int	valid_identifier(char *str)
 	else
 		return (is_valid_key(str));
 }
-
 // builtin_export_3.c
-static int	match_env_var(char *arg, char **env, int i, char *eq)
+static int match_env_key(char *key, char **env)
 {
-	char	*eq_2;
-
-	while (env[i])
-	{
-		eq_2 = ft_strchr(env[i], '=');
-		if (eq_2)
-		{
-			*eq_2 = '\0';
-			if (!ft_strcmp(env[i], arg))
-			{
-				*eq = '=';
-				*eq_2 = '=';
-				return (i);
-			}
-			*eq_2 = '=';
-		}
-		i++;
-	}
-	*eq = '=';
-	return (-1);
-}
-
-static int	match_env_key_only(char *head, char **env)
-{
-	int		i;
-	char	*eq_2;
+	int 	i;
+	char	*eq;
 
 	i = 0;
 	while (env[i])
 	{
-		eq_2 = ft_strchr(env[i], '=');
-		if (eq_2)
+		eq = ft_strchr(env[i], '=');
+		if (eq)
+			*eq = '\0';
+		if (ft_strcmp(env[i], key) == 0)
 		{
-			*eq_2 = '\0';
-			if (!strcmp(env[i], head))
-			{
-				*eq_2 = '=';
-				return (i);
-			}
-			*eq_2 = '=';
+			if (eq)
+				*eq = '=';
+			return (i);
 		}
+		if (eq)
+			*eq = '=';
 		i++;
 	}
 	return (-1);
 }
 
-int	var_exist(char *arg, char **env)
+int var_exist(char *arg, char **env)
 {
+	int		index;
 	char	*eq;
 
-	eq = strchr(arg, '=');
+	eq = ft_strchr(arg, '=');
 	if (eq)
 	{
 		*eq = '\0';
-		return (match_env_var(arg, env, 0, eq));
+		index = match_env_key(arg, env);
+		*eq = '=';
+		return (index);
 	}
 	else
-		return (match_env_key_only(arg, env));
+		return match_env_key(arg, env);
 }
 
 // builtin_export_2.c
@@ -158,13 +136,11 @@ void	print_env(char **copy)
 		}
 		else
 			printf("declare -x %s\n", copy[i]);
-		free(copy[i]);
 		i++;
 	}
-	free(copy);
 }
 
-static void	sort_env_copy(char **copy)
+static void	sort_env(char **copy)
 {
 	int		i;
 	int		j;
@@ -190,13 +166,8 @@ static void	sort_env_copy(char **copy)
 
 void	sort_and_print_env(char **env)
 {
-	char	**copy;
-
-	copy = copy_env(env);
-	if (!copy)
-		return ;
-	sort_env_copy(copy);
-	print_env(copy);
+	sort_env(env);
+	print_env(env);
 }
 
 // builtin_export.c

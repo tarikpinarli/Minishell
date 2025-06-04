@@ -68,7 +68,7 @@ typedef struct s_token
 typedef struct s_command
 {
 	char				**argv;		// Command and arguments
-	t_redir				*heredoc;	// Here document redirections
+	t_redir				*heredoc;	// Here document redirections  // WARN: is this used, finally?
 	t_redir				*in_redir;	// Input redirections
 	t_redir				*out_redir;	// Output redirections
 	struct s_command	*next;		// Next command in pipeline
@@ -125,9 +125,6 @@ void		free_deprecated_strings(t_token *tokens, size_t k);
 int			cleanup_heredocs(t_redir *current_in_redir);
 void		free_rest(char **path, t_command **cmd, char ***env);
 
-// NOTE: Question to Tarik: Do you think we should consider changing the variable
-// name of "argv" that is used for the builtins, because there is already one
-// argv variable in the main? Or is it the same one?
 // builtin commands
 void		copy_env(char **envp, char ***env_copy);
 int			is_builtin(char *cmd);
@@ -150,8 +147,5 @@ void		sort_and_print_env(char **env);
 // builtin export and unset utils
 int			var_exist(char *arg, char **env);
 int			remove_env_var(char ***env, int index);
-
-// debug functions // WARN: remove before evaluation if just for debugging
-void		print_command_list(t_command *cmd);
 
 #endif

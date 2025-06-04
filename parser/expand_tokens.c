@@ -43,38 +43,7 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 }
 
 /*
-* returns true if the string passed as a parameter contains a '$' followed by
-* either a '?' or a letter of the alphabet - otherwise, this program does not
-* try and expand that string
-*/
-/* Original version. WARN: remove when the other one has been tested well.
-static uint32_t	is_expandable(const char *string)
-{
-	size_t	j;
-
-	j = 0;
-	while (string[j])
-	{
-		if (string[j] == '$'
-			&& (string[j + 1] == '?'
-				|| ft_isalpha(string[j + 1]) || string[j + 1] == '_'))
-			return (1);
-		j++;
-	}
-	return (0);
-}
-*/
-
-/*
-* returns true if the string passed as a parameter contains a '$' followed by
-* '?', '_' or a letter of the alphabet - otherwise, this program does not try
-* to expand that string. To mimick bash, which does not expand the heredoc's
-* delimiter - even when it seems perfectly expandable in other scenarios - this
-* function checks if the previous token is "<<". If it is, it parses through all
-* the tokens which are to be merged (those sharing the same line_id with the
-* current string token), incrementing i in the caller in order to avoid
-* expanding that delimiter, and returns false.
-*/
+ * yesterday's new version
 static uint32_t	is_expandable(t_token *tokens, int *i)
 {
 	char	*s;
@@ -88,6 +57,68 @@ static uint32_t	is_expandable(t_token *tokens, int *i)
 			(*i)++;
 			while (tokens[*i].line_id == tokens[*i + 1].line_id)
 				(*i)++;
+			return (0);
+		}
+		(*i)++;
+	}
+	s = tokens[*i].str;
+	j = 0;
+	while (s[j])
+	{
+		if (s[j] == '$'
+			&& (s[j + 1] == '?' || ft_isalpha(s[j + 1]) || s[j + 1] == '_'))
+			return (1);
+		j++;
+	}
+	return (0);
+}
+*/
+
+/*
+ * WARN: add a comment regarding the quotes, after refactoring.
+* returns true if the string passed as a parameter contains a '$' followed by
+* '?', '_' or a letter of the alphabet - otherwise, this program does not try
+* to expand that string. To mimick bash, which does not expand the heredoc's
+* delimiter - even when it seems perfectly expandable in other scenarios - this
+* function checks if the previous token is "<<". If it is, it parses through all
+* the tokens which are to be merged (those sharing the same line_id with the
+* current string token), incrementing i in the caller in order to avoid
+* expanding that delimiter, and returns false.
+*/
+// NOTE: Most recent attempt, which also changes all quotes for heredoc delimiters!
+static uint32_t	is_expandable(t_token *tokens, int *i)
+{
+	char	*s;
+	int		j;
+	int		quote_flag;
+
+	if (*i > 0)
+	{
+		(*i)--;
+		if (!ft_strcmp(tokens[*i].str, "<<"))
+		{
+			(*i)++;
+			j = *i;
+			quote_flag = 0;
+			printf("We are hereeeeeeeeeeeee\n\n");
+			while (tokens[j + 1].str && tokens[j].line_id == tokens[j + 1].line_id) // WARN: please test with: cat << $USER''    && cat << $USER''$HOME | echo
+			{
+				printf("We are hereeeeeeeeeeeee\n\n");
+				if (tokens[j].quote == QUOTE_DOUBLE || tokens[j].quote == QUOTE_SINGLE
+					|| tokens[j + 1].quote == QUOTE_DOUBLE || tokens[j + 1].quote == QUOTE_SINGLE)
+					quote_flag = 1;
+				j++;
+			}
+			if (j > *i && quote_flag)
+			{
+				while (*i < j)
+				{
+					tokens[*i].quote = QUOTE_DOUBLE;
+					(*i)++;
+				}
+				tokens[*i].quote = QUOTE_DOUBLE;
+			}
+			*i == j;
 			return (0);
 		}
 		(*i)++;

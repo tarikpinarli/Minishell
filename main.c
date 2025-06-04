@@ -60,7 +60,7 @@ int	main(int argc, char **argv, char **envp)
 		size_t	i = 0;
 		while (tokens[i].str)
 		{
-			printf("tokens[%zu].str:	%s\n", i, tokens[i].str);
+			printf("tokens[%zu].quote:	%d	.line_id	%d	.str:	%s\n", i, tokens[i].quote, tokens[i].line_id, tokens[i].str);
 			i++;
 		}
 

@@ -12,7 +12,7 @@
 
 #include "../minishell.h"
 
-int	builtin_unset(char **argv, char ***env) // pass cmd
+int	builtin_unset(char **argv, char ***env)
 {
 	int	i;
 	int	index;

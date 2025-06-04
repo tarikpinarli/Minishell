@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 15:30:04 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/04 12:59:05 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,10 +280,7 @@ int	builtin_export(char **argv, int pid_flag, char ***env)
 				return(-1);
 			}
 			else
-			{
 				*env = temp;
-				free_two_dimensional_array(&temp);
-			}
 		}
 		else
 		{

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/11 20:37:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/02 17:59:38 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/04 12:55:43 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 		{
 			if (is_expandable(tokens[i].str))
 			{
-				failure_flag = rebuild_expandable_string(tokens, i);
+				failure_flag = rebuild_expandable_string(env, tokens, i);
 				if (failure_flag)
 				{
 					free_tokens_and_input(&tokens, &input);

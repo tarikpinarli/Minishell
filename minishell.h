@@ -121,7 +121,7 @@ void		free_tokens_and_input(t_token **tokens, char **input);
 void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
-int			cleanup_heredocs(t_command *cmd);
+int			cleanup_heredocs(t_redir *current_in_redir);
 void		free_rest(char **path, t_command **cmd, char ***env);
 
 // NOTE: Question to Tarik: Do you think we should consider changing the variable

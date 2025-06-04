@@ -89,6 +89,7 @@ int	main(int argc, char **argv, char **envp)
 			execute_pipeline(cmd, &env);
 		else if (cmd) // If it's a single command
 			(void)exec_single_command(cmd, &env);
+		/*
 		if (cmd)
 		{
 			if (!cleanup_heredocs(cmd))
@@ -99,6 +100,7 @@ int	main(int argc, char **argv, char **envp)
 				exit (last_exit_code(1, 1));
 			}
 		}
+		*/
 		free_cmd(&cmd);
 	}
 	free_two_dimensional_array(&env);

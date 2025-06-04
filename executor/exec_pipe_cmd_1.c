@@ -114,7 +114,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		{
 			if (failure_flag == -2) // malloc() failed
 			{
-				cleanup_heredocs(cmd); // WARN: needs check for whether this is necessary...
+				cleanup_heredocs(cmd->in_redir); // WARN: needs check for whether this is necessary...
 				free_rest(NULL, &cmd, env); // WARN: is there at some point "path" being allocated and existing here?
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));

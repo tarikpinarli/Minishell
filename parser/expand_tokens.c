@@ -27,7 +27,7 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 		{
 			if (is_expandable(tokens[i].str))
 			{
-				failure_flag = rebuild_expandable_string(tokens, i);
+				failure_flag = rebuild_expandable_string(tokens, i, *env);
 				if (failure_flag)
 				{
 					free_tokens_and_input(&tokens, &input);

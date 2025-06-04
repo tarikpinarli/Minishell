@@ -12,14 +12,12 @@
 
 #include "../minishell.h"
 
-// builin_cd_2.c
-char	*get_env_value(char **env, char *key)
+// builtin_cd_2.c
+char	*get_env_value(char **env, char *key, size_t key_len)
 {
-	int	key_len;
 	int	i;
 
 	i = 0;
-	key_len = ft_strlen(key);
 	while (env[i])
 	{
 		if (ft_strncmp(env[i], key, key_len) == 0 && env[i][key_len] == '=')
@@ -108,7 +106,7 @@ static char	*cd_get_target(char **argv, char **env)
 
 	if (!argv[1] || !ft_strcmp(argv[1], "~"))
 	{
-		home = get_env_value(env, "HOME");
+		home = get_env_value(env, "HOME", (sizeof("HOME") - 1));
 		if (!home)
 		{
 			ft_putendl_fd("minishell: cd: HOME not set", 2);
@@ -118,7 +116,7 @@ static char	*cd_get_target(char **argv, char **env)
 	}
 	if (!ft_strcmp(argv[1], "-"))
 	{
-		oldpwd = get_env_value(env, "OLDPWD");
+		oldpwd = get_env_value(env, "OLDPWD", sizeof("OLDPWD") - 1);
 		if (!oldpwd)
 		{
 			ft_putendl_fd("minishell: cd: OLDPWD not set", 2);
@@ -159,7 +157,7 @@ static int	cd_change_directory(char *target, char ***env)
 	return (0);
 }
 
-int	too_mant_argument_err(char *arg)
+int	too_many_argument_err(char *arg)
 {
 	ft_putstr_fd("minishell: ", 2);
 	ft_putstr_fd(arg, 2);
@@ -178,7 +176,7 @@ int	builtin_cd(char **argv, char ***env)
 	while (argv[arg_count])
 		arg_count++;
 	if (arg_count > 2)
-		return (too_mant_argument_err(argv[0]));
+		return (too_many_argument_err(argv[0]));
 	target = cd_get_target(argv, *env);
 	if (!target)
 		return (-1);

@@ -93,7 +93,7 @@ void		merge_tokens(t_token *tokens, char *input, char ***env);
 
 // expansion functions
 void		expand_tokens(t_token *tokens, char *input, char ***env);
-uint32_t	rebuild_expandable_string(t_token *tokens, int i);
+uint32_t	rebuild_expandable_string(t_token *tokens, int i, char **env);
 uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 
@@ -129,7 +129,7 @@ void		free_rest(char **path, t_command **cmd, char ***env);
 // argv variable in the main? Or is it the same one?
 // builtin commands
 char 		**copy_env(char **envp);
-//void		copy_env(char **envp, char ***env_copy); // alternate version.
+//void		copy_env(char **envp, char ***env_copy); // alternate version. // NOTE: still work in progress.
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(char **argv);
@@ -139,7 +139,7 @@ int			builtin_unset(char **argv, char ***env);
 int			builtin_env(char ***env);
 int			builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env);
 int			builtin_echo(char **argv);
-char		*get_env_value(char **env, char *key);
+char		*get_env_value(char **env, char *key, size_t key_len);
 
 // builtin export and unset utils
 int			var_exist(char *arg, char **env);

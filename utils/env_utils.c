@@ -93,7 +93,7 @@ int	find_in_path(char **env, char *cmd, char **path)
 	char	**dirs;
 	int		i;
 
-	get_path = get_env_value(env ,"PATH");
+	get_path = get_env_value(env ,"PATH", sizeof("PATH") - 1);
 	i = 0;
 	if (!get_path || !cmd)
 		return (-2);

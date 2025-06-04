@@ -12,9 +12,9 @@
 
 #include "../minishell.h"
 
-static uint32_t	expand_vars(t_token *tokens, int i, char **ptr, char **result);
+static uint32_t	expand_vars(t_token *tokens, int i, char **ptr, char **result, char **env);
 static uint32_t	expand_last_exit_status(char **result, char **ptr);
-static uint32_t	expand_environment_variable(char **ptr, char **result);
+static uint32_t	expand_environment_variable(char **ptr, char **result, char **env);
 static uint32_t	append_non_expandable_str(char **ptr, char **result);
 
 /*
@@ -37,7 +37,7 @@ static uint32_t	append_non_expandable_str(char **ptr, char **result);
 * get replaced by their neighbour - and our NULL token's new replacement might
 * have been single-quoted, in which case we do not wish to try and expand it.
 */
-uint32_t	rebuild_expandable_string(t_token *tokens, int i)
+uint32_t	rebuild_expandable_string(t_token *tokens, int i, char **env)
 {
 	char		*ptr;
 	char		*result;
@@ -48,7 +48,7 @@ uint32_t	rebuild_expandable_string(t_token *tokens, int i)
 	failure_flag = 0;
 	while (*ptr)
 	{
-		failure_flag = expand_vars(tokens, i, &ptr, &result);
+		failure_flag = expand_vars(tokens, i, &ptr, &result, env);
 		if (failure_flag == 1)
 			return (1);
 		else if (failure_flag == 3)
@@ -67,7 +67,7 @@ uint32_t	rebuild_expandable_string(t_token *tokens, int i)
 *	tokens[i].str is either NULL or was in single quotes in the input string.
 * ◦ returns 0 in all other scenarios
 */
-static uint32_t	expand_vars(t_token *tokens, int i, char **ptr, char **result)
+static uint32_t	expand_vars(t_token *tokens, int i, char **ptr, char **result, char **env)
 {
 	uint32_t	failure_flag;
 
@@ -76,7 +76,7 @@ static uint32_t	expand_vars(t_token *tokens, int i, char **ptr, char **result)
 		failure_flag = expand_last_exit_status(result, ptr);
 	else if (**ptr == '$' && (ft_isalpha(*(*ptr + 1)) || *(*ptr + 1) == '_'))
 	{
-		failure_flag = expand_environment_variable(ptr, result);
+		failure_flag = expand_environment_variable(ptr, result, env);
 		if (failure_flag == 2)
 		{
 			if (!handle_empty_expansion(tokens, i, ptr))
@@ -113,26 +113,27 @@ static uint32_t	expand_last_exit_status(char **result, char **ptr)
 *	replaced by the next tokens following it.
 * ◦ otherwise, this function returns 0
 *
-* NOTE: Do NOT free() the 'value' pointer! It would lead to undefined behaviour.
-* The return value of getenv() (which is assigned to 'value') is static memory,
-* that one should not free().
+* NOTE: Do NOT free() the 'value' pointer! We still need it afterwards as part
+* of our environment copy (or updated version thereof). And it is just a pointer
+* to the key's value, within that environment copy.
 */
-static uint32_t	expand_environment_variable(char **ptr, char **result)
+static uint32_t	expand_environment_variable(char **ptr, char **result, char **env)
 {
 	char	*temp;
 	char	*value;
-	size_t	len;
+	size_t	key_len;
 
 	temp = NULL;
 	value = NULL;
-	len = 0;
+	key_len = 0;
 	(*ptr)++;
-	while (ft_isalnum((*ptr)[len]) || (*ptr)[len] == '_')
-		len++;
-	temp = ft_substr(*ptr, 0, len);
+	while (ft_isalnum((*ptr)[key_len]) || (*ptr)[key_len] == '_')
+		key_len++;
+	temp = ft_substr(*ptr, 0, key_len);
 	if (!temp)
 		return (1);
-	value = getenv(temp);
+	value = get_env_value(env, *ptr, key_len); // WARN: attempt to fix this!
+//	value = getenv(temp);
 	free(temp);
 	if (value)
 	{
@@ -140,9 +141,9 @@ static uint32_t	expand_environment_variable(char **ptr, char **result)
 			return (1);
 	}
 	else
-		if (!(*ptr)[len] && !*result)
+		if (!(*ptr)[key_len] && !*result)
 			return (2);
-	(*ptr) += len;
+	(*ptr) += key_len;
 	return (0);
 }
 

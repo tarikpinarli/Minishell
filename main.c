@@ -35,13 +35,6 @@ int	main(int argc, char **argv, char **envp)
 			perror("sigaction");
 			continue ;
 		}
-		/* Trying to set these outside of main, since those HAVE TO BE NULL by
-		 * this point, otherwise our program is not safe and there would still
-		 * be accessible memory!
-		input = NULL;
-		tokens = NULL;
-		cmd = NULL;
-		*/
 		rl_event_hook = &readline_signal_hook;
 		input = readline("minishell$ ");
 		if (!input)
@@ -63,6 +56,15 @@ int	main(int argc, char **argv, char **envp)
 		if (!tokenize(input, &tokens, &env)) // it returns 0 if a quotation mark was left unclosed or if no tokens were counted (whitespace input)
 			continue ;
 		expand_tokens(tokens, input, &env);
+
+		size_t	i = 0;
+		while (tokens[i].str)
+		{
+			printf("tokens[%zu].str:	%s\n", i, tokens[i].str);
+			i++;
+		}
+
+
 		merge_tokens(tokens, input, &env);
 
 		cmd = parse_tokens(tokens, input, &env);
@@ -70,18 +72,13 @@ int	main(int argc, char **argv, char **envp)
 			continue ;
 		free_tokens_and_input(&tokens, &input);
 
-		// WARN: just debugging for Yonatan
-		if (tokens || input) // just debugging. If this ends up displaying on the screen, I need to review my pointers in the parsing...
-			printf("tokens and/or input seem to not be NULL after free_tokens_and_input() call from main()!!\n\n");
-
-		// debugging:
-//		print_command_list(cmd);
-
-		if (cmd && cmd->next) // If there is a pipe, cmd->next exists
+		if (cmd && cmd->next)
 			execute_pipeline(cmd, &env);
-		else if (cmd) // If it's a single command
+		else if (cmd)
 			(void)exec_single_command(cmd, &env);
 		/*
+		 * NOTE: we try to remove this cleanup_heredocs() from here, and always
+		 * do it from the execution when necessary, for each node separately.
 		if (cmd)
 		{
 			if (!cleanup_heredocs(cmd))

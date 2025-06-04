@@ -68,6 +68,7 @@ typedef struct s_token
 typedef struct s_command
 {
 	char				**argv;		// Command and arguments
+	t_redir				*heredoc;	// Here document redirections
 	t_redir				*in_redir;	// Input redirections
 	t_redir				*out_redir;	// Output redirections
 	struct s_command	*next;		// Next command in pipeline

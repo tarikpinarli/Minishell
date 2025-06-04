@@ -6,15 +6,12 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 19:15:03 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/04 13:17:21 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-// TODO: check if there are failures in "execute_builtin()"
-// that are not caught here right now. UPDATE: there are, malloc failures
-// are unprotected there... perhaps other failures, that could be handled there.
 void	exec_isolated_builtin(t_command *cmd, char ***env)
 {
 	int	saved_stdin;

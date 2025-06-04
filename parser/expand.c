@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 14:29:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/04 12:57:59 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/04 14:39:00 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,9 +113,9 @@ static uint32_t	expand_last_exit_status(char **result, char **ptr)
 *	replaced by the next tokens following it.
 * ◦ otherwise, this function returns 0
 *
-* NOTE: Do NOT free() the 'value' pointer! It would lead to undefined behaviour.
-* The return value of getenv() (which is assigned to 'value') is static memory,
-* that one should not free().
+* NOTE: Do NOT free() the 'value' pointer! We still need it afterwards as part
+* of our environment copy (or updated version thereof). And it is just a pointer
+* to the key's value, within that environment copy.
 */
 static uint32_t	expand_environment_variable(char ***env, char **ptr, char **result)
 {

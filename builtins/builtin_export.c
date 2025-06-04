@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/09 13:45:04 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/04 12:59:05 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/04 15:33:53 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -218,7 +218,14 @@ int	remove_env_var(char ***env, int index)
 	while (i < count)
 	{
 		if (i != index)
-			new_env[j++] = ft_strdup((*env)[i]);
+		{
+			new_env[j++] = ft_strdup((*env)[i]); // Protected
+			if (!new_env[j - 1])
+			{
+				free_two_dimensional_array(&new_env);
+				return (0);
+			}
+		}
 		free((*env)[i]);
 		i++;
 	}
@@ -226,6 +233,16 @@ int	remove_env_var(char ***env, int index)
 	free(*env);
 	*env = new_env;
 	return (1);
+}
+static char	*replace_env_var(char **env, char *new_var, int exist_index)
+{
+	char	*temp;
+
+	temp = NULL;
+	free(env[exist_index]);
+	env[exist_index] = NULL;
+	temp = ft_strdup(new_var);
+	return (temp);
 }
 
 char	**append_env_var(char *new_var, char **env)
@@ -243,10 +260,20 @@ char	**append_env_var(char *new_var, char **env)
 		return (NULL);
 	while (j < i)
 	{
-		new_env[j] = ft_strdup(env[j]);
+		new_env[j] =ft_strdup(env[j]); // Protected
+		if (!new_env[j])
+		{
+			free_two_dimensional_array(&new_env);
+			return(NULL);
+		}
 		j++;
 	}
-	new_env[i] = ft_strdup(new_var);
+	new_env[i] = ft_strdup(new_var); // Protected
+	if (!new_env[i])
+	{
+		free_two_dimensional_array(&new_env);
+		return (NULL);
+	}
 	new_env[i + 1] = NULL;
 	free_two_dimensional_array(&env);
 	return (new_env);
@@ -272,15 +299,9 @@ int	builtin_export(char **argv, int pid_flag, char ***env)
 		exist_index = var_exist(argv[i], *env);
 		if (exist_index >= 0)
 		{
-			if (!remove_env_var(env, exist_index))
-				return(-1);
-			temp = append_env_var(argv[i], *env);
-			if (!temp)
-			{
-				return(-1);
-			}
-			else
-				*env = temp;
+			(*env)[exist_index] = replace_env_var(*env, argv[i], exist_index);
+			if (!(*env)[exist_index])
+				return (-1);
 		}
 		else
 		{

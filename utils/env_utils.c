@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:46 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 19:35:19 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/04 15:35:28 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,12 +97,12 @@ int	find_in_path(char **env, char *cmd, char **path)
 	i = 0;
 	if (!get_path || !cmd)
 		return (-2);
-	dirs = ft_split(get_path, ':'); // WARN: This is the spot where we were checking the memory leaks with a forced dird = NULL; ("ls | a")
+	dirs = ft_split(get_path, ':'); // Protected
 	if (!dirs)
 		return (-1);
 	while (dirs[i])
 	{
-		*path = build_cmd_path(dirs[i], cmd);
+		*path = build_cmd_path(dirs[i], cmd); // Protected
 		if (!*path)
 			return (free_two_dimensional_array(&dirs), -1);
 		if (access(*path, X_OK) == 0)

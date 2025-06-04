@@ -33,12 +33,12 @@ int execute_builtin(t_command *cmd, int pid_flag, char ***env)
 		return (builtin_echo(cmd->argv));
 	else if (!ft_strcmp(cmd->argv[0], "cd"))
 	{
-		if(builtin_cd(cmd->argv, env) == -1)
+		if(builtin_cd(cmd->argv, env) == -1)  // WARN: it would be enough to return (builtin_cd().......), since if it returns -1, that value would be returned to the caller of execute_builtin() as well
 			return (-1);
 	}
 	else if (!ft_strcmp(cmd->argv[0], "export"))
 	{
-		if(builtin_export(cmd->argv, pid_flag, env) == -1)
+		if(builtin_export(cmd->argv, pid_flag, env) == -1)  // WARN: it would be enough to return (builtin_export().......), since if it returns -1, that value would be returned to the caller of execute_builtin() as well
 			return (-1);
 	}
 	else if (!ft_strcmp(cmd->argv[0], "unset"))

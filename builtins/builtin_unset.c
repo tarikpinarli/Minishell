@@ -22,7 +22,7 @@ int	builtin_unset(char **argv, char ***env)
 	{
 		index = var_exist(argv[i], *env);
 		if (index >= 0)
-			remove_env_var(env, index);
+			remove_env_var(env, index); // WARN: unprotected malloc() failure. and what about the return value of remove_env_var()? if not necessary for here, cast call to (void).
 		i++;
 	}
 	return (0);

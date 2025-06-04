@@ -218,7 +218,7 @@ int	remove_env_var(char ***env, int index)
 	while (i < count)
 	{
 		if (i != index)
-			new_env[j++] = ft_strdup((*env)[i]);
+			new_env[j++] = ft_strdup((*env)[i]);  // WARN: unprotected malloc() failure
 		free((*env)[i]);
 		i++;
 	}
@@ -243,13 +243,25 @@ char	**append_env_var(char *new_var, char **env)
 		return (NULL);
 	while (j < i)
 	{
-		new_env[j] = ft_strdup(env[j]);
+		new_env[j] = ft_strdup(env[j]);  // WARN: unprotected malloc() failure
 		j++;
 	}
-	new_env[i] = ft_strdup(new_var);
+	new_env[i] = ft_strdup(new_var);  // WARN: unprotected malloc() failure
 	new_env[i + 1] = NULL;
 	free_two_dimensional_array(&env);
 	return (new_env);
+}
+
+static char	*replace_env_var(char **env, char *new_var, int exist_index)
+{
+	char	*temp;
+
+	temp = NULL;
+	free(env[exist_index]);
+	env[exist_index] = NULL;
+	temp = ft_strdup(new_var); // malloc() failure is protected, because if
+			// it happens, temp will be NULL, and we return temp in the next line.
+	return (temp);
 }
 
 int	builtin_export(char **argv, int pid_flag, char ***env)
@@ -272,6 +284,12 @@ int	builtin_export(char **argv, int pid_flag, char ***env)
 		exist_index = var_exist(argv[i], *env);
 		if (exist_index >= 0)
 		{
+			(*env)[exist_index] = replace_env_var(*env, argv[i], exist_index);
+			if (!(*env)[exist_index])
+				return (-1);
+
+			/*
+			 * WARN: this was replaced by the new function replace_env_var(). Check with Tarik that no other logic was overwritten
 			if (!remove_env_var(env, exist_index))
 				return(-1);
 			temp = append_env_var(argv[i], *env);
@@ -284,6 +302,7 @@ int	builtin_export(char **argv, int pid_flag, char ***env)
 				*env = temp;
 				free_two_dimensional_array(&temp);
 			}
+			*/
 		}
 		else
 		{

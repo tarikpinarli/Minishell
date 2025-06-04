@@ -24,16 +24,8 @@ int	main(int argc, char **argv, char **envp)
 	input = NULL;
 	tokens = NULL;
 	cmd = NULL;
-	env = copy_env(envp);
-	if (!env)
-	{
-		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
-		exit(1);
-	}
-	/*
 	env = NULL;
 	copy_env(envp, &env);
-	*/
 	while (1)
 	{
 		if (cmd)

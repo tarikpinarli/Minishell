@@ -128,8 +128,7 @@ void		free_rest(char **path, t_command **cmd, char ***env);
 // name of "argv" that is used for the builtins, because there is already one
 // argv variable in the main? Or is it the same one?
 // builtin commands
-char 		**copy_env(char **envp);
-//void		copy_env(char **envp, char ***env_copy); // alternate version. // NOTE: still work in progress.
+void		copy_env(char **envp, char ***env_copy);
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(char **argv);

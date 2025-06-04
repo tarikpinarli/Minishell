@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/14 17:32:05 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/14 17:36:40 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/04 15:30:28 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,10 @@ int	builtin_unset(char **argv, char ***env)
 	{
 		index = var_exist(argv[i], *env);
 		if (index >= 0)
-			remove_env_var(env, index);
+		{
+			if (!remove_env_var(env, index))
+				return (-1);
+		}
 		i++;
 	}
 	return (0);

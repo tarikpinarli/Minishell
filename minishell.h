@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 19:14:15 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/04 12:54:37 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,7 +93,7 @@ void		merge_tokens(t_token *tokens, char *input, char ***env);
 
 // expansion functions
 void		expand_tokens(t_token *tokens, char *input, char ***env);
-uint32_t	rebuild_expandable_string(t_token *tokens, int i);
+uint32_t	rebuild_expandable_string(char ***env, t_token *tokens, int i);
 uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
 

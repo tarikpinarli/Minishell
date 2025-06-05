@@ -24,7 +24,9 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 	failure_flag = 0;
 	while (tokens[i].str)
 	{
-		if (tokens[i].quote == QUOTE_DOUBLE || tokens[i].quote == QUOTE_NONE)
+		if (tokens[i].quote == QUOTE_DOUBLE || tokens[i].quote == QUOTE_NONE
+			|| (i > 0 && tokens[i].quote == QUOTE_SINGLE
+			&& !ft_strcmp(tokens[i - 1].str, "<<")))
 		{
 			if (is_expandable(tokens, &i))
 			{
@@ -77,10 +79,10 @@ static void	avoid_heredoc_delimiter_expansion(t_token *tokens, int *i)
 	j = *i;
 	while (tokens[j + 1].str && tokens[j].line_id == tokens[j + 1].line_id)
 	{
-		if (tokens[j].quote == QUOTE_DOUBLE
-			|| tokens[j].quote == QUOTE_SINGLE
-			|| tokens[j + 1].quote == QUOTE_DOUBLE
-			|| tokens[j + 1].quote == QUOTE_SINGLE)
+		if (tokens[j].quote == QUOTE_SINGLE
+			|| tokens[j].quote == QUOTE_DOUBLE
+			|| tokens[j + 1].quote == QUOTE_SINGLE
+			|| tokens[j + 1].quote == QUOTE_DOUBLE)
 			quote_flag = 1;
 		j++;
 	}
@@ -94,6 +96,8 @@ static void	avoid_heredoc_delimiter_expansion(t_token *tokens, int *i)
 		tokens[*i].quote = QUOTE_DOUBLE;
 		*i = j;
 	}
+	else if (j == *i && tokens[j].quote != QUOTE_NONE)
+		tokens[*i].quote = QUOTE_DOUBLE;
 }
 
 uint32_t	check_if_str_contains_vars_to_expand(char *string)

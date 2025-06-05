@@ -53,13 +53,11 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i, char ***env)
 		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
 		if (!line || !ft_strcmp(line, delimiter) || g_signal_status == SIGINT)
 			break ;
-
-		// TODO:
 		if (!in_redir->is_heredoc_delimiter_quoted)
 		{
 			if (check_if_str_contains_vars_to_expand(line))
 				if (!rebuild_expandable_heredoc_line(&line, env)) // WARN: malloc() unprotected?
-					return (-1);
+					return (-2);
 		}
 		if (line) // line might be NULL after rebuild_expandable_heredoc_line() (if a var expanded to nothing), and if we don't check for it, ft_strlen will segfault!
 			write(fd, line, ft_strlen(line));
@@ -190,14 +188,9 @@ int	handle_out_redir(t_command *cmd)
 
 int	setup_redirections(t_command *cmd)
 {
-	int	in_redir_flag;
-	int	out_redir_flag;
-
-	in_redir_flag = handle_in_redir(cmd);
-	if (in_redir_flag == 0)
+	if (!handle_in_redir(cmd))
 		return (0);
-	out_redir_flag = handle_out_redir(cmd);
-	if (out_redir_flag == 0)
+	if (!handle_out_redir(cmd))
 		return (0);
 	return (1);
 }

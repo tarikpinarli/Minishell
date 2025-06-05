@@ -75,17 +75,17 @@ void	exec_single_cmd_child(t_command **cmd, char ***env)
 
 	path = NULL;
 	current = *cmd;
-	if (!current->argv || !current->argv[0] || !current->argv[0][0])
-	{
-		free_rest(&path, cmd, env);
-		exit(0); // WARN: Do we need to free everything from the child here??
-	}
 //	if (current->argv[0][0] == '\0') // earlier version, merged into the tail of the first boolean statement
 //		exit(0);
 	if (!setup_redirections(current))
 	{
 		free_rest(&path, cmd, env);
 		exit(1);
+	}
+	if (!current->argv || !current->argv[0] || !current->argv[0][0])
+	{
+		free_rest(&path, cmd, env);
+		exit(0); // WARN: Do we need to free everything from the child here??
 	}
 	if (current->argv[0][0] == '/' || !ft_strncmp(current->argv[0], "./", 2)
 		|| !ft_strncmp(current->argv[0], "../", 3))
@@ -136,36 +136,26 @@ int	exec_single_command(t_command *cmd, char ***env)
 	if (cmd->in_redir)
 		if (!run_here_documents(&cmd, env))
 			return (1);
-	/*
-	failure_flag = prepare_heredoc_files(cmd, env);
-	if (failure_flag)
-	{
-		if (failure_flag == -2) // malloc() failed
-		{
-			cleanup_heredocs(cmd->in_redir);
-			free_rest(NULL, &cmd, env);
-			rl_clear_history();
-			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-			exit (last_exit_code(1, 1));
-		}
-		else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
-			return (1);
-	}
-	*/
+
+
 	// TODO: this section needs to be reviewed.
+	/*
 	if (!cmd->argv && !cmd->out_redir) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
 	{
 		cleanup_heredocs(cmd->in_redir);
 		return (0);
 	}
-	if (cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string
+	*/
+	/*
+	if (cmd->argv && cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string
 	{
 		ft_putendl_fd("Command '' not found", 2);
 		(void)last_exit_code(1, 127);
 		cleanup_heredocs(cmd->in_redir);
 		return (2);
 	}
-	if (is_builtin(cmd->argv[0]))
+	*/
+	if (cmd->argv && is_builtin(cmd->argv[0]))
 	{
 		exec_isolated_builtin(cmd, env);
 		cleanup_heredocs(cmd->in_redir);
@@ -186,7 +176,7 @@ int	exec_single_command(t_command *cmd, char ***env)
 		{
 			free_rest(NULL, &cmd, env); // WARN: I am not sure at all anymore
 			//	regarding freeing the allocated memory in the child!
-			return (3); // this return value tells the parent to call perror("sigaction");
+			exit (3); // this return value tells the parent to call perror("sigaction");
 		}
 		exec_single_cmd_child(&cmd, env); // WARN: this still needs to be checked. Memory (at Hive...) should be freed from the child if execve is not given the power over the program....
 	}
@@ -228,6 +218,13 @@ int	exec_single_command(t_command *cmd, char ***env)
 			}
 			last_exit_code(1, WEXITSTATUS(status));
 		}
+	}
+	if (cmd->argv && cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string
+	{
+		ft_putendl_fd("Command '' not found", 2);
+		(void)last_exit_code(1, 127);
+		cleanup_heredocs(cmd->in_redir);
+		return (2);
 	}
 	cleanup_heredocs(cmd->in_redir);
 	return (0);

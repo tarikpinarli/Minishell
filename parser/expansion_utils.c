@@ -75,9 +75,6 @@ uint32_t	append_non_expandable_str(char **ptr, char **result)
 	size_t	len;
 	char	*temp;
 
-	printf("in append, *ptr is:	<%s>\n", *ptr);
-	printf("and result is:	<%s>\n\n", *result);
-
 	temp = *ptr + 1;
 	while (*temp)
 	{
@@ -95,8 +92,6 @@ uint32_t	append_non_expandable_str(char **ptr, char **result)
 	if (!temp)
 		return (1);
 	*ptr += len;
-	printf("in append, *ptr is:	<%s>\n", *ptr);
-	printf("and result is:	<%s>\n\n", *result);
 	return (strjoin_and_replace(result, &temp, 1));
 }
 

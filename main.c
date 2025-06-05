@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:09:09 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/05 19:23:55 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/05 19:29:37 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,10 +67,6 @@ static void	process_command(char *input, char ***env, int *loop_control_flag)
 		exec_single_command(cmd, env);
 	cleaning_after_exec(input, tokens, cmd);
 }
-
-
-
-
 
 int	main(int argc, char **argv, char **envp)
 {

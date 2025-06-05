@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:51 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/05 19:24:02 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/05 19:32:25 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,5 @@ void	setup_signals(int *loop_control_flag)
 	{
 		perror("sigaction");
 		*loop_control_flag = CONTINUE;
-		return ;
 	}
 }

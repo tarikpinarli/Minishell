@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   mute_args.c                                        :+:      :+:    :+:   */
+/*   helpers.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/05 19:22:12 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/05 19:22:44 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/05 20:03:32 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,9 @@
 
 void	mute_args(int argc, char **argv)
 {
-	(void)argc;
-	(void)argv;
+	if (argc > 1)
+	{
+		printf("minishell: %s: No such file or directory\n", argv[1]);
+		exit (1);
+	}
 }

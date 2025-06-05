@@ -6,17 +6,11 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:09:09 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/05 19:14:20 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/05 19:23:55 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-
-void	cleaning_after_exec(char *input, t_token *tokens, t_command *cmd)
-{
-	cleanup_heredocs(cmd->in_redir);
-	free_all(&input, &tokens, &cmd);
-}
 
 static char	*handle_input(int	*loop_control_flag)
 {
@@ -74,27 +68,9 @@ static void	process_command(char *input, char ***env, int *loop_control_flag)
 	cleaning_after_exec(input, tokens, cmd);
 }
 
-void	setup_signals(int *loop_control_flag)
-{
-	if (setup_signal_handling(1) == -1)
-	{
-		perror("sigaction");
-		*loop_control_flag = CONTINUE;
-		return ;
-	}
-}
 
-void	mute_args(int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-}
 
-void	final_cleaning(char **env)
-{
-	free_two_dimensional_array(&env);
-	rl_clear_history();
-}
+
 
 int	main(int argc, char **argv, char **envp)
 {

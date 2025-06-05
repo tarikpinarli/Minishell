@@ -6,13 +6,11 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/05 19:05:53 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/05 19:26:57 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-static void	free_tokens(t_token **tokens);
 
 void	free_two_dimensional_array(char ***arr)
 {
@@ -73,43 +71,7 @@ void	free_cmd(t_command **cmd)
 	}
 }
 
-static void	free_tokens(t_token **tokens)
-{
-	int	i;
 
-	i = 0;
-	while ((*tokens)[i].str != NULL)
-	{
-		free((*tokens)[i].str);
-		i++;
-	}
-	free(*tokens);
-	*tokens = NULL;
-}
-
-void	free_all(char **input, t_token **tokens, t_command **cmd)
-{
-	if (input && *input)
-	{
-		free(*input);
-		*input = NULL;
-	}
-	if (tokens && *tokens)
-		free_tokens(tokens);
-	if (cmd && *cmd)
-		free_cmd(cmd);
-}
-
-void	free_tokens_and_input(t_token **tokens, char **input)
-{
-	if (input && *input)
-	{
-		free(*input);
-		*input = NULL;
-	}
-	if (tokens && *tokens)
-		free_tokens(tokens);
-}
 
 /*
 * frees the heap allocated strings in the tokens' array of structs, from index

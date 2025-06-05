@@ -68,8 +68,6 @@ SRC = main.c \
 	utils/memory_2.c \
 	utils/status.c \
 	utils/helpers.c \
-	debugging/print_command_list.c
-#WARN: delete print_command_list.c when you are ready ! and delete the file and debugging/ folder.
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 

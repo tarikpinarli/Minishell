@@ -100,10 +100,8 @@ static uint32_t	is_expandable(t_token *tokens, int *i)
 			(*i)++;
 			j = *i;
 			quote_flag = 0;
-			printf("We are hereeeeeeeeeeeee\n\n");
-			while (tokens[j + 1].str && tokens[j].line_id == tokens[j + 1].line_id) // WARN: please test with: cat << $USER''    && cat << $USER''$HOME | echo
+			while (tokens[j + 1].str && tokens[j].line_id == tokens[j + 1].line_id)
 			{
-				printf("We are hereeeeeeeeeeeee\n\n");
 				if (tokens[j].quote == QUOTE_DOUBLE || tokens[j].quote == QUOTE_SINGLE
 					|| tokens[j + 1].quote == QUOTE_DOUBLE || tokens[j + 1].quote == QUOTE_SINGLE)
 					quote_flag = 1;
@@ -118,7 +116,7 @@ static uint32_t	is_expandable(t_token *tokens, int *i)
 				}
 				tokens[*i].quote = QUOTE_DOUBLE;
 			}
-			*i == j;
+			*i = j;
 			return (0);
 		}
 		(*i)++;

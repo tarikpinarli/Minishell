@@ -110,13 +110,34 @@ int	prepare_heredoc_file(t_command *cmd)
 
 int	handle_in_redir(t_command *cmd)
 {
-	t_redir		*in;
 	struct stat	st;
+	t_redir		*in;
 	int			fd;
 
 	in = cmd->in_redir;
 	while (in)
 	{
+		/*
+		* WARN: this needs work.
+		if (in->type == REDIR_HEREDOC)
+		{
+			// heredocs are already open, so handle it in one way.
+
+
+
+
+
+
+		}
+		else if (in->type == REDIR_IN)
+		{
+			// handling for for input files which haven't been created yet (not heredocs)
+
+
+
+
+		}
+		*/
 		if (stat(in->filename, &st) == -1)
 		{
 			perror(in->filename);

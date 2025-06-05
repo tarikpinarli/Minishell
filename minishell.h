@@ -55,6 +55,7 @@ typedef struct s_redir
 {
 	t_redir_type	type;
 	char			*filename;
+	int				is_heredoc_delimiter_quoted;
 	struct s_redir	*next;
 }	t_redir;
 
@@ -68,7 +69,6 @@ typedef struct s_token
 typedef struct s_command
 {
 	char				**argv;		// Command and arguments
-	t_redir				*heredoc;	// Here document redirections  // WARN: is this used, finally?
 	t_redir				*in_redir;	// Input redirections
 	t_redir				*out_redir;	// Output redirections
 	struct s_command	*next;		// Next command in pipeline

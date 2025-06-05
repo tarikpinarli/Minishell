@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/04 18:48:43 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/05 19:26:32 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@
 Exiting this shell for precaution\n"
 
 extern volatile sig_atomic_t	g_signal_status;
+
+typedef enum e_loop_control
+{
+	BREAK,
+	RESET,
+	CONTINUE
+}	t_loop_control;
 
 typedef enum e_quote_type
 {
@@ -79,6 +86,7 @@ void		handle_sigint(int sig);
 int			setup_signal_handling(uint32_t is_parent);
 int			readline_signal_hook(void);
 int			heredoc_signal_hook(void);
+void		setup_signals(int *loop_control_flag);
 
 // tokenizer functions
 int			tokenize(char *input, t_token **tokens, char ***env);
@@ -123,8 +131,11 @@ void		free_tokens_and_input(t_token **tokens, char **input);
 void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
+void		free_tokens(t_token **tokens);
 int			cleanup_heredocs(t_redir *current_in_redir);
 void		free_rest(char **path, t_command **cmd, char ***env);
+void		cleaning_after_exec(char *input, t_token *tokens, t_command *cmd);
+void		final_cleaning(char **env);
 
 // builtin commands
 void		copy_env(char **envp, char ***env_copy);
@@ -148,5 +159,7 @@ void		sort_and_print_env(char **env);
 // builtin export and unset utils
 int			var_exist(char *arg, char **env);
 int			remove_env_var(char ***env, int index);
+// helpers
+void		mute_args(int argc, char **argv);
 
 #endif

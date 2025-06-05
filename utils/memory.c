@@ -6,13 +6,11 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/02 13:01:41 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/05 19:26:57 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-static void	free_tokens(t_token **tokens);
 
 void	free_two_dimensional_array(char ***arr)
 {
@@ -73,43 +71,7 @@ void	free_cmd(t_command **cmd)
 	}
 }
 
-static void	free_tokens(t_token **tokens)
-{
-	int	i;
 
-	i = 0;
-	while ((*tokens)[i].str != NULL)
-	{
-		free((*tokens)[i].str);
-		i++;
-	}
-	free(*tokens);
-	*tokens = NULL;
-}
-
-void	free_all(char **input, t_token **tokens, t_command **cmd)
-{
-	if (input && *input)
-	{
-		free(*input);
-		*input = NULL;
-	}
-	if (tokens && *tokens)
-		free_tokens(tokens);
-	if (cmd && *cmd)
-		free_cmd(cmd);
-}
-
-void	free_tokens_and_input(t_token **tokens, char **input)
-{
-	if (input && *input)
-	{
-		free(*input);
-		*input = NULL;
-	}
-	if (tokens && *tokens)
-		free_tokens(tokens);
-}
 
 /*
 * frees the heap allocated strings in the tokens' array of structs, from index
@@ -127,78 +89,6 @@ void	free_deprecated_strings(t_token *tokens, size_t k)
 		}
 	}
 }
-
-/*
-* return values:
-* 0: if malloc() has failed during call to ft_itoa() or ft_strjoin()
-* 1: otherwise
-*/
-/*
-int	cleanup_heredocs(t_command *current_cmd)
-{
-	t_redir *current_in_redir;
-	char	*heredoc_file_name;
-	char	*heredoc_number;
-	int		i;
-
-	i = 1;
-	while (current_cmd)
-	{
-		current_in_redir = current_cmd->in_redir;
-		while (current_in_redir)
-		{
-			if (current_in_redir->type == REDIR_HEREDOC)
-			{
-				heredoc_number = ft_itoa(i);
-				if (!heredoc_number)
-					return (0);
-				heredoc_file_name = ft_strjoin("heredoc_", heredoc_number);
-				free(heredoc_number);
-				if (!heredoc_file_name)
-					return (0);
-				unlink(heredoc_file_name);
-				free(heredoc_file_name);
-				i++;
-			}
-			current_in_redir = current_in_redir->next;
-		}
-		current_cmd = current_cmd->next;
-	}
-	return (1);
-}
-*/
-
-/*
-// NOTE: original version
-int	cleanup_heredocs(t_command *cmd)
-{
-	t_redir *in;
-	char	*heredoc_file_name;
-	char	*heredoc_number;
-	int		i;
-
-	in = cmd->in_redir;
-	i = 1;
-	while (in)
-	{
-		if (in->type == REDIR_HEREDOC)
-		{
-			heredoc_number = ft_itoa(i);
-			if (!heredoc_number)
-				return (0);
-			heredoc_file_name = ft_strjoin("heredoc_", heredoc_number);
-			free(heredoc_number);
-			if (!heredoc_file_name)
-				return (0);
-			unlink(heredoc_file_name);
-			free(heredoc_file_name);
-			i++;
-		}
-		in = in->next;
-	}
-	return (1);
-}
-*/
 
 // NOTE: new version, which unlinks each in_redir list within a single command
 // node - this is supposed to clean up at the end of each and every pipeline!

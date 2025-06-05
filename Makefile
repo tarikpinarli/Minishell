@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/06/04 18:43:23 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/06/05 19:23:44 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -64,7 +64,9 @@ SRC = main.c \
 	utils/signals.c \
 	utils/env_utils.c \
 	utils/memory.c \
+	utils/memory_2.c \
 	utils/status.c \
+	utils/helpers.c \
 	debugging/print_command_list.c
 #WARN: delete print_command_list.c when you are ready ! and delete the file and debugging/ folder.
 

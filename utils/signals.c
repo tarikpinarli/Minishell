@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:51 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/01 12:24:10 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/05 19:32:25 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,4 +97,13 @@ int	heredoc_signal_hook(void)
 		rl_done = 1;
 	}
 	return (0);
+}
+
+void	setup_signals(int *loop_control_flag)
+{
+	if (setup_signal_handling(1) == -1)
+	{
+		perror("sigaction");
+		*loop_control_flag = CONTINUE;
+	}
 }

@@ -138,7 +138,7 @@ int	exec_single_command(t_command *cmd, char ***env)
 	{
 		if (failure_flag == -2) // malloc() failed
 		{
-			cleanup_heredocs(cmd);
+			cleanup_heredocs(cmd->in_redir);
 			free_rest(NULL, &cmd, env);
 			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 			exit (last_exit_code(1, 1));
@@ -149,26 +149,34 @@ int	exec_single_command(t_command *cmd, char ***env)
 	// TODO: this section needs to be reviewed.
 	// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
 	if (!cmd->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
+	{
+		cleanup_heredocs(cmd->in_redir);
 		return (0);
+	}
 	if (cmd->argv[0] && !cmd->argv[0][0]) // this means the first command is an empty string
 	{
 		ft_putendl_fd("Command '' not found", 2);
 		(void)last_exit_code(1, 127);
+		cleanup_heredocs(cmd->in_redir);
 		return (2);
 	}
 	if (is_builtin(cmd->argv[0]))
 	{
 		exec_isolated_builtin(cmd, env);
+		cleanup_heredocs(cmd->in_redir);
 		return (0);
 	}
 	pid = fork();
 	if (pid == -1)
 	{
 		perror("fork failed");
+		cleanup_heredocs(cmd->in_redir);
+		(void)last_exit_code(1, 1);
 		return (1);
 	}
 	if (pid == 0)
 	{
+		//WARN: this is wrong!!! we are in the child and we need to exit, not return
 		if (setup_signal_handling(0) == -1)
 		{
 			free_rest(NULL, &cmd, env); // WARN: I am not sure at all anymore
@@ -177,12 +185,13 @@ int	exec_single_command(t_command *cmd, char ***env)
 		}
 		exec_single_cmd_child(&cmd, env); // WARN: this still needs to be checked. Memory (at Hive...) should be freed from the child if execve is not given the power over the program....
 	}
-	else
+	else // WARN: whole section needs reviewing!
 	{
-		wpid = waitpid(pid, &status, 0);
+		wpid = waitpid(pid, &status, 0); // THIS IS WRONG!!
 		if (wpid == -1)
 		{
-			perror("waitpid");
+			perror("waitpid"); // WARN: this is WRONG!!!
+			cleanup_heredocs(cmd->in_redir);
 			return (1);
 		}
 		if (WIFSIGNALED(status))
@@ -200,26 +209,21 @@ int	exec_single_command(t_command *cmd, char ***env)
 			if (WEXITSTATUS(status) == 3)
 			{
 				perror("sigaction");
+				cleanup_heredocs(cmd->in_redir);
 				last_exit_code(1, 1);
 				return (1);
 			}
 			else if (WEXITSTATUS(status) == 12) // WARN: maybe we don't want to do this here but rather from the child....
 			{
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+				cleanup_heredocs(cmd->in_redir);
 				free_cmd(&cmd);
 				free_two_dimensional_array(env);
 				exit(1);
 			}
 			last_exit_code(1, WEXITSTATUS(status));
 		}
-		/*
-		 * other eventual status monitoring possibilities (might not be necessary for Minishell)
-		else if (WIFSTOPPED(status))
-		{
-			write(1, "Quit (core dumped)\n", (sizeof("Quit (core dumped)\n") - 1));
-			last_exit_code(1, 128 + (WSTOPSIG(status)));
-		}
-		*/
 	}
+	cleanup_heredocs(cmd->in_redir);
 	return (0);
 }

@@ -12,8 +12,6 @@
 
 #include "../minishell.h"
 
-/*
-// alternate version
 void	copy_env(char **envp, char ***env_copy)
 {
 	int	i;
@@ -23,7 +21,7 @@ void	copy_env(char **envp, char ***env_copy)
 	count = 0;
 	while (envp[count])
 		count++;
-	*env_copy = malloc(sizeof(char *) * (count + 1)); // Protected!
+	*env_copy = ft_calloc((count + 1), sizeof(char *));
 	if (!*env_copy)
 	{
 		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
@@ -31,7 +29,7 @@ void	copy_env(char **envp, char ***env_copy)
 	}
 	while (i < count)
 	{
-		*env_copy[i] = ft_strdup(envp[i]); // Protected!
+		(*env_copy)[i] = ft_strdup(envp[i]);
 		if (!(*env_copy)[i])
 		{
 			free_two_dimensional_array(env_copy);
@@ -40,35 +38,6 @@ void	copy_env(char **envp, char ***env_copy)
 		}
 		i++;
 	}
-	(*env_copy)[i] = NULL;
-}
-*/
-
-char **copy_env(char **envp)
-{
-	int i;
-	int count;
-	char **copy;
-
-	i = 0;
-	count = 0;
-	while (envp[count])
-		count++;
-	copy = malloc(sizeof(char *) * (count + 1)); // Protected!
-	if (!copy)
-		return (NULL);
-	while (i < count)
-	{
-		copy[i] = ft_strdup(envp[i]); // Protected!
-		if (!copy[i])
-		{
-			free_two_dimensional_array(&copy);
-			return (NULL);
-		}
-		i++;
-	}
-	copy[i] = NULL;
-	return (copy);
 }
 
 static char	*build_cmd_path(char *dir, char *cmd)

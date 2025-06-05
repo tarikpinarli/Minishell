@@ -14,11 +14,11 @@
 
 static t_redir_type	get_redirection_id(const char *str, t_quote_type quote);
 
-t_redir	*create_redir(t_redir_type type, char *filename)
+t_redir	*create_redir(t_redir_type type, char *filename, t_quote_type quote)
 {
 	t_redir *redir;
 
-	redir = (t_redir *)malloc(sizeof(t_redir));
+	redir = (t_redir *)ft_calloc(1, sizeof(t_redir));
 	if (!redir)
 		return (NULL);
 	redir->type = type;
@@ -29,6 +29,8 @@ t_redir	*create_redir(t_redir_type type, char *filename)
 		redir = NULL;
 		return (NULL);
 	}
+	if (type == REDIR_HEREDOC && quote == QUOTE_DOUBLE)
+		redir->is_heredoc_delimiter_quoted = 1;
 	redir->next = NULL;
 	return (redir);
 }
@@ -189,7 +191,7 @@ t_command *parse_tokens(t_token *tokens, char *input, char ***env)
 				return (NULL);
 			}
 
-			new_redir = create_redir(redir_id, tokens[i].str);
+			new_redir = create_redir(redir_id, tokens[i].str, tokens[i].quote);
 			if (!new_redir)
 			{
 				free_all(&input, &tokens, &head);

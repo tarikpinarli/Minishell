@@ -55,6 +55,7 @@ typedef struct s_redir
 {
 	t_redir_type	type;
 	char			*filename;
+	int				is_heredoc_delimiter_quoted;
 	struct s_redir	*next;
 }	t_redir;
 
@@ -93,6 +94,7 @@ void		merge_tokens(t_token *tokens, char *input, char ***env);
 
 // expansion functions
 void		expand_tokens(t_token *tokens, char *input, char ***env);
+uint32_t	check_if_str_contains_vars_to_expand(char *string);
 uint32_t	rebuild_expandable_string(char ***env, t_token *tokens, int i);
 uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
@@ -121,15 +123,11 @@ void		free_tokens_and_input(t_token **tokens, char **input);
 void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
-int			cleanup_heredocs(t_command *cmd);
+int			cleanup_heredocs(t_redir *current_in_redir);
 void		free_rest(char **path, t_command **cmd, char ***env);
 
-// NOTE: Question to Tarik: Do you think we should consider changing the variable
-// name of "argv" that is used for the builtins, because there is already one
-// argv variable in the main? Or is it the same one?
 // builtin commands
-char 		**copy_env(char **envp);
-//void		copy_env(char **envp, char ***env_copy); // alternate version.
+void		copy_env(char **envp, char ***env_copy);
 int			is_builtin(char *cmd);
 int			execute_builtin(t_command *cmd, int pid_flag, char ***env);
 int			builtin_pwd(char **argv);
@@ -150,8 +148,5 @@ void		sort_and_print_env(char **env);
 // builtin export and unset utils
 int			var_exist(char *arg, char **env);
 int			remove_env_var(char ***env, int index);
-
-// debug functions // WARN: remove before evaluation if just for debugging
-void		print_command_list(t_command *cmd);
 
 #endif

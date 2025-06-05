@@ -12,7 +12,8 @@
 
 #include "../minishell.h"
 
-static uint32_t	is_expandable(const char *string);
+static uint32_t	is_expandable(t_token *tokens, int *i);
+static void		avoid_heredoc_delimiter_expansion(t_token *tokens, int *i);
 
 void	expand_tokens(t_token *tokens, char *input, char ***env)
 {
@@ -25,7 +26,7 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 	{
 		if (tokens[i].quote == QUOTE_DOUBLE || tokens[i].quote == QUOTE_NONE)
 		{
-			if (is_expandable(tokens[i].str))
+			if (is_expandable(tokens, &i))
 			{
 				failure_flag = rebuild_expandable_string(env, tokens, i);
 				if (failure_flag)
@@ -43,20 +44,73 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 }
 
 /*
+ * WARN: add a comment regarding the quotes, after refactoring.
 * returns true if the string passed as a parameter contains a '$' followed by
-* either a '?' or a letter of the alphabet - otherwise, this program does not
-* try and expand that string
+* '?', '_' or a letter of the alphabet - otherwise, this program does not try
+* to expand that string. To mimick bash, which does not expand the heredoc's
+* delimiter - even when it seems perfectly expandable in other scenarios - this
+* function checks if the previous token is "<<". If it is, it parses through all
+* the tokens which are to be merged (those sharing the same line_id with the
+* current string token), incrementing i in the caller in order to avoid
+* expanding that delimiter, and returns false.
 */
-static uint32_t	is_expandable(const char *string)
-{
-	size_t	j;
 
+//checks whether the string at 
+static uint32_t	is_expandable(t_token *tokens, int *i)
+{
+	if (*i > 0 && !ft_strcmp(tokens[*i - 1].str, "<<"))
+	{
+		avoid_heredoc_delimiter_expansion(tokens, i);
+		return (0);
+	}
+	return (check_if_str_contains_vars_to_expand(tokens[*i].str));
+}
+
+/*
+* This function is to be called when Minishell's input contains a "<<" token,
+* which is intended for using a temporary heredoc file. Since the heredoc
+* delimiter (which follows the "<<" token) does not get expanded by bash in case
+* a token starting with a "$" sign and either a "?", "_" or an alph
+* 
+*/
+static void	avoid_heredoc_delimiter_expansion(t_token *tokens, int *i)
+{
+	int	quote_flag;
+	int	j;
+
+	quote_flag = 0;
+	j = *i;
+	while (tokens[j + 1].str && tokens[j].line_id == tokens[j + 1].line_id)
+	{
+		if (tokens[j].quote == QUOTE_DOUBLE
+			|| tokens[j].quote == QUOTE_SINGLE
+			|| tokens[j + 1].quote == QUOTE_DOUBLE
+			|| tokens[j + 1].quote == QUOTE_SINGLE)
+			quote_flag = 1;
+		j++;
+	}
+	if (j > *i && quote_flag)
+	{
+		while (*i < j)
+		{
+			tokens[*i].quote = QUOTE_DOUBLE;
+			(*i)++;
+		}
+		tokens[*i].quote = QUOTE_DOUBLE;
+		*i = j;
+	}
+}
+
+uint32_t	check_if_str_contains_vars_to_expand(char *string)
+{
+	int	j;
+	
 	j = 0;
 	while (string[j])
 	{
 		if (string[j] == '$'
 			&& (string[j + 1] == '?'
-				|| ft_isalpha(string[j + 1]) || string[j + 1] == '_'))
+			|| ft_isalpha(string[j + 1]) || string[j + 1] == '_'))
 			return (1);
 		j++;
 	}

@@ -69,9 +69,15 @@ static uint32_t	is_expandable(t_token *tokens, int *i)
 /*
 * This function is to be called when Minishell's input contains a "<<" token,
 * which is intended for using a temporary heredoc file. Since the heredoc
-* delimiter (which follows the "<<" token) does not get expanded by bash in case
-* a token starting with a "$" sign and either a "?", "_" or an alph
-* 
+* delimiter (which follows the "<<" token) never gets expanded by bash, this
+* function skips all tokens which are to be merged, incrementing the pointer
+* to index 'i', so that the caller will not try to expand those.
+* Furthermore, if one of those tokens contains quotes, whether double or single,
+* all of those tokens' quote values will be converted to QUOTE_DOUBLE: the
+* reason for this, is that we need to 
+* when
+* a token begins with a "$" sign and either a "?", "_" or a letter of the
+* alphabet - bu
 */
 static void	avoid_heredoc_delimiter_expansion(t_token *tokens, int *i)
 {

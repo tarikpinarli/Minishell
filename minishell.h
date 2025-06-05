@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/04 18:48:43 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/05 19:04:39 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,13 @@
 Exiting this shell for precaution\n"
 
 extern volatile sig_atomic_t	g_signal_status;
+
+typedef enum e_loop_control
+{
+	BREAK,
+	RESET,
+	CONTINUE
+}	t_loop_control;
 
 typedef enum e_quote_type
 {

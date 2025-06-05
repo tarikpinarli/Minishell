@@ -205,28 +205,7 @@ int	handle_in_redir(t_command *cmd)
 	in = cmd->in_redir;
 	while (in)
 	{
-		/*
-		* WARN: this needs work.
-		if (in->type == REDIR_HEREDOC)
-		{
-			// heredocs are already open, so handle it in one way.
-
-
-
-
-
-
-		}
-		else if (in->type == REDIR_IN)
-		{
-			// handling for for input files which haven't been created yet (not heredocs)
-
-
-
-
-		}
-		*/
-		if (stat(in->filename, &st) == -1)
+		if (in->type == REDIR_IN && stat(in->filename, &st) == -1)
 		{
 			perror(in->filename);
 			return (0);
@@ -276,10 +255,10 @@ int	handle_out_redir(t_command *cmd)
 			if (dup2(fd, STDOUT_FILENO) == -1)
 			{
 				close(fd);
-				perror("dup2"); // WARN: check that this is only done from the parent!!!
+				perror("dup2"); // WARN: protect failure?
 				// ft_putendl_fd("internal dup function has failed.", 2);
 				(void)last_exit_code(1, 1);
-				return (0); // WARN: is there a child process involved here?
+				return (0);
 			}
 		}
 		close(fd);

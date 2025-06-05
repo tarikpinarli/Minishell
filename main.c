@@ -63,10 +63,7 @@ int	main(int argc, char **argv, char **envp)
 			printf("tokens[%zu].quote:	%d	.line_id	%d	.str:	%s\n", i, tokens[i].quote, tokens[i].line_id, tokens[i].str);
 			i++;
 		}
-
-
 		merge_tokens(tokens, input, &env);
-
 		cmd = parse_tokens(tokens, input, &env);
 		if (!cmd)
 			continue ;

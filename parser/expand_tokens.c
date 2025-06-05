@@ -54,6 +54,8 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 * current string token), incrementing i in the caller in order to avoid
 * expanding that delimiter, and returns false.
 */
+
+//checks whether the string at 
 static uint32_t	is_expandable(t_token *tokens, int *i)
 {
 	if (*i > 0 && !ft_strcmp(tokens[*i - 1].str, "<<"))
@@ -64,6 +66,13 @@ static uint32_t	is_expandable(t_token *tokens, int *i)
 	return (check_if_str_contains_vars_to_expand(tokens[*i].str));
 }
 
+/*
+* This function is to be called when Minishell's input contains a "<<" token,
+* which is intended for using a temporary heredoc file. Since the heredoc
+* delimiter (which follows the "<<" token) does not get expanded by bash in case
+* a token starting with a "$" sign and either a "?", "_" or an alph
+* 
+*/
 static void	avoid_heredoc_delimiter_expansion(t_token *tokens, int *i)
 {
 	int	quote_flag;

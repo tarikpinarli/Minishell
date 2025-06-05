@@ -108,9 +108,9 @@ uint32_t	append_non_expandable_str(char **ptr, char **result)
 *	replaced by the next tokens following it.
 * ◦ otherwise, this function returns 0
 *
-* NOTE: Do NOT free() the 'value' pointer! We still need it afterwards as part
-* of our environment copy (or updated version thereof). And it is just a pointer
-* to the key's value, within that environment copy.
+* NOTE: The 'value' pointer is not to be freed: It is part of the environment
+* copy which Minishell holds and updates, and it should stay accessible for the
+* program.
 */
 uint32_t	expand_environment_variable(char ***env, char **ptr, char **result)
 {

@@ -125,7 +125,7 @@ int			wait_for_children(pid_t pid, size_t n_of_children);
 void		check_if_directory(char **path, t_command **cmd, char ***env);
 
 // Redirection functions
-int			prepare_heredoc_file(t_command *cmd, char ***env);
+int			prepare_heredoc_files(t_command *cmd, char ***env);
 int			setup_redirections(t_command *cmd);
 
 // free

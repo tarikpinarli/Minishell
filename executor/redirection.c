@@ -58,9 +58,10 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i, char ***env)
 		if (!in_redir->is_heredoc_delimiter_quoted)
 		{
 			if (check_if_str_contains_vars_to_expand(line))
-				rebuild_expandable_heredoc_line(&line, env);
+				if (!rebuild_expandable_heredoc_line(&line, env)) // WARN: malloc() unprotected?
+					return (-1);
 		}
-		if (line) // this just makes sure that a \n would be printed in case the line only holds a variable/ variables that expanded to nothing --- > in which case our line became NULL after the rebuilding of the 'expandable' string.. Otherwise, this ft_strlen would segfault
+		if (line) // line might be NULL after rebuild_expandable_heredoc_line() (if a var expanded to nothing), and if we don't check for it, ft_strlen will segfault!
 			write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
 		free(line);
@@ -87,88 +88,13 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i, char ***env)
 	return (0);
 }
 
-
-/*
-* return values:
-* -1 upon failure of open()
-* -2 upon malloc() failure
-* 0, otherwise
-*/
-/*
-int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
-{
-	char	*file_number;
-	char	*file_name;
-	char	*line;
-	int		fd;
-
-// WARN: add O_EXCL to open()'s flags, and check against Errno's EEXIST, and
-// include this whole block in a loop incrementing i until a non pre-existing
-// file is created: this avoids a pre-existing file (called "heredoc_x")
-// from having its contains deleted and overwritten by Minishell's temporary
-// heredoc file creation....
-// CAREFUL however: this should be done in concert with cleanup_heredocs()...
-// The best would be to unlink everything already here and to cleanup
-// if something fails here...
-	file_number = ft_itoa(i);
-	if (!file_number)
-		return (-2);
-	file_name = ft_strjoin("heredoc_", file_number);
-	free(file_number);
-	if (!file_name)
-		return (-2);
-	fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	if (fd < 0)
-	{
-		perror(file_name);
-		free(file_name);
-		return (-1);
-	}
-	while (1)
-	{
-		rl_event_hook = &heredoc_signal_hook;
-		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
-		if (!line || !ft_strcmp(line, delimiter) || g_signal_status == SIGINT)
-			break ;
-
-		// TODO: rebuild_expandable_string() here.
-
-
-
-		write(fd, line, ft_strlen(line));
-		write(fd, "\n", 1);
-		free(line);
-	}
-	free(line);
-	close(fd);
-	if (g_signal_status == SIGINT)
-	{
-		free(in_redir->filename);
-		in_redir->filename = file_name;
-		g_signal_status = 0;
-		return (-3);
-	}
-	if (!line)
-	{
-		ft_putstr_fd("warning: here-document delimited by "
-			"end-of-file (wanted `", 2);
-		write(2, delimiter, ft_strlen(delimiter));
-		write(2, "')\n", sizeof("')\n") - 1);
-	}
-	free(in_redir->filename);
-	in_redir->filename = file_name;
-	(void)last_exit_code(1, 0);
-	return (0);
-}
-*/
-
 /*
 * the return values are identical to those of handle_heredoc():
 * -1 if open() failed
 * -2 if malloc() failed
 * 0, otherwise
 */
-int	prepare_heredoc_file(t_command *cmd, char ***env)
+int	prepare_heredoc_files(t_command *cmd, char ***env)
 {
 	t_redir *in;
 	int		i;

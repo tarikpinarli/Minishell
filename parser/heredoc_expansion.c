@@ -16,24 +16,25 @@ static uint32_t	index_and_expand_line(char ***env, char **ptr, char **result);
 static uint32_t	expand_environment_variable_heredoc(char ***env, char **ptr,
 				char **result);
 
+/*
+* returns 0 upon malloc() failure;
+* otherwise, returns 1
+*/
 uint32_t	rebuild_expandable_heredoc_line(char **line, char ***env)
 {
 	char		*ptr;
 	char		*result;
-	uint32_t	failure_flag;
 
 	ptr = *line;
 	result = NULL;
-	failure_flag = 0;
 	while (*ptr)
 	{
-		failure_flag = index_and_expand_line(env, &ptr, &result);
-		if (failure_flag == 1)
-			return (1);
+		if (index_and_expand_line(env, &ptr, &result) == 1)
+			return (0);
 	}
 	free(*line);
 	*line = result;
-	return (0);
+	return (1);
 }
 
 /*
@@ -43,16 +44,12 @@ uint32_t	rebuild_expandable_heredoc_line(char **line, char ***env)
 */
 static uint32_t	index_and_expand_line(char ***env, char **ptr, char **result)
 {
-	uint32_t	failure_flag;
-
-	failure_flag = 0;
 	if (**ptr == '$' && *(*ptr + 1) == '?')
-		failure_flag = expand_last_exit_status(result, ptr);
+		return (expand_last_exit_status(result, ptr));
 	else if (**ptr == '$' && (ft_isalpha(*(*ptr + 1)) || *(*ptr + 1) == '_'))
-		failure_flag = expand_environment_variable_heredoc(env, ptr, result);
+		return (expand_environment_variable_heredoc(env, ptr, result));
 	else
-		failure_flag = append_non_expandable_str(ptr, result);
-	return (failure_flag);
+		return (append_non_expandable_str(ptr, result));
 }
 
 /*

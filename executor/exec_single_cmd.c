@@ -12,6 +12,8 @@
 
 #include "../minishell.h"
 
+static int	run_here_documents(t_command **cmd, char ***env);
+
 void	exec_isolated_builtin(t_command *cmd, char ***env)
 {
 	int	saved_stdin;
@@ -64,7 +66,6 @@ void	exec_isolated_builtin(t_command *cmd, char ***env)
 	close(saved_stdout);
 	(void)last_exit_code(1, ret);
 //	cleanup_heredocs(cmd); // is this call necessary, since if we return here we just call this function from main after this?
-	return ;
 }
 
 void	exec_single_cmd_child(t_command **cmd, char ***env)
@@ -131,24 +132,28 @@ int	exec_single_command(t_command *cmd, char ***env)
 	pid_t	pid;
 	pid_t	wpid;
 	int		status;
-	int		failure_flag;
 
-	failure_flag = prepare_heredoc_file(cmd, env);
+	if (cmd->in_redir)
+		if (!run_here_documents(&cmd, env))
+			return (1);
+	/*
+	failure_flag = prepare_heredoc_files(cmd, env);
 	if (failure_flag)
 	{
 		if (failure_flag == -2) // malloc() failed
 		{
 			cleanup_heredocs(cmd->in_redir);
 			free_rest(NULL, &cmd, env);
+			rl_clear_history();
 			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 			exit (last_exit_code(1, 1));
 		}
 		else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
 			return (1);
 	}
+	*/
 	// TODO: this section needs to be reviewed.
-	// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
-	if (!cmd->argv) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
+	if (!cmd->argv && !cmd->out_redir) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
 	{
 		cleanup_heredocs(cmd->in_redir);
 		return (0);
@@ -226,4 +231,30 @@ int	exec_single_command(t_command *cmd, char ***env)
 	}
 	cleanup_heredocs(cmd->in_redir);
 	return (0);
+}
+
+/*
+* returns 0 in case sigint was intercepted in the heredoc or if open() failed;
+* The Minishell loop shall continue in that case, and env() should not be freed.
+* On success, returns 1
+*/
+static int	run_here_documents(t_command **cmd, char ***env)
+{
+	int		failure_flag;
+
+	failure_flag = prepare_heredoc_files(*cmd, env);
+	if (failure_flag)
+	{
+		if (failure_flag == -2) // malloc() failed
+		{
+			cleanup_heredocs((*cmd)->in_redir);
+			free_rest(NULL, cmd, env);
+			rl_clear_history();
+			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+			exit (last_exit_code(1, 1));
+		}
+		else // open() failed OR sigint was intercepted in the heredoc; loop should continue, env() should not be freed
+			return (0);
+	}
+	return (1);
 }

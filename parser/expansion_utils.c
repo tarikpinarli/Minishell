@@ -102,7 +102,7 @@ uint32_t	append_non_expandable_str(char **ptr, char **result)
 
 /*
 * ◦ returns 1 if any call to malloc() has failed
-* ◦ returns 2 if a non existing variable was about to be expendad, and that
+* ◦ returns 2 if a non existing variable was about to be expanded, and that
 *	variable was the only data that a token was holding; in this case, Minishell
 *	expands that to nothing, and so the token has to become empty, and should be
 *	replaced by the next tokens following it.

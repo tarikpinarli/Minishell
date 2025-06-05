@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:09:09 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/05 18:51:55 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/05 19:14:20 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static char	*handle_input(int	*loop_control_flag)
 	char	*input;
 
 	rl_event_hook = &readline_signal_hook;
-	input = readline("minishell$ ");
+	input = readline("\001\033[38;5;117m\002minishell$ \001\033[0m\002");
 	if (!input)
 	{
 		printf("exit\n");

@@ -94,6 +94,7 @@ void		merge_tokens(t_token *tokens, char *input, char ***env);
 
 // expansion functions
 void		expand_tokens(t_token *tokens, char *input, char ***env);
+uint32_t	check_if_str_contains_vars_to_expand(char *string);
 uint32_t	rebuild_expandable_string(char ***env, t_token *tokens, int i);
 uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
 uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);

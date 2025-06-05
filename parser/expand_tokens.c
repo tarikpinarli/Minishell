@@ -13,6 +13,7 @@
 #include "../minishell.h"
 
 static uint32_t	is_expandable(t_token *tokens, int *i);
+static void		avoid_heredoc_delimiter_expansion(t_token *tokens, int *i);
 
 void	expand_tokens(t_token *tokens, char *input, char ***env)
 {
@@ -43,38 +44,6 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 }
 
 /*
- * yesterday's new version
-static uint32_t	is_expandable(t_token *tokens, int *i)
-{
-	char	*s;
-	int		j;
-
-	if (*i > 0)
-	{
-		(*i)--;
-		if (!ft_strcmp(tokens[*i].str, "<<"))
-		{
-			(*i)++;
-			while (tokens[*i].line_id == tokens[*i + 1].line_id)
-				(*i)++;
-			return (0);
-		}
-		(*i)++;
-	}
-	s = tokens[*i].str;
-	j = 0;
-	while (s[j])
-	{
-		if (s[j] == '$'
-			&& (s[j + 1] == '?' || ft_isalpha(s[j + 1]) || s[j + 1] == '_'))
-			return (1);
-		j++;
-	}
-	return (0);
-}
-*/
-
-/*
  * WARN: add a comment regarding the quotes, after refactoring.
 * returns true if the string passed as a parameter contains a '$' followed by
 * '?', '_' or a letter of the alphabet - otherwise, this program does not try
@@ -85,48 +54,54 @@ static uint32_t	is_expandable(t_token *tokens, int *i)
 * current string token), incrementing i in the caller in order to avoid
 * expanding that delimiter, and returns false.
 */
-// NOTE: Most recent attempt, which also changes all quotes for heredoc delimiters!
 static uint32_t	is_expandable(t_token *tokens, int *i)
 {
-	char	*s;
-	int		j;
-	int		quote_flag;
-
-	if (*i > 0)
+	if (*i > 0 && !ft_strcmp(tokens[*i - 1].str, "<<"))
 	{
-		(*i)--;
-		if (!ft_strcmp(tokens[*i].str, "<<"))
-		{
-			(*i)++;
-			j = *i;
-			quote_flag = 0;
-			while (tokens[j + 1].str && tokens[j].line_id == tokens[j + 1].line_id)
-			{
-				if (tokens[j].quote == QUOTE_DOUBLE || tokens[j].quote == QUOTE_SINGLE
-					|| tokens[j + 1].quote == QUOTE_DOUBLE || tokens[j + 1].quote == QUOTE_SINGLE)
-					quote_flag = 1;
-				j++;
-			}
-			if (j > *i && quote_flag)
-			{
-				while (*i < j)
-				{
-					tokens[*i].quote = QUOTE_DOUBLE;
-					(*i)++;
-				}
-				tokens[*i].quote = QUOTE_DOUBLE;
-			}
-			*i = j;
-			return (0);
-		}
-		(*i)++;
+		avoid_heredoc_delimiter_expansion(tokens, i);
+		return (0);
 	}
-	s = tokens[*i].str;
-	j = 0;
-	while (s[j])
+	return (check_if_str_contains_vars_to_expand(tokens[*i].str));
+}
+
+static void	avoid_heredoc_delimiter_expansion(t_token *tokens, int *i)
+{
+	int	quote_flag;
+	int	j;
+
+	quote_flag = 0;
+	j = *i;
+	while (tokens[j + 1].str && tokens[j].line_id == tokens[j + 1].line_id)
 	{
-		if (s[j] == '$'
-			&& (s[j + 1] == '?' || ft_isalpha(s[j + 1]) || s[j + 1] == '_'))
+		if (tokens[j].quote == QUOTE_DOUBLE
+			|| tokens[j].quote == QUOTE_SINGLE
+			|| tokens[j + 1].quote == QUOTE_DOUBLE
+			|| tokens[j + 1].quote == QUOTE_SINGLE)
+			quote_flag = 1;
+		j++;
+	}
+	if (j > *i && quote_flag)
+	{
+		while (*i < j)
+		{
+			tokens[*i].quote = QUOTE_DOUBLE;
+			(*i)++;
+		}
+		tokens[*i].quote = QUOTE_DOUBLE;
+		*i = j;
+	}
+}
+
+uint32_t	check_if_str_contains_vars_to_expand(char *string)
+{
+	int	j;
+	
+	j = 0;
+	while (string[j])
+	{
+		if (string[j] == '$'
+			&& (string[j + 1] == '?'
+			|| ft_isalpha(string[j + 1]) || string[j + 1] == '_'))
 			return (1);
 		j++;
 	}

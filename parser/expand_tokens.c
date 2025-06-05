@@ -24,9 +24,7 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 	failure_flag = 0;
 	while (tokens[i].str)
 	{
-		if (tokens[i].quote == QUOTE_DOUBLE || tokens[i].quote == QUOTE_NONE
-			|| (i > 0 && tokens[i].quote == QUOTE_SINGLE
-			&& !ft_strcmp(tokens[i - 1].str, "<<")))
+		if (tokens[i].quote == QUOTE_DOUBLE || tokens[i].quote == QUOTE_NONE)
 		{
 			if (is_expandable(tokens, &i))
 			{

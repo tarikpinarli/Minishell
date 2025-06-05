@@ -29,7 +29,7 @@ t_redir	*create_redir(t_redir_type type, char *filename, t_quote_type quote)
 		redir = NULL;
 		return (NULL);
 	}
-	if (type == REDIR_HEREDOC && quote == QUOTE_DOUBLE)
+	if (type == REDIR_HEREDOC && quote != QUOTE_NONE)
 		redir->is_heredoc_delimiter_quoted = 1;
 	redir->next = NULL;
 	return (redir);

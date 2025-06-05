@@ -55,7 +55,7 @@ void	expand_tokens(t_token *tokens, char *input, char ***env)
 * expanding that delimiter, and returns false.
 */
 
-//checks whether the string at 
+// TODO: comments!! checks whether the string at 
 static uint32_t	is_expandable(t_token *tokens, int *i)
 {
 	if (*i > 0 && !ft_strcmp(tokens[*i - 1].str, "<<"))
@@ -74,10 +74,11 @@ static uint32_t	is_expandable(t_token *tokens, int *i)
 * to index 'i', so that the caller will not try to expand those.
 * Furthermore, if one of those tokens contains quotes, whether double or single,
 * all of those tokens' quote values will be converted to QUOTE_DOUBLE: the
-* reason for this, is that we need to 
-* when
-* a token begins with a "$" sign and either a "?", "_" or a letter of the
-* alphabet - bu
+* reason for this is that on bash, if the heredoc's delimiter contains single or
+* double quotes in its 'mergeable' tokens, then bash does NOT expand the
+* dollar sign variables inputted into the heredoc file; If there are no quotes
+* however, the delimiter tokens' quote value will be zero, telling Minishell
+* to expand those variables.
 */
 static void	avoid_heredoc_delimiter_expansion(t_token *tokens, int *i)
 {
@@ -107,6 +108,7 @@ static void	avoid_heredoc_delimiter_expansion(t_token *tokens, int *i)
 	}
 }
 
+// TODO: comments!
 uint32_t	check_if_str_contains_vars_to_expand(char *string)
 {
 	int	j;

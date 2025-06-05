@@ -6,7 +6,7 @@
 /*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/08 14:55:45 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/08 17:07:06 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/05 21:23:02 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,36 +51,92 @@ uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap)
 }
 
 /*
-* to be used when a dollar sign is followed by a non existing variable, even
-* though its first character is alphabetical or a lower dash.
-* This function frees the string at tokens[i].str, sets it to NULL, and if
-* there is still another token after it in the 'tokens' array, all of
-* tokens[i]'s data is replaced with the following token's data. The same
-* operation is then done on each and every subsequent token, up until the token
-* which holds a NULL 'str' member.
-*
-* After this loop, 'ptr' is updated to point at the new tokens[i].str. If that
-* new token is single quoted, this function returns 0; otherwise, it returns 1.
+* ◦ returns 1 if any call to malloc() has failed
+* ◦ otherwise, returns 0
 */
-uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr)
+uint32_t	expand_last_exit_status(char **result, char **ptr)
 {
-	int	temp;
+	char	*exit_str;
 
-	temp = i;
-	while (tokens[temp].str)
+	exit_str = NULL;
+	*ptr += 2;
+	exit_str = ft_itoa(last_exit_code(0, 0));
+	if (!exit_str)
+		return (1);
+	return (strjoin_and_replace(result, &exit_str, 1));
+}
+
+/*
+* ◦ returns 1 if any call to malloc() has failed
+* ◦ otherwise, returns 0
+*/
+uint32_t	append_non_expandable_str(char **ptr, char **result)
+{
+	size_t	len;
+	char	*temp;
+
+	printf("in append, *ptr is:	<%s>\n", *ptr);
+	printf("and result is:	<%s>\n\n", *result);
+
+	temp = *ptr + 1;
+	while (*temp)
 	{
-		if (temp == i)
-		{
-			free(tokens[temp].str);
-			tokens[temp].str = NULL;
-		}
-		tokens[temp].str = tokens[temp + 1].str;
-		tokens[temp].quote = tokens[temp + 1].quote;
-		tokens[temp].line_id = tokens[temp + 1].line_id;
-		temp++;
+		while (*temp && *temp != '$')
+			temp++;
+		if (*temp == '$' && *(temp + 1) != '?' && *(temp + 1) != '_'
+			&& !ft_isalpha(*(temp + 1)))
+			temp++;
+		else
+			break ;
 	}
-	*ptr = tokens[i].str;
-	if (!*ptr || tokens[i].quote == QUOTE_SINGLE)
-		return (0);
-	return (1);
+	len = temp - *ptr;
+	temp = NULL;
+	temp = ft_substr(*ptr, 0, len);
+	if (!temp)
+		return (1);
+	*ptr += len;
+	printf("in append, *ptr is:	<%s>\n", *ptr);
+	printf("and result is:	<%s>\n\n", *result);
+	return (strjoin_and_replace(result, &temp, 1));
+}
+
+/*
+* ◦ returns 1 if any call to malloc() has failed
+* ◦ returns 2 if a non existing variable was about to be expendad, and that
+*	variable was the only data that a token was holding; in this case, Minishell
+*	expands that to nothing, and so the token has to become empty, and should be
+*	replaced by the next tokens following it.
+* ◦ otherwise, this function returns 0
+*
+* NOTE: Do NOT free() the 'value' pointer! We still need it afterwards as part
+* of our environment copy (or updated version thereof). And it is just a pointer
+* to the key's value, within that environment copy.
+*/
+uint32_t	expand_environment_variable(char ***env, char **ptr, char **result)
+{
+	char	*temp;
+	char	*value;
+	size_t	len;
+
+	temp = NULL;
+	value = NULL;
+	len = 0;
+	(*ptr)++;
+	while (ft_isalnum((*ptr)[len]) || (*ptr)[len] == '_')
+		len++;
+	temp = ft_substr(*ptr, 0, len);
+	if (!temp)
+		return (1);
+	value = get_env_value(*env, temp);
+	free(temp);
+	if (value)
+	{
+		if (strjoin_and_replace(result, &value, 0) == 1)
+			return (1);
+	}
+	else
+		if (!(*ptr)[len] && !*result)
+			return (2);
+	(*ptr) += len;
+	return (0);
 }

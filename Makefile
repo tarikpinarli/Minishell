@@ -43,6 +43,7 @@ SRC = main.c \
 	parser/expand_tokens.c \
 	parser/expand.c \
 	parser/expansion_utils.c \
+	parser/heredoc_expansion.c \
 	parser/merge_tokens.c \
 	executor/exec_single_cmd.c \
 	executor/exec_pipe_cmd_1.c \

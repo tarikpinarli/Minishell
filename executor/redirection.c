@@ -18,7 +18,7 @@
 * -2 upon malloc() failure
 * 0, otherwise
 */
-int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
+int	handle_heredoc(t_redir *in_redir, char *delimiter, int i, char ***env)
 {
 	char		*file_number;
 	char		*file_name;
@@ -54,19 +54,14 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 		if (!line || !ft_strcmp(line, delimiter) || g_signal_status == SIGINT)
 			break ;
 
-		/*
-		 * TODO:
+		// TODO:
 		if (!in_redir->is_heredoc_delimiter_quoted)
 		{
-			// TODO: rebuild_expandable_string() here, modify the line in there.
-
-
+			if (check_if_str_contains_vars_to_expand(line))
+				rebuild_expandable_heredoc_line(&line, env);
 		}
-		*/
-
-
-
-		write(fd, line, ft_strlen(line));
+		if (line) // this just makes sure that a \n would be printed in case the line only holds a variable/ variables that expanded to nothing --- > in which case our line became NULL after the rebuilding of the 'expandable' string.. Otherwise, this ft_strlen would segfault
+			write(fd, line, ft_strlen(line));
 		write(fd, "\n", 1);
 		free(line);
 	}
@@ -173,7 +168,7 @@ int	handle_heredoc(t_redir *in_redir, char *delimiter, int i)
 * -2 if malloc() failed
 * 0, otherwise
 */
-int	prepare_heredoc_file(t_command *cmd)
+int	prepare_heredoc_file(t_command *cmd, char ***env)
 {
 	t_redir *in;
 	int		i;
@@ -186,7 +181,7 @@ int	prepare_heredoc_file(t_command *cmd)
 	{
 		if (in->type == REDIR_HEREDOC)
 		{
-			failure_flag = handle_heredoc(in, in->filename, i);
+			failure_flag = handle_heredoc(in, in->filename, i, env);
 			if (failure_flag)
 				return (failure_flag);
 			i++;

@@ -109,7 +109,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	// exec_cmd() and before execute_pipeline - I believe it is the same for both!
 	while (current) // 1st loop: goes throught the whole command to open all heredocs (even ones in different pipes!)
 	{
-		failure_flag = prepare_heredoc_file(current);
+		failure_flag = prepare_heredoc_file(current, env);
 		if (failure_flag)
 		{
 			if (failure_flag == -2) // malloc() failed

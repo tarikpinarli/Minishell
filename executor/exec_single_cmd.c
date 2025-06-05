@@ -133,7 +133,7 @@ int	exec_single_command(t_command *cmd, char ***env)
 	int		status;
 	int		failure_flag;
 
-	failure_flag = prepare_heredoc_file(cmd);
+	failure_flag = prepare_heredoc_file(cmd, env);
 	if (failure_flag)
 	{
 		if (failure_flag == -2) // malloc() failed

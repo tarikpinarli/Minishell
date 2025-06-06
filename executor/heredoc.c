@@ -87,10 +87,7 @@ static int	open_heredocs_and_initiate_readline(t_redir *in_redir, char *delimite
 }
 
 /*
-* the return values are identical to those of handle_heredoc():
-* -1 if open() failed
-* -2 if malloc() failed
-* 0, otherwise
+* the return values are identical to those of open_heredocs_and_initiate_readline():
 */
 static int	prepare_heredoc_files(t_command *cmd, char ***env)
 {
@@ -109,6 +106,15 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 			if (failure_flag)
 				return (failure_flag);
 			i++;
+			if (i > 16)
+			{
+				write(2, "maximum here-document count exceeded\n",
+					sizeof("maximum here-document count exceeded\n") - 1);
+				cleanup_heredocs(cmd);
+				free_rest(NULL, &cmd, env);
+				rl_clear_history();
+				exit (2);
+			}
 		}
 		in = in->next;
 	}
@@ -116,65 +122,37 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 }
 
 /*
-* returns 0 in case sigint was intercepted in the heredoc or if open() failed;
-* The Minishell loop shall continue in that case, and env() should not be freed.
-* On success, returns 1
+ * return values: 0 or 1. A detected malloc() failure cleans up and exits.
+* returns 0 in case SIGINT was intercepted in the heredoc or if open() failed;
+* The Minishell loop shall continue in that case, and only the 'cmd' list should
+* be freed, not env().
+* Upon success, handle_heredocs() returns 1
 */
-static int	run_heredocs(t_command **current, char ***env)
+int	handle_heredocs(t_command **cmd, char ***env, t_command *current)
 {
-	int		failure_flag;
-
-	failure_flag = prepare_heredoc_files(*current, env);
-	if (failure_flag)
-	{
-		if (failure_flag == -2) // malloc() failed
-		{
-			cleanup_heredocs((*current)->in_redir);
-			free_rest(NULL, head, env);
-			rl_clear_history();
-			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-			exit (last_exit_code(1, 1));
-		}
-		else // open() failed OR sigint was intercepted in the heredoc; loop should continue, env() should not be freed
-			return (0);
-	}
-	return (1);
-}
-
-
-int	handle_heredocs(t_command **cmd, char **env)
-{
-	t_command	*current;
 	int			failure_flag;
 
-	current = *cmd;
-	while (current) // 1st loop: goes throught the whole command to open all heredocs (even ones in different pipes!)
+	while (current)
 	{
-
 		if (current->in_redir)
-			if (!run_heredocs(&current, env)) //TODO : review the returns of run_heredocs() to handle the cleaning from here.
-			{
-				// try to clean from here, istead of run_heredocs().
-				return (0); /// ?
-			}
-
-
-
-		/*
-		failure_flag = prepare_heredoc_files(current, env);
-		if (failure_flag)
 		{
-			if (failure_flag == -2) // malloc() failed
+			failure_flag = prepare_heredoc_files(current, env);
+			if (failure_flag == -1)
 			{
-				cleanup_heredocs(cmd->in_redir); // WARN: needs check for whether this is necessary...
-				free_rest(NULL, &cmd, env); // WARN: is there at some point "path" being allocated and existing here?
+				cleanup_heredocs(*cmd);
+				free_cmd(cmd);
+				return (0);
+			}
+			if (failure_flag == -2)
+			{
+				cleanup_heredocs(*cmd);
+				free_rest(NULL, cmd, env);
+				rl_clear_history();
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
 			}
-			else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
-				return (1); // if you need a return value: 1
 		}
-		*/
 		current = current->next;
 	}
-	current = cmd;
+	return (1);
+}

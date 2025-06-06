@@ -14,7 +14,6 @@
 
 void	setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out)
 {
-
 	if (!setup_redirections(cmd))
 	{
 		if (dup2(*in, STDIN_FILENO) == -1
@@ -165,7 +164,7 @@ int	prepare_builtin(t_command *cmd, char ***env)
 	if (cmd->argv && is_builtin(cmd->argv[0]))
 	{
 		exec_isolated_builtin(cmd, env);
-		cleanup_heredocs(cmd->in_redir);
+		cleanup_heredocs(cmd);
 		return (0);
 	}
 	return (-1);
@@ -193,7 +192,7 @@ int	handle_children_exit(int status, t_command *cmd, int *loop_control_flag)
 			write(1, "\n", 1);
 		last_exit_code(1, 128 + (WTERMSIG(status)));
 		g_signal_status = 0;
-		*loop_control_flag = BREAK;
+		*loop_control_flag = BREAK; // WARN: we probably want to return from here, clean up everything (heredocs, cmd) and return the loop, otherwise it will still output something like command not found, which has been an issue....
 		return (-1);
 	}
 	else
@@ -266,7 +265,7 @@ int	exec_single_command(t_command *cmd, char ***env)
 	if (pid == -1)
 	{
 		perror("fork failed");
-		cleanup_heredocs(cmd->in_redir);
+		cleanup_heredocs(cmd);
 		(void)last_exit_code(1, 1);
 		return (1);
 	}
@@ -278,6 +277,6 @@ int	exec_single_command(t_command *cmd, char ***env)
 		if (ret != -1)
 			return (ret);
 	}
-	cleanup_heredocs(cmd->in_redir);
+	cleanup_heredocs(cmd);
 	return (0);
 }

@@ -54,7 +54,7 @@ void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
 {
 	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
 	free_two_dimensional_array(env);
-	cleanup_heredocs(cmd->in_redir);
+	cleanup_heredocs(cmd);
 	free_cmd(&cmd);
 	close(in);
 	close(out);
@@ -205,21 +205,21 @@ int	handle_children_exit(int status, t_command *cmd, int *loop_control_flag)
 			write(1, "\n", 1);
 		last_exit_code(1, 128 + (WTERMSIG(status)));
 		g_signal_status = 0;
-		*loop_control_flag = BREAK; // WARN: we probably want to return from here, clean up everything (heredocs, cmd) and return the loop, otherwise it will still output something like command not found, which has been an issue....
-		clenup_heredocs(cmd); // WARN: ??
-		return (-1);
+//		*loop_control_flag = BREAK; // WARN: we probably want to return from here, clean up everything (heredocs, cmd) and return the loop, otherwise it will still output something like command not found, which has been an issue....
+		cleanup_heredocs(cmd); // WARN: ?? something is off here!!1!
+		exit (0);
+		return (0);
 	}
 	else
 	{
 		if (WEXITSTATUS(status) == 1)
 		{
-			cleanup_heredocs(cmd->in_redir);
+			cleanup_heredocs(cmd);
 			last_exit_code(1, 1);
 			return (1);
 		}
 		last_exit_code(1, WEXITSTATUS(status));
 		*loop_control_flag = BREAK;
-		return (-1);
 	}
 	return (-1);
 }
@@ -244,7 +244,7 @@ int	waitpid_error_check(t_command *cmd, pid_t wpid)
 		if (errno != ECHILD)
 		{
 			perror("waitpid");
-			cleanup_heredocs(cmd->in_redir);
+			cleanup_heredocs(cmd);
 			return (1);
 		}
 	}
@@ -275,6 +275,8 @@ int	run_parent_process(t_command *cmd)
 		if (ret != -1)
 			return (ret);
 		ret = handle_children_exit(status, cmd, &loop_control_flag);
+		if (!ret)
+			return (0);
 		if (loop_control_flag == BREAK)
 			break ;
 		if (ret != -1)
@@ -284,7 +286,7 @@ int	run_parent_process(t_command *cmd)
 	{
 		ft_putendl_fd("Command '' not found", 2);
 		(void)last_exit_code(1, 127);
-		cleanup_heredocs(cmd->in_redir);
+		cleanup_heredocs(cmd);
 		return (2);
 	}
 	return (-1);

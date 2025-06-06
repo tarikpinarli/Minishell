@@ -12,6 +12,15 @@
 
 #include "../minishell.h"
 
+static
+int	heredoc_readline_loop(char *delimiter, char *file_name, int fd)
+{
+
+
+
+}
+
+
 /*
 * return values:
 * -1 upon failure of open()
@@ -19,7 +28,8 @@
 * -3 upon interception of SIGINT during heredoc's readline
 * 0, otherwise
 */
-static int	open_heredocs_and_initiate_readline(t_redir *in_redir, char *delimiter, int i, char ***env)
+static
+int	open_heredoc_files(t_redir *in_redir, char *delimiter, int i, char ***env)
 {
 	char		*file_number;
 	char		*file_name;
@@ -33,21 +43,40 @@ static int	open_heredocs_and_initiate_readline(t_redir *in_redir, char *delimite
 // heredoc file creation....
 // CAREFUL however: this should be done in concert with cleanup_heredocs()...
 // The best would be to unlink everything already here and to cleanup
-// if something fails here...
-	file_number = ft_itoa(i);
-	if (!file_number)
-		return (-2);
-	file_name = ft_strjoin("heredoc_", file_number);
-	free(file_number);
-	if (!file_name)
-		return (-2);
-	fd = open(file_name, O_WRONLY | O_CREAT | O_TRUNC, 0777);
-	if (fd < 0)
+// if something fails here... That should be done in a way that conserves the
+// file descriptors opened and passes them around to the execution of commands -
+// the unlinking only removes the name of the file, making it invisible, but as
+// long as the program has at least one fd to that file, it remains "alive"
+// and accessible to the program.
+
+	while (1)
 	{
-		perror(file_name);
-		free(file_name);
-		return (-1);
+		file_number = ft_itoa(i);
+		if (!file_number)
+			return (-2);
+		file_name = ft_strjoin("heredoc_", file_number);
+		free(file_number);
+		if (!file_name)
+			return (-2);
+		fd = open(file_name, O_WRONLY | O_CREAT | O_EXCL | S_IRUSR | S_IWUSR); // 0600 permissions, for heredoc, only the process should write to those temps
+		if (fd < 0)
+		{
+			if (errno == EEXIST)
+			{
+				i++;
+				free(file_name);
+				continue;
+			}
+			else
+			{
+				perror(file_name);
+				free(file_name);
+				return (-1);
+			}
+		}
+		break ;
 	}
+	// TODO: heredoc_readline_loop()
 	while (1)
 	{
 		rl_event_hook = &heredoc_signal_hook;
@@ -89,9 +118,10 @@ static int	open_heredocs_and_initiate_readline(t_redir *in_redir, char *delimite
 }
 
 /*
-* the return values are identical to those of open_heredocs_and_initiate_readline():
+* the return values are identical to those of open_heredoc_files():
 */
-static int	prepare_heredoc_files(t_command *cmd, char ***env)
+static
+int	prepare_heredoc_files(t_command *cmd, char ***env)
 {
 	t_redir *in;
 	int		i;
@@ -104,7 +134,7 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 	{
 		if (in->type == REDIR_HEREDOC)
 		{
-			failure_flag = open_heredocs_and_initiate_readline(in, in->filename, i, env);
+			failure_flag = open_heredoc_files(in, in->filename, i, env);
 			if (failure_flag)
 				return (failure_flag);
 			i++;
@@ -117,7 +147,8 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 /*
 * returns true if the user demands at most 16 here documents
 */
-static int	is_n_heredocs_reasonable(t_command *cmd)
+static
+int	is_n_heredocs_reasonable(t_command *cmd)
 {
 	size_t		i;
 	t_redir		*in;

@@ -98,6 +98,6 @@ int	main(int argc, char **argv, char **envp)
 //		if (loop_control_flag == CONTINUE)  // WARN: this seems unnecesary to me... am I missing something?
 //			continue ;
 	}
-	final_cleaning(env);
+	final_cleaning(env); // I think this should only have free_two_dimensional_array(&env);
 	return (0);
 }

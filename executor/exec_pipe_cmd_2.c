@@ -96,7 +96,7 @@ int	wait_for_children(pid_t pid, size_t n_of_children)
 				if (WTERMSIG(status) == SIGQUIT)
 					write(2, "Quit (core dumped)\n",
 						(sizeof("Quit (core dumped)\n") - 1));
-				last_exit_code(1, 128 + (WTERMSIG(status)));
+				(void)last_exit_code(1, 128 + (WTERMSIG(status)));
 				if (g_signal_status == SIGINT) // necessary to put this block here too, as well as for all subprocesses, in the case of "echo hi | sleep 10" (or the other way around)
 				{
 					g_signal_status = 0;
@@ -104,7 +104,7 @@ int	wait_for_children(pid_t pid, size_t n_of_children)
 				}
 			}
 			else
-				last_exit_code(1, WEXITSTATUS(status));
+				(void)last_exit_code(1, WEXITSTATUS(status));
 		}
 		if (g_signal_status == SIGINT)
 		{

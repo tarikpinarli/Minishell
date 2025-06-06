@@ -53,7 +53,7 @@ static int	index_through_single_token(const char *str, int *i, int *count)
 		if (index_through_quoted_token(str, i) == -1)
 		{
 			ft_putendl_fd("Quote not properly opened or closed.", 2);
-			last_exit_code(1, 2);
+			(void)last_exit_code(1, 2);
 			return (-1);
 		}
 	}

@@ -191,7 +191,7 @@ int	handle_children_status(int status, t_command *cmd, int *loop_control_flag)
 				(sizeof("Quit (core dumped)\n") - 1));
 		else if (WTERMSIG(status) == SIGINT)
 			write(1, "\n", 1);
-		last_exit_code(1, 128 + (WTERMSIG(status)));
+		(void)last_exit_code(1, 128 + (WTERMSIG(status)));
 		g_signal_status = 0;
 		*loop_control_flag = BREAK; // WARN: we probably want to return from here, clean up everything (heredocs, cmd) and return the loop, otherwise it will still output something like command not found, which has been an issue....
 	}
@@ -200,10 +200,10 @@ int	handle_children_status(int status, t_command *cmd, int *loop_control_flag)
 		if (WEXITSTATUS(status) == 1)
 		{
 			cleanup_heredocs(cmd);
-			last_exit_code(1, 1);
+			(void)last_exit_code(1, 1);
 			return (1);
 		}
-		last_exit_code(1, WEXITSTATUS(status));
+		(void)last_exit_code(1, WEXITSTATUS(status));
 		*loop_control_flag = BREAK;
 	}
 	return (-1);

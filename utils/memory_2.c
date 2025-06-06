@@ -53,7 +53,7 @@ void	free_tokens_and_input(t_token **tokens, char **input)
 // WARN: not yet sure about these last ones, I'll check that later on
 void	cleaning_after_exec(char *input, t_token *tokens, t_command *cmd)
 {
-	cleanup_heredocs(cmd->in_redir);
+	cleanup_heredocs(cmd);
 	free_all(&input, &tokens, &cmd);
 }
 

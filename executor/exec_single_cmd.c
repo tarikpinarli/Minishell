@@ -12,6 +12,121 @@
 
 #include "../minishell.h"
 
+void	setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out)
+{
+	if (!setup_redirections(cmd))
+	{
+		if (dup2(*in, STDIN_FILENO) == -1
+			|| dup2(*out, STDOUT_FILENO) == -1)
+		{
+			perror("dup2");
+			if (*in != -1)
+				close(*in);
+			if (*out != -1)
+				close(*out);
+			(void)last_exit_code(1, 1);
+			return ;
+		}
+		close(*in);
+		close(*out);
+		(void)last_exit_code(1, 1);
+		return ;
+	}
+}
+
+void	save_curr_std(int *saved_stdin, int *saved_stdout)
+{
+	*saved_stdin = dup(STDIN_FILENO);
+	*saved_stdout = dup(STDOUT_FILENO);
+	if (*saved_stdin == -1 || *saved_stdout == -1)
+	{
+		perror("dup");
+		if (*saved_stdin != -1)
+			close(*saved_stdin);
+		if (*saved_stdout != -1)
+			close(*saved_stdout);
+		(void)last_exit_code(1, 1);
+		return ;
+	}
+}
+
+void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
+{
+	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
+	free_two_dimensional_array(env);
+	cleanup_heredocs(cmd->in_redir);
+	free_cmd(&cmd);
+	close(in);
+	close(out);
+	rl_clear_history();
+	exit(1);
+}
+
+void	exec_isolated_builtin(t_command *cmd, char ***env)
+{
+	int	saved_stdin;
+	int	saved_stdout;
+	int	ret;
+
+	save_curr_std(&saved_stdin, &saved_stdout);
+	setup_isolated_builtin_redirections(cmd, &saved_stdin, &saved_stdout);
+	ret = execute_builtin(cmd, 1, env);
+	if (ret == -1)
+		exit_isolated_builtin(env, cmd, saved_stdin, saved_stdout);
+	if (dup2(saved_stdin, STDIN_FILENO) == -1
+		|| dup2(saved_stdout, STDOUT_FILENO) == -1)
+	{
+		perror("dup2");
+		if (saved_stdin != -1)
+			close(saved_stdin);
+		if (saved_stdout != -1)
+		close(saved_stdout);
+		(void)last_exit_code(1, 1);
+		return ;
+	}
+	close(saved_stdin);
+	close(saved_stdout);
+	(void)last_exit_code(1, ret);
+}
+
+void	free_and_exit(char *path, t_command **cmd, char ***env, int exit_code)
+{
+	free_rest(&path, cmd, env);
+	exit(exit_code);
+}
+
+char	*copy_path(char *path, t_command *curr, t_command **cmd, char ***env)
+{
+	path = ft_strdup(curr->argv[0]);
+	if (!path) // malloc failure
+	{
+		write(2, "memory allocation failure in child process\n",
+			sizeof("memory allocation failure in child process\n") - 1);
+		free_rest(&path, cmd, env);
+		exit(1);
+	}
+	return (path);
+}
+
+char	*extract_path(char *path, t_command *curr, t_command **cmd, char ***env)
+{
+	if (find_in_path(*env, curr->argv[0], &path) == -1) // malloc failure
+	{
+		write(2, "memory allocation failure in child process\n",
+			sizeof("memory allocation failure in child process\n") - 1);
+		free_rest(&path, cmd, env);
+		exit (1);
+	}
+	if (!path)
+	{
+		ft_putstr_fd(curr->argv[0], 2);
+		ft_putendl_fd(": command not found", 2);
+		free_rest(&path, cmd, env);
+		exit(127);
+	}
+	return (path);
+}
+
 /*
  * Executes a single external command in the child process.
  *
@@ -55,7 +170,7 @@ int	prepare_builtin(t_command *cmd, char ***env)
 	if (cmd->argv && is_builtin(cmd->argv[0]))
 	{
 		exec_isolated_builtin(cmd, env);
-		cleanup_heredocs(cmd->in_redir);
+		cleanup_heredocs(cmd);
 		return (0);
 	}
 	return (-1);
@@ -90,7 +205,7 @@ int	handle_children_exit(int status, t_command *cmd, int *loop_control_flag)
 			write(1, "\n", 1);
 		last_exit_code(1, 128 + (WTERMSIG(status)));
 		g_signal_status = 0;
-		*loop_control_flag = BREAK;
+		*loop_control_flag = BREAK; // WARN: we probably want to return from here, clean up everything (heredocs, cmd) and return the loop, otherwise it will still output something like command not found, which has been an issue....
 		return (-1);
 	}
 	else
@@ -196,7 +311,7 @@ int	exec_single_command(t_command *cmd, char ***env)
 	if (pid == -1)
 	{
 		perror("fork failed");
-		cleanup_heredocs(cmd->in_redir);
+		cleanup_heredocs(cmd);
 		(void)last_exit_code(1, 1);
 		return (1);
 	}
@@ -208,6 +323,6 @@ int	exec_single_command(t_command *cmd, char ***env)
 		if (ret != -1)
 			return (ret);
 	}
-	cleanup_heredocs(cmd->in_redir);
+	cleanup_heredocs(cmd);
 	return (0);
 }

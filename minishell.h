@@ -163,7 +163,7 @@ void		check_if_directory(char **path, t_command **cmd, char ***env);
 
 // Redirection functions
 int			setup_redirections(t_command *cmd);
-int			handle_heredocs(t_command **cmd, char **env);
+int			handle_heredocs(t_command **cmd, char ***env, t_command *current);
 
 // free
 void		free_cmd(t_command **cmd);
@@ -172,7 +172,7 @@ void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
 void		free_tokens(t_token **tokens);
-int			cleanup_heredocs(t_redir *current_in_redir);
+int			cleanup_heredocs(t_command *cmd);
 void		free_rest(char **path, t_command **cmd, char ***env);
 void		cleaning_after_exec(char *input, t_token *tokens, t_command *cmd);
 void		final_cleaning(char **env);

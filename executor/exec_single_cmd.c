@@ -55,7 +55,7 @@ void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
 {
 	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
 	free_two_dimensional_array(env);
-	cleanup_heredocs(cmd);
+	cleanup_heredocs(cmd->in_redir);
 	free_cmd(&cmd);
 	close(in);
 	close(out);

@@ -91,6 +91,7 @@ void	free_deprecated_strings(t_token *tokens, size_t k)
 }
 
 /*
+ * older version, cleanning only one command node's heredocs
 int	cleanup_heredocs(t_redir *current_in_redir)
 {
 	char	*heredoc_file_name;
@@ -122,13 +123,7 @@ int	cleanup_heredocs(t_redir *current_in_redir)
 // NOTE: cleans up all the heredoc files, no matter where they are // WARN: not ready!!!
 int	cleanup_heredocs(t_command *cmd)
 {
-	char	*heredoc_file_name;
-	char	*heredoc_number;
-	int		i;
 	t_redir	*current;
-
-
-	i = 1;
 
 	while (cmd)
 	{
@@ -136,18 +131,7 @@ int	cleanup_heredocs(t_command *cmd)
 		while (current)
 		{
 			if (current->type == REDIR_HEREDOC)
-			{
-				heredoc_number = ft_itoa(i);
-				if (!heredoc_number)
-					return (0);
-				heredoc_file_name = ft_strjoin("heredoc_", heredoc_number);
-				free(heredoc_number);
-				if (!heredoc_file_name)
-					return (0);
-				unlink(heredoc_file_name);
-				free(heredoc_file_name);
-				i++;
-			}
+				unlink(current->filename);
 			current = current->next;
 		}
 		cmd = cmd->next;

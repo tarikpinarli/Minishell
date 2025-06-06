@@ -55,9 +55,11 @@ void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
 {
 	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
 	free_two_dimensional_array(env);
+	cleanup_heredocs(cmd);
 	free_cmd(&cmd);
 	close(in);
 	close(out);
+	rl_clear_history();
 	exit(1);
 }
 
@@ -183,7 +185,7 @@ void	run_child_process(t_command *cmd, char ***env)
 	exec_single_cmd_child(&cmd, env);
 }
 
-int	handle_wait_signals(int status, t_command *cmd, int *loop_control_flag)
+int	handle_children_exit(int status, t_command *cmd, int *loop_control_flag)
 {
 	if (WIFSIGNALED(status))
 	{
@@ -239,7 +241,7 @@ int	run_parent_process(t_command *cmd)
 		ret = waitpid_error_check(cmd, wpid);
 		if (ret != -1)
 			return (ret);
-		ret = handle_wait_signals(status, cmd, &loop_control_flag);
+		ret = handle_children_exit(status, cmd, &loop_control_flag);
 		if (loop_control_flag == BREAK)
 			break ;
 		if (ret != -1)

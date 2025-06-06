@@ -160,11 +160,8 @@ void	exec_single_cmd_child(t_command **cmd, char ***env)
 * 0: if command was executed properly
 */
 
-int	prepare_heredoc_and_builtin(t_command *cmd, char ***env)
+int	prepare_builtin(t_command *cmd, char ***env)
 {
-	if (cmd->in_redir)
-		if (!run_heredocs(&cmd, env, &cmd))
-			return (1);
 	if (cmd->argv && is_builtin(cmd->argv[0]))
 	{
 		exec_isolated_builtin(cmd, env);
@@ -262,7 +259,7 @@ int	exec_single_command(t_command *cmd, char ***env)
 	pid_t	pid;
 	int		ret;
 
-	ret = prepare_heredoc_and_builtin(cmd, env);
+	ret = prepare_builtin(cmd, env);
 	if (ret != -1)
 		return (ret);
 	pid = fork();

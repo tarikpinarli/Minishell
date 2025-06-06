@@ -16,7 +16,9 @@ void	mute_args(int argc, char **argv)
 {
 	if (argc > 1)
 	{
-		printf("minishell: %s: No such file or directory\n", argv[1]);
-		exit (1);
+		(void)argv;
+		write(2, "Too many arguments\n", sizeof("Too many arguments\n") - 1);
+		// printf("minishell: %s: No such file or directory\n", argv[1]);
+		exit (last_exit_code(0, 0));
 	}
 }

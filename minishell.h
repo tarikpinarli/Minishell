@@ -37,7 +37,7 @@ extern volatile sig_atomic_t	g_signal_status;
 
 typedef enum e_loop_control
 {
-	BREAK,
+//	BREAK,
 	RESET,
 	CONTINUE
 }	t_loop_control;
@@ -104,8 +104,11 @@ void		merge_tokens(t_token *tokens, char *input, char ***env);
 void		expand_tokens(t_token *tokens, char *input, char ***env);
 uint32_t	check_if_str_contains_vars_to_expand(char *string);
 uint32_t	rebuild_expandable_string(char ***env, t_token *tokens, int i);
+uint32_t	expand_last_exit_status(char **result, char **ptr);
+uint32_t	expand_environment_variable(char ***env, char **ptr, char **result);
+uint32_t	append_non_expandable_str(char **ptr, char **result);
 uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
-uint32_t	handle_empty_expansion(t_token *tokens, int i, char **ptr);
+uint32_t	rebuild_expandable_heredoc_line(char **line, char ***env);
 
 // exit code
 int			last_exit_code(int set, int value);
@@ -122,8 +125,8 @@ int			wait_for_children(pid_t pid, size_t n_of_children);
 void		check_if_directory(char **path, t_command **cmd, char ***env);
 
 // Redirection functions
-int			prepare_heredoc_file(t_command *cmd);
 int			setup_redirections(t_command *cmd);
+int			run_heredocs(t_command **current, char ***env, t_command **head);
 
 // free
 void		free_cmd(t_command **cmd);

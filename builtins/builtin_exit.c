@@ -84,7 +84,7 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 	if (arg_count == 2)
 		exit_code = ft_atoi(argv[1]);
 	else
-		exit_code = 0;
+		exit_code = last_exit_code(0, 0);
 	close_and_free(*env, cmd);
 	exit(exit_code);
 }

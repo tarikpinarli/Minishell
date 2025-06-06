@@ -43,11 +43,13 @@ SRC = main.c \
 	parser/expand_tokens.c \
 	parser/expand.c \
 	parser/expansion_utils.c \
+	parser/heredoc_expansion.c \
 	parser/merge_tokens.c \
 	executor/exec_single_cmd.c \
 	executor/exec_pipe_cmd_1.c \
 	executor/exec_pipe_cmd_2.c \
 	executor/redirection.c \
+	executor/heredoc.c \
 	executor/exec_handle_error.c \
 	builtins/builtin.c \
 	builtins/builtin_echo.c \
@@ -67,8 +69,6 @@ SRC = main.c \
 	utils/memory_2.c \
 	utils/status.c \
 	utils/helpers.c \
-	debugging/print_command_list.c
-#WARN: delete print_command_list.c when you are ready ! and delete the file and debugging/ folder.
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 

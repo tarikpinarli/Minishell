@@ -18,7 +18,7 @@
 * -2 upon malloc() failure
 * 0, otherwise
 */
-static int	handle_heredoc(t_redir *in_redir, char *delimiter, int i, char ***env)
+static int	open_heredocs_and_initiate_readline(t_redir *in_redir, char *delimiter, int i, char ***env)
 {
 	char		*file_number;
 	char		*file_name;
@@ -105,7 +105,7 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 	{
 		if (in->type == REDIR_HEREDOC)
 		{
-			failure_flag = handle_heredoc(in, in->filename, i, env);
+			failure_flag = open_heredocs_and_initiate_readline(in, in->filename, i, env);
 			if (failure_flag)
 				return (failure_flag);
 			i++;
@@ -120,7 +120,7 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 * The Minishell loop shall continue in that case, and env() should not be freed.
 * On success, returns 1
 */
-int	run_heredocs(t_command **current, char ***env, t_command **head)
+static int	run_heredocs(t_command **current, char ***env)
 {
 	int		failure_flag;
 
@@ -140,3 +140,41 @@ int	run_heredocs(t_command **current, char ***env, t_command **head)
 	}
 	return (1);
 }
+
+
+int	handle_heredocs(t_command **cmd, char **env)
+{
+	t_command	*current;
+	int			failure_flag;
+
+	current = *cmd;
+	while (current) // 1st loop: goes throught the whole command to open all heredocs (even ones in different pipes!)
+	{
+
+		if (current->in_redir)
+			if (!run_heredocs(&current, env)) //TODO : review the returns of run_heredocs() to handle the cleaning from here.
+			{
+				// try to clean from here, istead of run_heredocs().
+				return (0); /// ?
+			}
+
+
+
+		/*
+		failure_flag = prepare_heredoc_files(current, env);
+		if (failure_flag)
+		{
+			if (failure_flag == -2) // malloc() failed
+			{
+				cleanup_heredocs(cmd->in_redir); // WARN: needs check for whether this is necessary...
+				free_rest(NULL, &cmd, env); // WARN: is there at some point "path" being allocated and existing here?
+				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+				exit (last_exit_code(1, 1));
+			}
+			else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
+				return (1); // if you need a return value: 1
+		}
+		*/
+		current = current->next;
+	}
+	current = cmd;

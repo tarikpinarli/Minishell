@@ -163,7 +163,7 @@ void		check_if_directory(char **path, t_command **cmd, char ***env);
 
 // Redirection functions
 int			setup_redirections(t_command *cmd);
-int			run_heredocs(t_command **current, char ***env, t_command **head);
+int			handle_heredocs(t_command **cmd, char **env);
 
 // free
 void		free_cmd(t_command **cmd);

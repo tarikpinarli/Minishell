@@ -50,6 +50,17 @@ void	exec_single_cmd_child(t_command **cmd, char ***env)
 	exit(0);
 }
 
+int	prepare_builtin(t_command *cmd, char ***env)
+{
+	if (cmd->argv && is_builtin(cmd->argv[0]))
+	{
+		exec_isolated_builtin(cmd, env);
+		cleanup_heredocs(cmd->in_redir);
+		return (0);
+	}
+	return (-1);
+}
+
 /*
  * Handles the exit status of a child process.
  * Checks if the child was stopped by a signal or exited normally.
@@ -178,7 +189,7 @@ int	exec_single_command(t_command *cmd, char ***env)
 	pid_t	pid;
 	int		ret;
 
-	ret = prepare_heredoc_and_builtin(cmd, env);
+	ret = prepare_builtin(cmd, env);
 	if (ret != -1)
 		return (ret);
 	pid = fork();

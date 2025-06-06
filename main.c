@@ -61,6 +61,14 @@ static void	process_command(char *input, char ***env, int *loop_control_flag)
 		return ;
 	}
 	free_tokens_and_input(&tokens, &input);
+	if (cmd->in_redir)
+	{
+		if (!handle_heredocs(&cmd, env, cmd))
+		{
+			*loop_control_flag = CONTINUE;
+			return ;
+		}
+	}
 	if (cmd->next)
 		execute_pipeline(cmd, env);
 	else

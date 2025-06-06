@@ -103,35 +103,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 
 	prev_fd = -1;
 	failure_flag = 0;
-	current = cmd;
 	pid = 0;
-	// NOTE: It would be great to refactor this next while loop into a separate function, which would be called before
-	// exec_cmd() and before execute_pipeline - I believe it is the same for both!
-	while (current) // 1st loop: goes throught the whole command to open all heredocs (even ones in different pipes!)
-	{
-		if (current->in_redir)
-			if (!run_heredocs(&current, env, &cmd))
-				return (1);
-
-
-
-		/*
-		failure_flag = prepare_heredoc_files(current, env);
-		if (failure_flag)
-		{
-			if (failure_flag == -2) // malloc() failed
-			{
-				cleanup_heredocs(cmd->in_redir); // WARN: needs check for whether this is necessary...
-				free_rest(NULL, &cmd, env); // WARN: is there at some point "path" being allocated and existing here?
-				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-				exit (last_exit_code(1, 1));
-			}
-			else // open() failed OR sigint was intercepted in the heredoc; env() should not be freed - unless we are in the child process!
-				return (1); // if you need a return value: 1
-		}
-		*/
-		current = current->next;
-	}
 	current = cmd;
 	n_of_children = 0;
 	while (current)

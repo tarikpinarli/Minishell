@@ -181,7 +181,7 @@ void	run_child_process(t_command *cmd, char ***env)
 	exec_single_cmd_child(&cmd, env);
 }
 
-int	handle_children_exit(int status, t_command *cmd, int *loop_control_flag)
+int	handle_children_status(int status, t_command *cmd, int *loop_control_flag)
 {
 	if (WIFSIGNALED(status))
 	{
@@ -194,8 +194,9 @@ int	handle_children_exit(int status, t_command *cmd, int *loop_control_flag)
 		g_signal_status = 0;
 //		*loop_control_flag = BREAK; // WARN: we probably want to return from here, clean up everything (heredocs, cmd) and return the loop, otherwise it will still output something like command not found, which has been an issue....
 		cleanup_heredocs(cmd); // WARN: ?? something is off here!!1!
-		exit (0);
-		return (0);
+		free_cmd(&cmd);
+//		exit (1134); just trying something, but even with this the printed "no such file or directory" comes up.....
+		return (0); // WARN :: we have an issue when : << hello << hi ---> and then SIGINT
 	}
 	else
 	{
@@ -238,7 +239,7 @@ int	run_parent_process(t_command *cmd)
 		ret = waitpid_error_check(cmd, wpid);
 		if (ret != -1)
 			return (ret);
-		ret = handle_children_exit(status, cmd, &loop_control_flag);
+		ret = handle_children_status(status, cmd, &loop_control_flag);
 		if (!ret)
 			return (0);
 		if (loop_control_flag == BREAK)

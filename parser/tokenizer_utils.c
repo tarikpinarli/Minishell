@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   tokenizer_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
+/*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/10 19:57:58 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/05/10 19:58:44 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/06 19:05:49 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,10 +102,6 @@ static t_token	next_token(char **str, int *line_id)
 		return (extract_special_character_token(str, line_id));
 	else if (**str)
 		return (extract_simple_token(str, line_id));
-// FIXME: remove this next debugging line when ready! I leave it because if it actually gets printed out once,
-// it might very probably mean that the returned (empty) will be NULL, BUT we should NOT free and exit like
-// the NULL return from this function leads to (in fill_up_tokens()).
-	printf("Hello from where you were wondering if we get to or not!!!\n\n");
 	return (empty);
 }
 

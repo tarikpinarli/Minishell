@@ -12,7 +12,7 @@
 
 #include "minishell.h"
 
-static char	*handle_input(int	*loop_control_flag)
+static char	*handle_input(int	*loop_control_flag, char ***env)
 {
 	char	*input;
 
@@ -24,8 +24,10 @@ static char	*handle_input(int	*loop_control_flag)
 		close(STDIN_FILENO);
 		close(STDOUT_FILENO);
 		close(STDERR_FILENO);
-		*loop_control_flag = BREAK;
-		return (NULL);
+//		*loop_control_flag = BREAK;
+		free_two_dimensional_array(env);
+		rl_clear_history();
+		exit (last_exit_code(0, 0));
 	}
 	if (input[0])
 		add_history(input);
@@ -83,11 +85,11 @@ int	main(int argc, char **argv, char **envp)
 		setup_signals(&loop_control_flag);
 		if (loop_control_flag == CONTINUE)
 			continue ;
-		input = handle_input(&loop_control_flag);
+		input = handle_input(&loop_control_flag, &env);
 		if (loop_control_flag == CONTINUE)
 			continue ;
-		if (loop_control_flag == BREAK)
-			break ;
+//		if (loop_control_flag == BREAK)
+//			break ;
 		process_command(input, &env, &loop_control_flag);
 //		if (loop_control_flag == CONTINUE)  // WARN: this seems unnecesary to me... am I missing something?
 //			continue ;

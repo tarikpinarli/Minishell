@@ -106,15 +106,6 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 			if (failure_flag)
 				return (failure_flag);
 			i++;
-			if (i > 16)
-			{
-				write(2, "maximum here-document count exceeded\n",
-					sizeof("maximum here-document count exceeded\n") - 1);
-				cleanup_heredocs(cmd);
-				free_rest(NULL, &cmd, env);
-				rl_clear_history();
-				exit (2);
-			}
 		}
 		in = in->next;
 	}
@@ -122,7 +113,35 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 }
 
 /*
- * return values: 0 or 1. A detected malloc() failure cleans up and exits.
+* returns true if the user demands at most 16 here documents
+*/
+static int	is_n_heredocs_reasonable(t_command *cmd)
+{
+	size_t		i;
+	t_redir		*in;
+	t_command	*head;
+
+	i = 0;
+	head = cmd;
+	in = cmd->in_redir;
+	while (cmd && i <= 16)
+	{
+		while (in)
+		{
+			if (in->type == REDIR_HEREDOC)
+				i++;
+			in = in->next;
+		}
+		cmd = cmd->next;
+	}
+	if (i > 16)
+		return (0);
+	return (1);
+}
+
+/*
+* return values: 0 or 1. A detected malloc() failure, or an unreasonable amount
+* of heredoc files (over 16) cleans up and exits.
 * returns 0 in case SIGINT was intercepted in the heredoc or if open() failed;
 * The Minishell loop shall continue in that case, and only the 'cmd' list should
 * be freed, not env().
@@ -130,8 +149,17 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 */
 int	handle_heredocs(t_command **cmd, char ***env, t_command *current)
 {
-	int			failure_flag;
+	int	failure_flag;
 
+	if (!is_n_heredocs_reasonable(*cmd))
+	{
+		write(2, "maximum here-document count exceeded\n",
+			sizeof("maximum here-document count exceeded\n") - 1);
+		cleanup_heredocs(*cmd);
+		free_rest(NULL, cmd, env);
+		rl_clear_history();
+		exit (2);
+	}
 	while (current)
 	{
 		if (current->in_redir)

@@ -206,6 +206,7 @@ int	handle_children_exit(int status, t_command *cmd, int *loop_control_flag)
 		last_exit_code(1, 128 + (WTERMSIG(status)));
 		g_signal_status = 0;
 		*loop_control_flag = BREAK; // WARN: we probably want to return from here, clean up everything (heredocs, cmd) and return the loop, otherwise it will still output something like command not found, which has been an issue....
+		clenup_heredocs(cmd); // WARN: ??
 		return (-1);
 	}
 	else

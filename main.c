@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:09:09 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/05 19:29:37 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/06 16:09:58 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,13 +60,13 @@ static void	process_command(char *input, char ***env, int *loop_control_flag)
 		*loop_control_flag = CONTINUE;
 		return ;
 	}
-	free_tokens_and_input(&tokens, &input);  
+	free_tokens_and_input(&tokens, &input);
 	if (cmd->next)
 		execute_pipeline(cmd, env);
 	else
 		exec_single_command(cmd, env);
 	free_cmd(&cmd);
-
+}
 int	main(int argc, char **argv, char **envp)
 {
 	int		loop_control_flag;

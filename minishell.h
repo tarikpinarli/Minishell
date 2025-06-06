@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/05 19:26:32 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/06 17:49:06 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ extern volatile sig_atomic_t	g_signal_status;
 
 typedef enum e_loop_control
 {
-//	BREAK,
+	BREAK,
 	RESET,
 	CONTINUE
 }	t_loop_control;

@@ -151,6 +151,8 @@ void	exec_single_cmd_child(t_command **cmd, char ***env)
 }
 
 /*
+ * WARN: now this comment is not attached to its right function, so delete it
+ * when ready.
 * Return values:
 * 1: open(), fork(), waitpid(), sigaction() failure, OR sigint was intercepted
 *	 during the here document readline loop.
@@ -158,7 +160,6 @@ void	exec_single_cmd_child(t_command **cmd, char ***env)
 * 3: returned from child process to communicate a sigaction() failure
 * 0: if command was executed properly
 */
-
 int	prepare_builtin(t_command *cmd, char ***env)
 {
 	if (cmd->argv && is_builtin(cmd->argv[0]))
@@ -192,11 +193,7 @@ int	handle_children_status(int status, t_command *cmd, int *loop_control_flag)
 			write(1, "\n", 1);
 		last_exit_code(1, 128 + (WTERMSIG(status)));
 		g_signal_status = 0;
-//		*loop_control_flag = BREAK; // WARN: we probably want to return from here, clean up everything (heredocs, cmd) and return the loop, otherwise it will still output something like command not found, which has been an issue....
-		cleanup_heredocs(cmd); // WARN: ?? something is off here!!1!
-		free_cmd(&cmd);
-//		exit (1134); just trying something, but even with this the printed "no such file or directory" comes up.....
-		return (0); // WARN :: we have an issue when : << hello << hi ---> and then SIGINT
+		*loop_control_flag = BREAK; // WARN: we probably want to return from here, clean up everything (heredocs, cmd) and return the loop, otherwise it will still output something like command not found, which has been an issue....
 	}
 	else
 	{
@@ -240,8 +237,6 @@ int	run_parent_process(t_command *cmd)
 		if (ret != -1)
 			return (ret);
 		ret = handle_children_status(status, cmd, &loop_control_flag);
-		if (!ret)
-			return (0);
 		if (loop_control_flag == BREAK)
 			break ;
 		if (ret != -1)

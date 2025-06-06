@@ -70,7 +70,7 @@ static int	cd_change_directory(char *target, char ***env)
 	return (0);
 }
 
-int	too_mant_argument_err(char *arg)
+int	too_many_argument_err(char *arg)
 {
 	ft_putstr_fd("minishell: ", 2);
 	ft_putstr_fd(arg, 2);
@@ -89,7 +89,7 @@ int	builtin_cd(char **argv, char ***env)
 	while (argv[arg_count])
 		arg_count++;
 	if (arg_count > 2)
-		return (too_mant_argument_err(argv[0]));
+		return (too_many_argument_err(argv[0]));
 	target = cd_get_target(argv, *env);
 	if (!target)
 		return (-1);

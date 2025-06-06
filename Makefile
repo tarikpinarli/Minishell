@@ -49,6 +49,7 @@ SRC = main.c \
 	executor/exec_pipe_cmd_1.c \
 	executor/exec_pipe_cmd_2.c \
 	executor/redirection.c \
+	executor/heredoc.c \
 	executor/exec_handle_error.c \
 	builtins/builtin.c \
 	builtins/builtin_echo.c \

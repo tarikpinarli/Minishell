@@ -12,8 +12,6 @@
 
 #include "../minishell.h"
 
-static int	run_here_documents(t_command **cmd, char ***env);
-
 void	exec_isolated_builtin(t_command *cmd, char ***env)
 {
 	int	saved_stdin;
@@ -141,7 +139,7 @@ int	exec_single_command(t_command *cmd, char ***env)
 	int		status;
 
 	if (cmd->in_redir)
-		if (!run_here_documents(&cmd, env))
+		if (!run_heredocs(&cmd, env, &cmd))
 			return (1);
 
 	if (cmd->argv && is_builtin(cmd->argv[0]))
@@ -215,30 +213,4 @@ int	exec_single_command(t_command *cmd, char ***env)
 	}
 	cleanup_heredocs(cmd->in_redir);
 	return (0);
-}
-
-/*
-* returns 0 in case sigint was intercepted in the heredoc or if open() failed;
-* The Minishell loop shall continue in that case, and env() should not be freed.
-* On success, returns 1
-*/
-static int	run_here_documents(t_command **cmd, char ***env)
-{
-	int		failure_flag;
-
-	failure_flag = prepare_heredoc_files(*cmd, env);
-	if (failure_flag)
-	{
-		if (failure_flag == -2) // malloc() failed
-		{
-			cleanup_heredocs((*cmd)->in_redir);
-			free_rest(NULL, cmd, env);
-			rl_clear_history();
-			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-			exit (last_exit_code(1, 1));
-		}
-		else // open() failed OR sigint was intercepted in the heredoc; loop should continue, env() should not be freed
-			return (0);
-	}
-	return (1);
 }

@@ -16,6 +16,7 @@
 * return values:
 * -1 upon failure of open()
 * -2 upon malloc() failure
+* -3 upon interception of SIGINT during heredoc's readline
 * 0, otherwise
 */
 static int	open_heredocs_and_initiate_readline(t_redir *in_redir, char *delimiter, int i, char ***env)
@@ -70,6 +71,7 @@ static int	open_heredocs_and_initiate_readline(t_redir *in_redir, char *delimite
 	{
 		free(in_redir->filename);
 		in_redir->filename = file_name;
+		(void)last_exit_code(1, 128 + g_signal_status);
 		g_signal_status = 0;
 		return (-3);
 	}
@@ -178,6 +180,12 @@ int	handle_heredocs(t_command **cmd, char ***env, t_command *current)
 				rl_clear_history();
 				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 				exit (last_exit_code(1, 1));
+			}
+			if (failure_flag == -3)
+			{
+				cleanup_heredocs(*cmd);
+				free_cmd(cmd);
+				return (0);
 			}
 		}
 		current = current->next;

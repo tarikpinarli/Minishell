@@ -96,6 +96,6 @@ int	main(int argc, char **argv, char **envp)
 			continue ;
 		process_command(input, &env, &loop_control_flag);
 	}
-	final_cleaning(env);
+	final_cleaning(env); // I think this should only have free_two_dimensional_array(&env);
 	return (0);
 }

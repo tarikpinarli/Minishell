@@ -90,7 +90,8 @@ void	free_deprecated_strings(t_token *tokens, size_t k)
 
 /*
 * NOTE: cleans up all the heredoc files, no matter in which pipeline they are
-*/ (as long as a pointer to the head of the 'cmd' list is passed.
+* (as long as a pointer to the head of the 'cmd' list is passed.
+*/
 int	cleanup_heredocs(t_command *cmd)
 {
 	t_redir	*current;

@@ -6,41 +6,11 @@
 /*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 14:20:46 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/07 22:15:51 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/07 23:22:39 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-/*
-static int	heredoc_readline_loop(t_redir *in_redir, char *delim, char *heredoc_filename, int fd,
-				char ***env) // how about line that has to survive this scope??
-{
-	char	*line;
-
-	while (1)
-	{
-		line = NULL;
-		rl_event_hook = &heredoc_signal_hook;
-		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
-		if (!line || !ft_strcmp(line, delim) || g_signal_status == SIGINT)
-			break ;
-		if (!in_redir->is_heredoc_delimiter_quoted)
-		{
-			if (check_if_str_contains_vars_to_expand(line))
-				if (!rebuild_expandable_heredoc_line(&line, env))
-					return (-2);
-		}
-		if (line) // line might be NULL after rebuild_expandable_heredoc_line() (if a var expanded to nothing), and if we don't check for it, ft_strlen will segfault!
-		{
-			write(fd, line, ft_strlen(line));
-			free(line);
-		}
-		write(fd, "\n", 1); // this is also needed if a variable expanded to nothing - the heredoc on bash still displays a newline in that case; so this command should not appear in the above "if (line)" control structure.
-	}
-}
-*/
-
 
 /*
 * return values:
@@ -137,6 +107,40 @@ static int	open_temp_files(t_redir *in_redir, char *delim, int i, char ***env)
 	return (0);
 }
 
+/*
+* O_CREAT and O_EXCL would cause open() to fail if a file already exists under
+* an idnetical name to 'heredoc_filename' parameter, setting errno to EEXIST.
+* In that case, this function increments i, and the caller's loop will call this
+* function once again but with a different name, until a new file is created
+* and nothing gets overwritten.
+* Reagarding file permissions: the heredocs are just temporary files, which
+* should not be accessible to others other than this program; Therefore, the
+* open() call assigns permissions: 600.
+*/
+static int	open_file_and_handle_error(int *fd, char *heredoc_filename, int *i)
+{
+	fd = open(heredoc_filename, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
+		S_IRUSR | S_IWUSR);
+	if (fd < 0)
+	{
+		if (errno == EEXIST)
+		{
+			(*i)++;
+			free(heredoc_filename);
+			return (-1);
+			// continue;
+		}
+		else
+		{
+			perror(heredoc_filename);
+			free(heredoc_filename);
+			return (-2);
+		}
+	}
+	returns (0);
+	// break ;
+}
+
 static char	*generate_filename(char *heredoc_filename, int i)
 {
 	char	*file_number;
@@ -153,24 +157,57 @@ static char	*generate_filename(char *heredoc_filename, int i)
 	return (heredoc_filename);
 }
 
+// TODO:
+static int	heredoc_readline_loop(char *line, char *delim, char ***env, int fd)
+{
+	while (1)
+	{
+		rl_event_hook = &heredoc_signal_hook;
+		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
+		if (!line || !ft_strcmp(line, delim) || g_signal_status == SIGINT)
+			break ;
+		if (!in_redir->is_heredoc_delimiter_quoted)
+		{
+			if (check_if_str_contains_vars_to_expand(line))
+				if (!rebuild_expandable_heredoc_line(&line, env))
+					return (-2);
+		}
+		if (line) // line might be NULL after rebuild_expandable_heredoc_line() (if a var expanded to nothing), and if we don't check for it, ft_strlen will segfault!
+		{
+			write(fd, line, ft_strlen(line));
+			free(line);
+		}
+		write(fd, "\n", 1); // this is also needed if a variable expanded to nothing - the heredoc on bash still displays a newline in that case; so this command should not appear in the above "if (line)" control structure.
+	}
+
 /*
-* returns -2 in case of malloc() failure
-* return -1 in case of ???????????????????
-* returns....
+* return values:
+* -1 in case of an open() failure - which is not related to an already
+* existing file of the same name, since this program keeps trying until it finds
+* an available file name.
+* -2 in case of malloc() failure
+* returns....?????????????????????
 */
-static int	open_temp_files(t_redir *in_redir, char *delim, int i, char ***env)
+static int	open_temp_file(t_redir *in_redir, char *delim, int *i)
 {
 	char	*heredoc_filename;
 	int		fd;
+	int		ret;
 
 	while (1)
 	{
-		heredoc_filename = generate_filename(heredoc_filename, i);
+		heredoc_filename = generate_filename(heredoc_filename, *i);
 		if (!heredoc_filename)
 			return (-2);
 
+		ret = open_file_and_handle_error(&fd, heredoc_filename, i);
+		if (ret == -1)
+			continue;
+		else if (ret == -2)
+			return (-1);
+		break ;
 
-		// TODO: refactor me this ;-)
+		/*
 		fd = open(heredoc_filename, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, // makes the heredoc file be created ONLY if the file does not exist already.
 			S_IRUSR | S_IWUSR); // This gives the file: 0600 permissions.
 		if (fd < 0)
@@ -189,14 +226,16 @@ static int	open_temp_files(t_redir *in_redir, char *delim, int i, char ***env)
 			}
 		}
 		break ;
+		*/
 	}
-
+	return (0);
+}
 
 
 /*
-* the return values are identical to those of open_temp_files():
+* the return values are identical to those of open_temp_files(): ???????
 */
-static int	prepare_heredoc_files(t_command *cmd, char ***env)
+static int	run_heredoc_files(t_command *cmd, char ***env)
 {
 	t_redir *in;
 	int		i;
@@ -209,7 +248,7 @@ static int	prepare_heredoc_files(t_command *cmd, char ***env)
 	{
 		if (in->type == REDIR_HEREDOC)
 		{
-			failure_flag = open_temp_files(in, in->filename, i, env);
+			failure_flag = open_temp_file(in, in->filename, &i, env);
 			if (failure_flag)
 				return (failure_flag);
 			i++;
@@ -271,7 +310,7 @@ int	handle_heredocs(t_command **cmd, char ***env, t_command *current)
 	{
 		if (current->in_redir)
 		{
-			failure_flag = prepare_heredoc_files(current, env);
+			failure_flag = run_heredoc_files(current, env);
 			if (failure_flag == -1)
 			{
 				cleanup_heredocs(*cmd);

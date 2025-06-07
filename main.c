@@ -65,7 +65,7 @@ static void	process_command(char *input, char ***env, int *loop_control_flag)
 	{
 		if (!handle_heredocs(&cmd, env, cmd))
 		{
-			*loop_control_flag = CONTINUE;
+//			*loop_control_flag = CONTINUE; // NOTE: This line is only necessary if in main() there is still need for the "continue"
 			return ;
 		}
 	}

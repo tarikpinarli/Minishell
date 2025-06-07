@@ -21,6 +21,104 @@ static int	heredoc_readline_loop(char *delim, char *file_name, int fd)
 }
 */
 
+/*
+* return values:
+* -1 upon failure of open()
+* -2 upon malloc() failure
+* -3 upon interception of SIGINT during heredoc's readline
+* 0, otherwise
+*
+* NOTE: at the start of this function, 'delim' is in_redir->filename;
+* At its end, if the heredoc temporary file was successfully opened, it is freed
+* and replaced by the name of the file that has been created, allowing
+* cleanup_heredocs() to unlink that file with ease
+*/
+static int	open_temp_files(t_redir *in_redir, char *delim, int i, char ***env)
+{
+	char		*file_number;
+	char		*heredoc_filename;
+	char		*line;
+	int			fd;
+
+	file_number = NULL;
+	heredoc_filename = NULL;
+	while (1)
+	{
+		file_number = ft_itoa(i);
+		if (!file_number)
+			return (-2);
+		heredoc_filename = ft_strjoin("heredoc_", file_number);
+		free(file_number);
+		file_number = NULL;
+		if (!heredoc_filename)
+			return (-2);
+		fd = open(heredoc_filename, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, // makes the heredoc file be created ONLY if the file does not exist already.
+			S_IRUSR | S_IWUSR); // This gives the file: 0600 permissions.
+		if (fd < 0)
+		{
+			if (errno == EEXIST) // if the file name already exists for another file, we are incrementing i, and trying this loop again with another name.
+			{
+				i++;
+				free(heredoc_filename);
+				heredoc_filename = NULL;
+				continue;
+			}
+			else
+			{
+				perror(heredoc_filename);
+				free(heredoc_filename);
+				return (-1);
+			}
+		}
+		break ;
+	}
+
+	// TODO: heredoc_readline_loop()
+	while (1)
+	{
+		rl_event_hook = &heredoc_signal_hook;
+		line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
+		if (!line || !ft_strcmp(line, delim) || g_signal_status == SIGINT)
+			break ;
+		if (!in_redir->is_heredoc_delimiter_quoted)
+		{
+			if (check_if_str_contains_vars_to_expand(line))
+				if (!rebuild_expandable_heredoc_line(&line, env))
+					return (-2);
+		}
+		if (line) // line might be NULL after rebuild_expandable_heredoc_line() (if a var expanded to nothing), and if we don't check for it, ft_strlen will segfault!
+		{
+			write(fd, line, ft_strlen(line));
+			free(line);
+		}
+		write(fd, "\n", 1); // this is also needed if a variable expanded to nothing - the heredoc on bash still displays a newline in that case; so this command should not appear in the above "if (line)" control structure.
+	}
+	if (g_signal_status == SIGINT)
+	{
+		(void)last_exit_code(1, 128 + g_signal_status); // WARN: check this on Linux, is it necessary in case of SIGINT during heredocs????
+		g_signal_status = 0;
+		free(in_redir->filename);
+		in_redir->filename = heredoc_filename;
+		close(fd);
+		return (-3);
+	}
+	if (!line)
+	{
+		ft_putstr_fd("warning: here-document delimited by "
+			"end-of-file (wanted `", 2);
+		write(2, delim, ft_strlen(delim));
+		write(2, "')\n", sizeof("')\n") - 1);
+	}
+	if (line)  // needed here if the delimiter comparison was successful (or if by any chance SIGINT was intercepted and readline already allocated the line...)
+		free(line);
+	close(fd);
+	free(in_redir->filename);
+	in_redir->filename = heredoc_filename;
+	(void)last_exit_code(1, 0);
+	return (0);
+}
+
+
 
 /*
 * return values:
@@ -34,6 +132,7 @@ static int	heredoc_readline_loop(char *delim, char *file_name, int fd)
 * and replaced by the name of the file that has been created, allowing
 * cleanup_heredocs() to unlink that file with ease
 */
+/*
 static int	open_temp_files(t_redir *in_redir, char *delim, int i, char ***env)
 {
 	char		*file_number;
@@ -127,6 +226,7 @@ static int	open_temp_files(t_redir *in_redir, char *delim, int i, char ***env)
 	(void)last_exit_code(1, 0);
 	return (0);
 }
+*/
 
 /*
 * the return values are identical to those of open_temp_files():

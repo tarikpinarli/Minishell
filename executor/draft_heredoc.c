@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   heredoc.c                                          :+:      :+:    :+:   */
+/*   draft_heredoc.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 14:20:46 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/06 14:33:28 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/07 22:15:51 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,17 +40,6 @@ static int	heredoc_readline_loop(t_redir *in_redir, char *delim, char *heredoc_f
 	}
 }
 */
-
-static int	construct_filename(
-{
-	file_number = ft_itoa(i);
-	if (!file_number)
-		return (-2);
-	heredoc_filename = ft_strjoin("heredoc_", file_number);
-	free(file_number);
-	file_number = NULL;
-	if (!heredoc_filename)
-		return (-2);
 
 
 /*
@@ -147,6 +136,61 @@ static int	open_temp_files(t_redir *in_redir, char *delim, int i, char ***env)
 	(void)last_exit_code(1, 0);
 	return (0);
 }
+
+static char	*generate_filename(char *heredoc_filename, int i)
+{
+	char	*file_number;
+
+	file_number = NULL;
+	heredoc_filename = NULL;
+	file_number = ft_itoa(i);
+	if (!file_number)
+		return (NULL);
+	heredoc_filename = ft_strjoin("heredoc_", file_number);
+	free(file_number);
+	if (!heredoc_filename)
+		return (NULL);
+	return (heredoc_filename);
+}
+
+/*
+* returns -2 in case of malloc() failure
+* return -1 in case of ???????????????????
+* returns....
+*/
+static int	open_temp_files(t_redir *in_redir, char *delim, int i, char ***env)
+{
+	char	*heredoc_filename;
+	int		fd;
+
+	while (1)
+	{
+		heredoc_filename = generate_filename(heredoc_filename, i);
+		if (!heredoc_filename)
+			return (-2);
+
+
+		// TODO: refactor me this ;-)
+		fd = open(heredoc_filename, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, // makes the heredoc file be created ONLY if the file does not exist already.
+			S_IRUSR | S_IWUSR); // This gives the file: 0600 permissions.
+		if (fd < 0)
+		{
+			if (errno == EEXIST) // if the file name already exists for another file, we are incrementing i, and trying this loop again with another name.
+			{
+				i++;
+				free(heredoc_filename);
+				continue;
+			}
+			else
+			{
+				perror(heredoc_filename);
+				free(heredoc_filename);
+				return (-1);
+			}
+		}
+		break ;
+	}
+
 
 
 /*

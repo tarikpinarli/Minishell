@@ -6,12 +6,9 @@
 /*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 14:20:46 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/08 00:55:34 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/08 01:38:24 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-// WARN: TEST THIS FILE WITH PIPES ! Check especially that the herdoc files numbers are incremented throughout the pipeline
-// check with printf() debugging the value of i
 
 #include "../minishell.h"
 
@@ -49,8 +46,7 @@ static int	open_file_and_handle_error(int *fd, char *heredoc_filename, size_t *i
 		{
 			(*i)++;
 			free(heredoc_filename);
-			return (-1);
-			// continue;
+			return (-1);  // continue ;
 		}
 		else
 		{
@@ -59,8 +55,7 @@ static int	open_file_and_handle_error(int *fd, char *heredoc_filename, size_t *i
 			return (-2);
 		}
 	}
-	return (0);
-	// break ;
+	return (0); // break ;
 }
 
 static char	*generate_filename(char **heredoc_filename, size_t i)
@@ -90,7 +85,7 @@ static char	*generate_filename(char **heredoc_filename, size_t i)
 static int	open_temp_file(t_redir *in_redir, int *fd, size_t *i,
 				char **heredoc_filename)
 {
-	int		ret;
+	int	ret;
 
 	while (1)
 	{
@@ -107,7 +102,7 @@ static int	open_temp_file(t_redir *in_redir, int *fd, size_t *i,
 	return (0);
 }
 
-static int	initiate_readline_loop(char **line, t_redir *in, int fd, char ***env)
+static int	init_readline_loop(char **line, t_redir *in, int fd, char ***env)
 {
 	rl_event_hook = &heredoc_signal_hook;
 	*line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
@@ -179,14 +174,17 @@ static int	run_heredoc_files(t_command *cmd, char ***env, size_t *i)
 			if (failure_flag)
 				return (failure_flag);
 			failure_flag = 0;
-			// TODO: readline loop here?
 			while (1)
 			{
-				failure_flag = initiate_readline_loop(&line, in, fd, env);// in->filename);
+				failure_flag = init_readline_loop(&line, in, fd, env);// in->filename);
 				if (failure_flag == -1)
 					break ;
-				if (failure_flag == -2)
-					return (-2); // malloc failure
+				if (failure_flag == -2) // malloc failure. heredoc_filename hasn't been assigned
+				{
+					free(in->filename);
+					in->filename = heredoc_filename;
+					return (-2);
+				}
 				failure_flag = 0; // added just now
 			}
 			// TODO:
@@ -197,6 +195,31 @@ static int	run_heredoc_files(t_command *cmd, char ***env, size_t *i)
 		in = in->next;
 	}
 	return (0);
+}
+
+static void	abort_heredocs_sigint_detected_or_open_failed(t_command **cmd)
+{
+	cleanup_heredocs(*cmd);
+	free_cmd(cmd);
+}
+
+static void	exit_heredocs_malloc_failure(t_command **cmd, char ***env)
+{
+	cleanup_heredocs(*cmd);
+	free_rest(NULL, cmd, env);
+	rl_clear_history();
+	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+	exit (last_exit_code(1, 1));
+}
+
+static void	exit_too_many_heredocs(t_command **cmd, char ***env)
+{
+	write(2, "maximum here-document count exceeded\n",
+		sizeof("maximum here-document count exceeded\n") - 1);
+	cleanup_heredocs(*cmd);
+	free_rest(NULL, cmd, env);
+	rl_clear_history();
+	exit (2);
 }
 
 /*
@@ -240,14 +263,7 @@ int	handle_heredocs(t_command **cmd, char ***env, t_command *current)
 	size_t	i;
 
 	if (!is_n_heredocs_reasonable(*cmd))
-	{
-		write(2, "maximum here-document count exceeded\n",
-			sizeof("maximum here-document count exceeded\n") - 1);
-		cleanup_heredocs(*cmd);
-		free_rest(NULL, cmd, env);
-		rl_clear_history();
-		exit (2);
-	}
+		exit_too_many_heredocs(cmd, env);
 	i = 1;
 	while (current)
 	{
@@ -256,18 +272,11 @@ int	handle_heredocs(t_command **cmd, char ***env, t_command *current)
 			failure_flag = run_heredoc_files(current, env, &i);
 			if (failure_flag == -1 || failure_flag == -3)
 			{
-				cleanup_heredocs(*cmd);
-				free_cmd(cmd);
+				abort_heredocs_sigint_detected_or_open_failed(cmd);
 				return (0);
 			}
 			if (failure_flag == -2)
-			{
-				cleanup_heredocs(*cmd);
-				free_rest(NULL, cmd, env);
-				rl_clear_history();
-				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-				exit (last_exit_code(1, 1));
-			}
+				exit_heredocs_malloc_failure(cmd, env);
 		}
 		current = current->next;
 	}

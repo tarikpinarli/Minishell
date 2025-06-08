@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 20:11:12 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/23 21:14:58 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/08 11:56:13 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,20 +22,9 @@ void	free_rest(char **path, t_command **cmd, char ***env)
 	if (env && *env)
 		free_two_dimensional_array(env);
 	if (cmd && *cmd)
-		free_cmd(cmd);	
+		free_cmd(cmd);
 }
 
-/* earlier iteration, not setting the pointers to NULL.
-void	free_rest(char *path, t_command *cmd, char **env)
-{
-	if (path)
-		free(path);
-	if (env)
-		free_2D_char(env);
-	if (cmd)
-		free_cmd(cmd);	
-}
-*/
 void	handle_execve_error(char *str, char *path, t_command **cmd, char ***env)
 {
 	if (errno == EISDIR)

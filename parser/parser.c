@@ -6,208 +6,59 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 15:16:33 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/06 19:47:08 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/08 13:33:56 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
-
-static t_redir_type	get_redirection_id(const char *str, t_quote_type quote);
-
-t_redir	*create_redir(t_redir_type type, char *filename, t_quote_type quote)
+/*
+ * Handles pipe tokens by validating their position and
+ * creating a new t_command node in the pipeline.
+ * Ensures that a pipe is not the first or last token,
+ * and is not followed by another pipe.
+ *
+ * Returns:
+ * - 1 if the pipe is valid and a new command is added
+ * - -1 if a syntax error is detected and cleanup is performed
+ */
+static int	handle_pipe( t_token *tokens, char *input,
+	t_parse_state *st, char ***env)
 {
-	t_redir *redir;
+	int	i;
 
-	redir = (t_redir *)ft_calloc(1, sizeof(t_redir));
-	if (!redir)
-		return (NULL);
-	redir->type = type;
-	redir->filename = ft_strdup(filename);
-	if (!redir->filename)
+	i = st->i;
+	if (!st->current || !tokens[i + 1].str
+		|| !ft_strcmp(tokens[i + 1].str, "|"))
 	{
-		free(redir);
-		redir = NULL;
-		return (NULL);
-	}
-	if (type == REDIR_HEREDOC && quote != QUOTE_NONE)
-		redir->is_heredoc_delimiter_quoted = 1;
-	redir->next = NULL;
-	return (redir);
-}
-
-void append_redir(t_redir_type type, t_redir *new_redir, t_command *current)
-{
-	t_redir	**temp;
-
-	temp = NULL;
-	if (type == REDIR_IN || type == REDIR_HEREDOC)
-		temp = &current->in_redir;
-	else
-		temp = &current->out_redir;
-	if (!*temp)
-		*temp = new_redir;
-	else
-	{
-		while (*temp)
-			temp = &((*temp)->next);
-		*temp = new_redir;
-	}
-}
-
-char **argv_add(char **argv, char *new_arg)
-{
-	int		count;
-	int		i;
-	char	**new_argv;
-
-	if (!new_arg)
-		return (argv);
-	// Count current size
-	count = 0;
-	i = 0;
-	while (argv && argv[count])
-		count++;
-
-	new_argv = (char **)malloc(sizeof(char *) * (count + 2)); // NOTE: why do we add 2? because: 1 for the new_arg string, & 1 for the NULL
-	if (!new_argv)
-	{
-		free_two_dimensional_array(&argv); // it is mandatory to free_argv() here, BEFORE returning NULL and calling free_all()!
-		// Otherwise we replace argv with NULL, losing access to the memory that has to be freed!
-		return (NULL);
-	}
-	while (i < count)
-	{
-		new_argv[i] = argv[i];
-		i++;
-	}
-
-	new_argv[count] = ft_strdup(new_arg);
-	if (!new_argv[count])
-	{
-		free(new_argv); // frees the pointer, the strings will be freed in the next line
-		free_two_dimensional_array(&argv);
-		return (NULL);
-	}
-	new_argv[count + 1] = NULL;
-	free(argv); // free old array pointer, no need to free the strings.
-	return (new_argv);
-}
-
-void	handle_malloc_err(char *input, t_token *tokens,t_command *head, char ***env)
-{
-	free_all(&input, &tokens, &head);
-	free_two_dimensional_array(env);
-	rl_clear_history();
-	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-	exit (last_exit_code(1, 1));
-}
-
-t_command *parse_tokens(t_token *tokens, char *input, char ***env)
-{
-	t_command		*head;
-	t_command		*current;
-	t_command		*new_cmd;
-	t_redir			*new_redir;
-	t_redir_type	redir_id;
-	int				i;
-
-	head = NULL;
-	current = NULL;
-	new_cmd = NULL;
-	new_redir = NULL;
-	i = 0;
-	while (tokens[i].str)
-	{
-		if (!ft_strcmp(tokens[i].str, "|"))
-		{
-			// TESTING: please TEST this next if statement thorughly! I think it should be good.
-			// NOTE: careful when refactoring this if statement: It looks over complicated FOR A REASON:
-			// the order of the checks are intended. The check for !current should come BEFORE checking
-			// for !tokens[i + 1].str, and the last ft_strcmp check has to come AFTER !tokens[i + 1].str....
-			// Also, NOTE: do NOT send tokens[i + 1] into ft_strcmp() if it is NULL.
-			if (!current || !tokens[i + 1].str || !ft_strcmp(tokens[i + 1].str, "|"))
-			{
-				if (!tokens[i + 1].str)
-					ft_putendl_fd("syntax error: parsing failed.", 2);
-				else
-					ft_putendl_fd("syntax error near unexpected token `|'", 2);
-				(void)last_exit_code(1, 2);
-				free_all(&input, &tokens, &head);
-				return (NULL);
-			}
-			new_cmd = (t_command *)ft_calloc(1, sizeof(t_command));
-			if (!new_cmd)
-				handle_malloc_err(input, tokens, head, env);
-			current->next = new_cmd;
-			current = new_cmd;
-			new_cmd = NULL;
-			i++;
-			continue ; // continue with next tokens[i].str
-		}
-		// start of chain
-		if (!current)
-		{
-			current = (t_command *)ft_calloc(1, sizeof(t_command));
-			if (!current)
-				handle_malloc_err(input, tokens, head, env);
-			head = current;
-		}
-		// Redirection control
-		redir_id = get_redirection_id(tokens[i].str, tokens[i].quote);
-		if (redir_id)
-		{
-			i++;
-			if (!tokens[i].str)
-			{
-				ft_putendl_fd("syntax error near unexpected token `newline'", 2);
-				(void)last_exit_code(1, 2);
-				free_all(&input, &tokens, &head);
-				return (NULL);
-			}
-			if (get_redirection_id(tokens[i].str, tokens[i].quote))
-			{
-				ft_putstr_fd("syntax error near unexpected token `", 2);
-				write(2, tokens[i].str, ft_strlen(tokens[i].str));
-				write(2, "'\n", 2);
-				// NOTE: this is quite similar to bash's behaviour,
-				// except some cases where it is slightly different:
-				// [ <> ] , [ <>> ] , [ <<< ] , [ <<<< ]
-				// but those (or some of those) start to behave in even other
-				// ways if there are more redirection sybols or valid arguments later;
-				// This is beyond the scope of this project. But since there are a lot of different behaviours,
-				// but most of them end up being parsing errors, so we can consider printing a more general "parsing failed\n" error instead... What does Tarik think?
-				(void)last_exit_code(1, 2);
-				free_all(&input, &tokens, &head);
-				return (NULL);
-			}
-			if (!ft_strcmp(tokens[i].str, "|"))
-			{
-				ft_putendl_fd("syntax error near unexpected token `|'", 2);
-				(void)last_exit_code(1, 2);
-				free_all(&input, &tokens, &head);
-				return (NULL);
-			}
-
-			new_redir = create_redir(redir_id, tokens[i].str, tokens[i].quote);
-			if (!new_redir)
-				handle_malloc_err(input, tokens, head, env);
-			append_redir(redir_id, new_redir, current);
-		}
+		if (!tokens[i + 1].str)
+			ft_putendl_fd("syntax error: parsing failed.", 2);
 		else
-		{
-			current->argv = argv_add(current->argv, tokens[i].str);
-			if (!current->argv)
-				handle_malloc_err(input, tokens, head, env);
-		}
-		i++;
+			ft_putendl_fd("syntax error near unexpected token `|'", 2);
+		(void)last_exit_code(1, 2);
+		free_all(&input, &tokens, &st->head);
+		return (-1);
 	}
-	return (head);
+	st->new_cmd = (t_command *)ft_calloc(1, sizeof(t_command));
+	if (!st->new_cmd)
+		handle_malloc_err(input, tokens, st->head, env);
+	st->current->next = st->new_cmd;
+	st->current = st->new_cmd;
+	st->new_cmd = NULL;
+	st->i++;
+	return (1);
 }
 
 /*
-* returns the type of redirection that the string, passed as a parameter,
-* corresponds to - or REDIR_NONE - if it corresponds to neither.
-*/
+ * Identifies the type of redirection based on the given token string.
+ * Only unquoted tokens are considered valid redirection operators.
+ *
+ * Returns:
+ * - REDIR_IN for "<"
+ * - REDIR_OUT for ">"
+ * - REDIR_HEREDOC for "<<"
+ * - REDIR_APPEND for ">>"
+ * - REDIR_NONE if the token is not a redirection or is quoted
+ */
 static t_redir_type	get_redirection_id(const char *str, t_quote_type quote)
 {
 	if (quote != QUOTE_NONE)
@@ -229,4 +80,114 @@ static t_redir_type	get_redirection_id(const char *str, t_quote_type quote)
 			return (REDIR_APPEND);
 	}
 	return (REDIR_NONE);
+}
+
+/*
+ * Validates the token following a redirection operator to ensure it is
+ * a valid target (i.e., not empty, not another redirection, and not a pipe).
+ * If invalid, prints an appropriate syntax error and frees all resources.
+ *
+ * Returns:
+ * - 0 if the target is valid
+ * - -1 if a syntax error is detected and cleanup is performed
+ */
+static int	validate_redir_target(t_token *tokens,
+	char *input, t_parse_state *st)
+{
+	if (!tokens[st->i].str)
+	{
+		ft_putendl_fd("syntax error near unexpected token `newline'", 2);
+		(void)last_exit_code(1, 2);
+		free_all(&input, &tokens, &st->head);
+		return (-1);
+	}
+	if (get_redirection_id(tokens[st->i].str, tokens[st->i].quote))
+	{
+		ft_putstr_fd("syntax error near unexpected token `", 2);
+		write(2, tokens[st->i].str, ft_strlen(tokens[st->i].str));
+		write(2, "'\n", 2);
+		(void)last_exit_code(1, 2);
+		free_all(&input, &tokens, &st->head);
+		return (-1);
+	}
+	if (!ft_strcmp(tokens[st->i].str, "|"))
+	{
+		ft_putendl_fd("syntax error near unexpected token `|'", 2);
+		(void)last_exit_code(1, 2);
+		free_all(&input, &tokens, &st->head);
+		return (-1);
+	}
+	return (0);
+}
+
+/*
+ * Checks if the current token represents a redirection operator.
+ * If so, validates the redirection target and appends the redirection
+ * to the current command's redirection list.
+ *
+ * Returns:
+ * - 1 if a redirection was handled successfully
+ * - 0 if the token is not a redirection operator
+ * - -1 if a syntax or memory error occurred
+ */
+static int	handle_redirection(t_token *tok, char *input,
+	t_parse_state *st, char ***env)
+{
+	t_redir_type	redir_id;
+	int				status;
+
+	redir_id = get_redirection_id(tok[st->i].str, tok[st->i].quote);
+	if (!redir_id)
+		return (0);
+	st->i++;
+	status = validate_redir_target(tok, input, st);
+	if (status == -1)
+		return (-1);
+	st->new_redir = create_redir(redir_id, tok[st->i].str, tok[st->i].quote);
+	if (!st->new_redir)
+		handle_malloc_err(input, tok, st->head, env);
+	append_redir(redir_id, st->new_redir, st->current);
+	return (1);
+}
+
+/*
+ * Parses the tokenized input and constructs a linked list of t_command
+ * structs representing a pipeline of commands with their arguments
+ * and redirections.
+ *
+ * Handles:
+ * - Pipe separators (|) between commands
+ * - Input/output redirections (<, >, <<, >>)
+ * - Syntax error detection (e.g., unexpected pipe or redirection)
+ *
+ * Returns the head of the command list on success,
+ * or NULL if a syntax or memory error occurs.
+ */
+t_command	*parse_tokens(t_token *tokens, char *input, char ***env)
+{
+	t_parse_state	st;
+	int				ret;
+
+	st.head = NULL;
+	st.current = NULL;
+	st.new_cmd = NULL;
+	st.new_redir = NULL;
+	st.i = 0;
+	while (tokens[st.i].str)
+	{
+		if (!ft_strcmp(tokens[st.i].str, "|"))
+		{
+			if (handle_pipe(tokens, input, &st, env) == -1)
+				return (NULL);
+			continue ;
+		}
+		init_command_if_needed(input, tokens, &st, env);
+		ret = handle_redirection(tokens, input, &st, env);
+		if (ret == -1)
+			return (NULL);
+		else if (ret == 0)
+			append_argument(tokens, input, &st, env);
+		st.i++;
+	}
+	return (st.head);
 }

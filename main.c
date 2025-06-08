@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/01 10:09:09 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/06 16:09:58 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/08 14:43:11 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -86,8 +86,6 @@ int	main(int argc, char **argv, char **envp)
 		if (loop_control_flag == CONTINUE)
 			continue ;
 		process_command(input, &env, &loop_control_flag);
-//		if (loop_control_flag == CONTINUE)  // WARN: this seems unnecesary to me... am I missing something?
-//			continue ;
 	}
 	final_cleaning(env);
 	return (0);

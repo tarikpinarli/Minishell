@@ -91,6 +91,14 @@ typedef struct s_parse_state
 	int			i;
 }	t_parse_state;
 
+typedef struct	s_heredoc
+{
+	int		fd;
+	char	*heredoc_filename;
+	char	*line;
+	t_redir *in;
+}	t_heredoc;
+
 // signal handling
 void		handle_sigint(int sig);
 int			setup_signal_handling(uint32_t is_parent);
@@ -149,7 +157,6 @@ int		waitpid_error_check(t_command *cmd, pid_t wpid);
 int		handle_children_exit(int status, t_command *cmd, int *loop_control_flag);
 void	run_child_process(t_command *cmd, char ***env);
 int		exec_single_command(t_command *cmd, char ***env);
-
 
 // executor functions
 int			find_in_path(char **env, char *cmd, char **path);

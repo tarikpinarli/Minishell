@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/12 14:29:13 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/05 18:21:41 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/08 15:00:56 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static uint32_t	index_and_expand_line(char ***env, char **ptr, char **result);
 static uint32_t	expand_environment_variable_heredoc(char ***env, char **ptr,
-				char **result);
+					char **result);
 
 /*
 * returns 0 upon malloc() failure;

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/11 20:37:00 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/04 12:55:43 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/06 19:00:30 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,10 +87,7 @@ static void	avoid_heredoc_delimiter_expansion(t_token *tokens, int *i)
 	if (j > *i && quote_flag)
 	{
 		while (*i < j)
-		{
-			tokens[*i].quote = QUOTE_DOUBLE;
-			(*i)++;
-		}
+			tokens[(*i)++].quote = QUOTE_DOUBLE;
 		tokens[*i].quote = QUOTE_DOUBLE;
 		*i = j;
 	}

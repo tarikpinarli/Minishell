@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 15:16:33 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/05/29 20:35:47 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/06 19:47:08 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -93,6 +93,15 @@ char **argv_add(char **argv, char *new_arg)
 	return (new_argv);
 }
 
+void	handle_malloc_err(char *input, t_token *tokens,t_command *head, char ***env)
+{
+	free_all(&input, &tokens, &head);
+	free_two_dimensional_array(env);
+	rl_clear_history();
+	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
+	exit (last_exit_code(1, 1));
+}
+
 t_command *parse_tokens(t_token *tokens, char *input, char ***env)
 {
 	t_command		*head;
@@ -128,13 +137,7 @@ t_command *parse_tokens(t_token *tokens, char *input, char ***env)
 			}
 			new_cmd = (t_command *)ft_calloc(1, sizeof(t_command));
 			if (!new_cmd)
-			{
-				free_all(&input, &tokens, &head);
-				free_two_dimensional_array(env);
-				rl_clear_history();
-				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-				exit (last_exit_code(1, 1));
-			}
+				handle_malloc_err(input, tokens, head, env);
 			current->next = new_cmd;
 			current = new_cmd;
 			new_cmd = NULL;
@@ -146,13 +149,7 @@ t_command *parse_tokens(t_token *tokens, char *input, char ***env)
 		{
 			current = (t_command *)ft_calloc(1, sizeof(t_command));
 			if (!current)
-			{
-				free_all(&input, &tokens, &head);
-				free_two_dimensional_array(env);
-				rl_clear_history();
-				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-				exit (last_exit_code(1, 1));
-			}
+				handle_malloc_err(input, tokens, head, env);
 			head = current;
 		}
 		// Redirection control
@@ -193,26 +190,14 @@ t_command *parse_tokens(t_token *tokens, char *input, char ***env)
 
 			new_redir = create_redir(redir_id, tokens[i].str, tokens[i].quote);
 			if (!new_redir)
-			{
-				free_all(&input, &tokens, &head);
-				free_two_dimensional_array(env);
-				rl_clear_history();
-				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-				exit (last_exit_code(1, 1));
-			}
+				handle_malloc_err(input, tokens, head, env);
 			append_redir(redir_id, new_redir, current);
 		}
 		else
 		{
 			current->argv = argv_add(current->argv, tokens[i].str);
 			if (!current->argv)
-			{
-				free_all(&input, &tokens, &head);
-				free_two_dimensional_array(env);
-				rl_clear_history();
-				write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
-				exit (last_exit_code(1, 1));
-			}
+				handle_malloc_err(input, tokens, head, env);
 		}
 		i++;
 	}

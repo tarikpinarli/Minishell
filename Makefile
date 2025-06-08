@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/06/05 19:23:44 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/06/08 13:41:42 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,12 +40,16 @@ SRC = main.c \
 	parser/tokenizer_utils.c \
 	parser/string_utils.c \
 	parser/parser.c \
+	parser/parser_2.c \
+	parser/parser_3.c \
 	parser/expand_tokens.c \
 	parser/expand.c \
 	parser/expansion_utils.c \
 	parser/heredoc_expansion.c \
 	parser/merge_tokens.c \
 	executor/exec_single_cmd.c \
+	executor/exec_single_cmd_2.c \
+	executor/exec_single_cmd_3.c \
 	executor/exec_pipe_cmd_1.c \
 	executor/exec_pipe_cmd_2.c \
 	executor/redirection.c \

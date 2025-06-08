@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:27:45 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/06 17:49:06 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/08 14:44:50 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,7 @@
 Exiting this shell for precaution\n"
 
 extern volatile sig_atomic_t	g_signal_status;
+
 
 typedef enum e_loop_control
 {
@@ -81,6 +82,15 @@ typedef struct s_command
 	struct s_command	*next;		// Next command in pipeline
 }	t_command;
 
+typedef struct s_parse_state
+{
+	t_command	*head;
+	t_command	*current;
+	t_command	*new_cmd;
+	t_redir		*new_redir;
+	int			i;
+}	t_parse_state;
+
 // signal handling
 void		handle_sigint(int sig);
 int			setup_signal_handling(uint32_t is_parent);
@@ -99,6 +109,13 @@ int			ft_isspace(char c);
 t_command	*parse_tokens(t_token *tokens, char *input, char ***env);
 int			ft_strcmp(const char *s1, const char *s2);
 void		merge_tokens(t_token *tokens, char *input, char ***env);
+t_redir		*create_redir(t_redir_type type, char *filename, t_quote_type quote);
+void		append_redir(t_redir_type type, t_redir *new_redir, t_command *current);
+char		**argv_add(char **argv, char *new_arg);
+void		handle_malloc_err(char *input, t_token *tokens,t_command *head, char ***env);
+void		append_argument(t_token *tokens, char *input, t_parse_state *st, char ***env);
+void	init_command_if_needed(char *input, t_token *tokens,
+	t_parse_state *st, char ***env);
 
 // expansion functions
 void		expand_tokens(t_token *tokens, char *input, char ***env);
@@ -113,8 +130,28 @@ uint32_t	rebuild_expandable_heredoc_line(char **line, char ***env);
 // exit code
 int			last_exit_code(int set, int value);
 
+// exec_single_cmd_3.c
+void	save_curr_std(int *saved_stdin, int *saved_stdout);
+void	setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out);
+void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out);
+void	exec_isolated_builtin(t_command *cmd, char ***env);
+int		prepare_heredoc_and_builtin(t_command *cmd, char ***env);
+
+// exec_single_cmd_2.c
+void	exec_single_cmd_child(t_command **cmd, char ***env);
+char	*copy_path(char *path, t_command *curr, t_command **cmd, char ***env);
+char	*extract_path(char *path, t_command *curr, t_command **cmd, char ***env);
+void	free_and_exit(char *path, t_command **cmd, char ***env, int exit_code);
+
+// exec_single_cmd.c
+int		run_parent_process(t_command *cmd);
+int		waitpid_error_check(t_command *cmd, pid_t wpid);
+int		handle_children_exit(int status, t_command *cmd, int *loop_control_flag);
+void	run_child_process(t_command *cmd, char ***env);
+int		exec_single_command(t_command *cmd, char ***env);
+
+
 // executor functions
-int			exec_single_command(t_command *cmd, char ***env);
 int			find_in_path(char **env, char *cmd, char **path);
 int			execute_pipeline(t_command *cmd, char ***env);
 void		handle_execve_error(char *str, char *path, t_command **cmd, char ***env);

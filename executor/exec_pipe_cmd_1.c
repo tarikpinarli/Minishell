@@ -99,13 +99,13 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	int			failure_flag;
 	pid_t		pid;
 	t_command	*current;
-	size_t		n_of_children;
+//	size_t		n_of_children;
 
 	prev_fd = -1;
 	failure_flag = 0;
 	pid = 0;
 	current = cmd;
-	n_of_children = 0;
+//	n_of_children = 0;
 	while (current)
 	{
 		// TODO: DECREASE THE NUMBER OF CHILDREN IF FORK FAILS OR SOMETHING ELSE DOES!!!!!
@@ -113,6 +113,8 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
 		if (!current->argv) // && !current->next) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
 		{
+			if (argv
+
 			current = current->next;
 			continue ;
 		}

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec_pipe_cmd_1.c                                  :+:      :+:    :+:   */
+/*   draft_exec_pipe_cmd_1.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/05 19:01:13 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/08 16:42:49 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,53 +99,35 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	int			failure_flag;
 	pid_t		pid;
 	t_command	*current;
-//	size_t		n_of_children;
 
 	prev_fd = -1;
 	failure_flag = 0;
 	pid = 0;
 	current = cmd;
-//	 n_of_children = 0;
 	while (current)
 	{
-		// TODO: DECREASE THE NUMBER OF CHILDREN IF FORK FAILS OR SOMETHING ELSE DOES!!!!!
-		// TODO: this section needs to be reviewed.
-		// TODO: put here the REDIRECTIONS, and only execute commands afterwards!
-		if (!current->argv) // && !current->next) // makes sure not to have a segfault later on if we have no arguments in the current cmd list.
-		{
-			if (argv
-
-			current = current->next;
-			continue ;
-		}
-		if (current->argv[0] && !current->argv[0][0]) // this means the first command is an empty string. WARN: the issue here is that the redirections are not happening because this is here. We have to put the redirections before.
-		{
-			ft_putendl_fd("Command '' not found", 2);
-			(void)last_exit_code(1, 127);
-			current = current->next;
-			if (current)
-				continue ;
-			else
-				return (2);
-			continue ;
-		}
 		curr_pipefd = NULL;
 		if (current->next)
 		{
 			if (!setup_pipe(pipefd))
 			{
-				// TODO: how about all the other processes?
+				cleanup_heredocs(cmd);
 				return (1); // if you need a return value: 1
 			}
 			curr_pipefd = pipefd;
 		}
-		// TODO: try to catch errors with failure_flag?
-		// program from forking, but still continues with the rest of the children....
 		failure_flag = launch_child_process(current, &cmd, prev_fd, curr_pipefd, env, &pid);
 		if (failure_flag)
 		{
 			if (failure_flag == 1) // TODO: fork failed. cleanup here what is needed - wait for children that haven't finished! if fork failed, no child process created. But there could be prior subprocesses still active...
+			{
+				//TODO: 
+				//FIXME: we are hereeeeeeeeeeeeeeeeeeeeeeeeeee : wait for all children, and then cleanup and return?
+				waitpid(-1,  what waas it again here? and then check errno for ECHILD
+
+				cleaup_heredocs(cmd);
 				return (1);
+			}
 			// else // TODO: handle errors from launch child process
 		}
 		n_of_children++;
@@ -156,5 +138,21 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	}
 	if (pid)
 		wait_for_children(pid, n_of_children);
+
+
+	// FIXME: place the following control structure at the tail end of the logic - but perhaps not here...! temporary solution.
+	if (current->argv && current->argv[0] && !current->argv[0][0]) // this means the first command is an empty string. WARN: the issue here is that the redirections are not happening because this is here. We have to put the redirections before.
+	{
+		ft_putendl_fd("Command '' not found", 2);
+		(void)last_exit_code(1, 127);
+		current = current->next;
+		if (current)
+			continue ;
+		else
+			return (2);
+		continue ;
+	}
+
+
 	return (0);
 }

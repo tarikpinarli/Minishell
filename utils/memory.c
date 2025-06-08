@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:48 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/05 19:26:57 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/08 14:54:12 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,6 @@ void	free_cmd(t_command **cmd)
 		*cmd = NULL;
 	}
 }
-
-
 
 /*
 * frees the heap allocated strings in the tokens' array of structs, from index

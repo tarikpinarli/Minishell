@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:46 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/04 15:35:28 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/08 14:53:53 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	copy_env(char **envp, char ***env_copy)
 	*env_copy = ft_calloc((count + 1), sizeof(char *));
 	if (!*env_copy)
 	{
-		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
+		write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 		exit(1);
 	}
 	while (i < count)
@@ -33,7 +33,7 @@ void	copy_env(char **envp, char ***env_copy)
 		if (!(*env_copy)[i])
 		{
 			free_two_dimensional_array(env_copy);
-			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) -1);
+			write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 			exit(1);
 		}
 		i++;
@@ -46,10 +46,10 @@ static char	*build_cmd_path(char *dir, char *cmd)
 	char	*full;
 
 	(void)cmd;
-	tmp = ft_strjoin(dir, "/"); // Protected!
+	tmp = ft_strjoin(dir, "/");
 	if (!tmp)
 		return (NULL);
-	full = ft_strjoin(tmp, cmd); // Protected!
+	full = ft_strjoin(tmp, cmd);
 	free(tmp);
 	if (!full)
 		return (NULL);
@@ -62,20 +62,20 @@ int	find_in_path(char **env, char *cmd, char **path)
 	char	**dirs;
 	int		i;
 
-	get_path = get_env_value(env ,"PATH");
+	get_path = get_env_value(env, "PATH");
 	i = 0;
 	if (!get_path || !cmd)
 		return (-2);
-	dirs = ft_split(get_path, ':'); // Protected
+	dirs = ft_split(get_path, ':');
 	if (!dirs)
 		return (-1);
 	while (dirs[i])
 	{
-		*path = build_cmd_path(dirs[i], cmd); // Protected
+		*path = build_cmd_path(dirs[i], cmd);
 		if (!*path)
 			return (free_two_dimensional_array(&dirs), -1);
 		if (access(*path, X_OK) == 0)
-			break;
+			break ;
 		free(*path);
 		*path = NULL;
 		i++;

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:51 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/05 19:32:25 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/08 14:56:04 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,44 +57,6 @@ int	setup_signal_handling(uint32_t is_parent)
 		has_run = 1;
 		if (setup_sigint_handler() == -1)
 			return (-1);
-	}
-	return (0);
-}
-
-/*
-* The function assigned to the function pointer "rl_event_hook", which is
-* defined by the Readline library. It is called periodically (typically several
-* times per second) by Readline while it is waiting for terminal input.
-* This function allows the Minishell program to check if SIGINT has been
-* intercepted, thanks to the SIGINT handler which assigns the value of that
-* signal to the global variable g_signal_status. Minishell can then redisplay
-* the shell's prompt and set the correct exit code, just like bash does, if
-* SIGINT is intercepted during readline.
-*/
-int	readline_signal_hook(void)
-{
-	if (g_signal_status == SIGINT)
-	{
-		(void)last_exit_code(1, 128 + g_signal_status);
-		g_signal_status = 0;
-		rl_replace_line("", 0);
-		(void)write(1, "\n", 1);
-		rl_on_new_line();
-		rl_redisplay();
-	}
-	return (0);
-}
-
-// WARN: recent change, those lines don't need to be there - but let's make sure while testing
-int	heredoc_signal_hook(void)
-{
-	if (g_signal_status == SIGINT)
-	{
-		(void)last_exit_code(1, 128 + g_signal_status);
-//		rl_replace_line("", 0);
-//		(void)write(1, "\n", 1);
-//		rl_on_new_line();
-		rl_done = 1;
 	}
 	return (0);
 }

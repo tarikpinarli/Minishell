@@ -6,7 +6,7 @@
 #    By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2025/04/11 10:27:49 by tpinarli          #+#    #+#              #
-#    Updated: 2025/06/08 13:41:42 by tpinarli         ###   ########.fr        #
+#    Updated: 2025/06/08 14:56:34 by tpinarli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -68,6 +68,7 @@ SRC = main.c \
 	builtins/builtin_pwd.c \
 	builtins/builtin_unset.c \
 	utils/signals.c \
+	utils/signals_2.c \
 	utils/env_utils.c \
 	utils/memory.c \
 	utils/memory_2.c \

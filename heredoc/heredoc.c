@@ -101,7 +101,7 @@ static int	open_temp_file(t_heredoc *heredoc, size_t *i)
 	return (0);
 }
 
-static int	init_readline_loop(t_heredoc *heredoc, char ***env)
+static int	run_readline(t_heredoc *heredoc, char ***env)
 {
 	rl_event_hook = &heredoc_signal_hook;
 	heredoc->line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
@@ -151,24 +151,46 @@ static int	readline_aftermath(t_heredoc *heredoc)
 	return (0);
 }
 
-static int	prepare_heredoc_cleaning(t_heredoc *heredoc)
+static void	prepare_heredoc_cleaning(t_heredoc *heredoc)
 {
 	free(heredoc->in->filename);
 	heredoc->in->filename = heredoc->heredoc_filename;
-	return (-2);
 }
 
-/*
-* the return values are identical to those of open_temp_files(): ?????????????
-*/
-static int	exec_heredoc_readline_loop(t_command *cmd, char ***env, size_t *i)
+static void	init_heredoc_struct(t_heredoc *heredoc, t_command *cmd, int *flag)
+{
+	ft_bzero(heredoc, sizeof(t_heredoc));
+	heredoc->in = cmd->in_redir;
+	*flag = 0;
+}
+
+static int	execute_heredoc_readline_loop(t_heredoc *heredoc, char ***env)
+{
+	int	flag;
+
+	while (1)
+	{
+		flag = 0;
+		flag = run_readline(heredoc, env);
+		if (flag == -1)
+			break ;
+		if (flag == -2) // malloc failure. heredoc_filename hasn't been assigned
+		{
+			prepare_heredoc_cleaning(heredoc);
+			return (-2);
+		}
+	}
+	if (readline_aftermath(heredoc) == -3)
+		return (-3); // SIGINT was intercepted during the readline() loop
+	return (0);
+}
+
+static int	launch_readline_flow(t_command *cmd, char ***env, size_t *i)
 {
 	t_heredoc	heredoc;
 	int			flag;
 	
-	ft_bzero(&heredoc, sizeof(t_heredoc));
-	heredoc.in = cmd->in_redir;
-	flag = 0;
+	init_heredoc_struct(&heredoc, cmd, &flag);
 	while (heredoc.in)
 	{
 		if (heredoc.in->type == REDIR_HEREDOC)
@@ -176,16 +198,9 @@ static int	exec_heredoc_readline_loop(t_command *cmd, char ***env, size_t *i)
 			flag = open_temp_file(&heredoc, i);
 			if (flag)
 				return (flag);
-			while (1)
-			{
-				flag = init_readline_loop(&heredoc, env);
-				if (flag == -1)
-					break ;
-				if (flag == -2) // malloc failure. heredoc_filename hasn't been assigned
-					return (prepare_heredoc_cleaning(&heredoc));
-			}
-			if (readline_aftermath(&heredoc) == -3)
-				return (-3); // SIGINT was intercepted during the readline() loop
+			flag = execute_heredoc_readline_loop(&heredoc, env);
+			if (flag < 0)
+				return (flag);
 			(*i)++;
 		}
 		heredoc.in = heredoc.in->next;
@@ -265,7 +280,7 @@ int	handle_heredocs(t_command **cmd, char ***env, t_command *current)
 	{
 		if (current->in_redir)
 		{
-			failure_flag = exec_heredoc_readline_loop(current, env, &i);
+			failure_flag = launch_readline_flow(current, env, &i);
 			if (failure_flag == -1 || failure_flag == -3)
 			{
 				abort_heredocs_sigint_detected_or_open_failed(cmd);

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   draft_heredoc_2.c                                  :+:      :+:    :+:   */
+/*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ykadosh <ykadosh@student.hive.fi>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/06/06 14:20:46 by ykadosh           #+#    #+#             */
-/*   Updated: 2025/06/08 01:04:13 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/08 03:11:58 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,42 +36,42 @@
 * should not be accessible to others other than this program; Therefore, the
 * open() call assigns permissions: 600.
 */
-static int	open_file_and_handle_error(int *fd, char *heredoc_filename, size_t *i)
+static int	open_file_and_handle_error(t_heredoc *heredoc, size_t *i)
 {
-	*fd = open(heredoc_filename, O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC,
-		S_IRUSR | S_IWUSR);
-	if (*fd < 0)
+	heredoc->fd = open(heredoc->heredoc_filename,
+					O_WRONLY | O_CREAT | O_EXCL | O_CLOEXEC, S_IRUSR | S_IWUSR);
+	if (heredoc->fd < 0)
 	{
 		if (errno == EEXIST)
 		{
 			(*i)++;
-			free(heredoc_filename);
+			free(heredoc->heredoc_filename);
 			return (-1);  // continue ;
 		}
 		else
 		{
-			perror(heredoc_filename);
-			free(heredoc_filename);
+			perror(heredoc->heredoc_filename);
+			free(heredoc->heredoc_filename);
 			return (-2);
 		}
 	}
 	return (0); // break ;
 }
 
-static char	*generate_filename(char **heredoc_filename, size_t i)
+static char	*generate_filename(t_heredoc *heredoc, size_t i)
 {
 	char	*file_number;
 
 	file_number = NULL;
-	*heredoc_filename = NULL;
+	heredoc->heredoc_filename = NULL;
 	file_number = ft_itoa(i);
 	if (!file_number)
 		return (NULL);
-	*heredoc_filename = ft_strjoin("heredoc_", file_number);
+	heredoc->heredoc_filename = ft_strjoin("heredoc_", file_number);
 	free(file_number);
-	if (!*heredoc_filename)
+	if (!heredoc->heredoc_filename)
 		return (NULL);
-	return (*heredoc_filename);
+	return (heredoc->heredoc_filename);
 }
 
 /*
@@ -82,17 +82,16 @@ static char	*generate_filename(char **heredoc_filename, size_t i)
 * -2 in case of malloc() failure
 * 0 if everything is smooth
 */
-static int	open_temp_file(t_redir *in_redir, int *fd, size_t *i,
-				char **heredoc_filename)
+static int	open_temp_file(t_heredoc *heredoc, size_t *i)
 {
 	int	ret;
 
 	while (1)
 	{
-		*heredoc_filename = generate_filename(heredoc_filename, *i);
-		if (!*heredoc_filename)
+		heredoc->heredoc_filename = generate_filename(heredoc, *i);
+		if (!heredoc->heredoc_filename)
 			return (-2);
-		ret = open_file_and_handle_error(fd, *heredoc_filename, i);
+		ret = open_file_and_handle_error(heredoc, i);
 		if (ret == -1)
 			continue;
 		else if (ret == -2)
@@ -102,97 +101,94 @@ static int	open_temp_file(t_redir *in_redir, int *fd, size_t *i,
 	return (0);
 }
 
-static int	init_readline_loop(char **line, t_redir *in, int fd, char ***env)
+static int	init_readline_loop(t_heredoc *heredoc, char ***env)
 {
 	rl_event_hook = &heredoc_signal_hook;
-	*line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
-	if (!*line || !ft_strcmp(*line, in->filename) || g_signal_status == SIGINT)
+	heredoc->line = readline("\001\033[1m\002heredoc> \001\033[0m\002");
+	if (g_signal_status == SIGINT || !heredoc->line
+		|| !ft_strcmp(heredoc->line, heredoc->in->filename))
 		return (-1); // break ; from while (1) loop
-	if (!in->is_heredoc_delimiter_quoted)
+	if (!heredoc->in->is_heredoc_delimiter_quoted)
 	{
-		if (check_if_str_contains_vars_to_expand(*line))
-			if (!rebuild_expandable_heredoc_line(line, env))
+		if (check_if_str_contains_vars_to_expand(heredoc->line))
+			if (!rebuild_expandable_heredoc_line(&heredoc->line, env))
 				return (-2); // malloc() failed
 	}
-	if (*line) // line might be NULL after rebuild_expandable_heredoc_line() (if a var expanded to nothing), and if we don't check for it, ft_strlen will segfault!
+	if (heredoc->line) // line might be NULL after rebuild_expandable_heredoc_line() (if a var expanded to nothing), and if we don't check for it, ft_strlen will segfault!
 	{
-		write(fd, *line, ft_strlen(*line));
-		free(*line);
-		*line = NULL; // added just now...
+		write(heredoc->fd, heredoc->line, ft_strlen(heredoc->line));
+		free(heredoc->line);
+		heredoc->line = NULL; // added just now...
 	}
-	write(fd, "\n", 1); // this is also needed if a variable expanded to nothing - the heredoc on bash still displays a newline in that case; so this command should not appear in the above "if (line)" control structure.
+	write(heredoc->fd, "\n", 1); // this is also needed if a variable expanded to nothing - the heredoc on bash still displays a newline in that case; so this command should not appear in the above "if (line)" control structure.
 	return (0);
 }
 
-
-static int	readline_aftermath(char *heredoc_filename, int fd, char **line, t_redir *in)
+static int	readline_aftermath(t_heredoc *heredoc)
 {
 	if (g_signal_status == SIGINT)
 	{
 		(void)last_exit_code(1, 128 + g_signal_status); // WARN: check this on Linux, is it necessary in case of SIGINT during heredocs????
 		g_signal_status = 0;
-		free(in->filename);
-		in->filename = heredoc_filename;
-		close(fd);
+		free(heredoc->in->filename);
+		heredoc->in->filename = heredoc->heredoc_filename;
+		close(heredoc->fd);
 		return (-3);
 	}
-	if (!*line)
+	if (!heredoc->line)
 	{
 		ft_putstr_fd("warning: here-document delimited by "
 			"end-of-file (wanted `", 2);
-		write(2, in->filename, ft_strlen(in->filename));
+		write(2, heredoc->in->filename, ft_strlen(heredoc->in->filename));
 		write(2, "')\n", sizeof("')\n") - 1);
 	}
-	if (*line)  // needed here if the delimiter comparison was successful (or if by any chance SIGINT was intercepted and readline already allocated the line...)
-		free(*line);
-	close(fd);
-	free(in->filename);
-	in->filename = heredoc_filename;
+	if (heredoc->line)  // needed here if the delimiter comparison was successful (or if by any chance SIGINT was intercepted and readline already allocated the line...)
+		free(heredoc->line);
+	close(heredoc->fd);
+	free(heredoc->in->filename);
+	heredoc->in->filename = heredoc->heredoc_filename;
 	(void)last_exit_code(1, 0);
 	return (0);
+}
+
+static int	prepare_heredoc_cleaning(t_heredoc *heredoc)
+{
+	free(heredoc->in->filename);
+	heredoc->in->filename = heredoc->heredoc_filename;
+	return (-2);
 }
 
 /*
 * the return values are identical to those of open_temp_files(): ?????????????
 */
-static int	run_heredoc_files(t_command *cmd, char ***env, size_t *i)
+static int	exec_heredoc_readline_loop(t_command *cmd, char ***env, size_t *i)
 {
-	char	*line;
-	int		failure_flag;
-	t_redir *in;
-	char	*heredoc_filename;
-	int		fd;
-
-	line = NULL;
-	failure_flag = 0;
-	in = cmd->in_redir;
-	while (in)
+	t_heredoc	heredoc;
+	int			flag;
+	
+	ft_bzero(&heredoc, sizeof(t_heredoc));
+	heredoc.in = cmd->in_redir;
+	flag = 0;
+	while (heredoc.in)
 	{
-		if (in->type == REDIR_HEREDOC)
+		if (heredoc.in->type == REDIR_HEREDOC)
 		{
-			failure_flag = open_temp_file(in, &fd, i, &heredoc_filename);
-			if (failure_flag)
-				return (failure_flag);
-			failure_flag = 0;
+			flag = open_temp_file(&heredoc, i);
+			if (flag)
+				return (flag);
 			while (1)
 			{
-				failure_flag = init_readline_loop(&line, in, fd, env);// in->filename);
-				if (failure_flag == -1)
+				flag = init_readline_loop(&heredoc, env);
+				if (flag == -1)
 					break ;
-				if (failure_flag == -2) // malloc failure. heredoc_filename hasn't been assigned
-				{
-					free(in->filename);
-					in->filename = heredoc_filename;
-					return (-2);
-				}
-				failure_flag = 0; // added just now
+				if (flag == -2) // malloc failure. heredoc_filename hasn't been assigned
+					return (prepare_heredoc_cleaning(&heredoc));
 			}
-			// TODO:
-			if (readline_aftermath(heredoc_filename, fd, &line, in) == -3)
+			if (readline_aftermath(&heredoc) == -3)
 				return (-3); // SIGINT was intercepted during the readline() loop
 			(*i)++;
 		}
-		in = in->next;
+		heredoc.in = heredoc.in->next;
 	}
 	return (0);
 }
@@ -269,7 +265,7 @@ int	handle_heredocs(t_command **cmd, char ***env, t_command *current)
 	{
 		if (current->in_redir)
 		{
-			failure_flag = run_heredoc_files(current, env, &i);
+			failure_flag = exec_heredoc_readline_loop(current, env, &i);
 			if (failure_flag == -1 || failure_flag == -3)
 			{
 				abort_heredocs_sigint_detected_or_open_failed(cmd);

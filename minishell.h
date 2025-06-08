@@ -81,6 +81,14 @@ typedef struct s_command
 	struct s_command	*next;		// Next command in pipeline
 }	t_command;
 
+typedef struct	s_heredoc
+{
+	int		fd;
+	char	*heredoc_filename;
+	char	*line;
+	t_redir *in;
+}	t_heredoc;
+
 // signal handling
 void		handle_sigint(int sig);
 int			setup_signal_handling(uint32_t is_parent);

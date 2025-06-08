@@ -116,7 +116,20 @@ uint32_t	expand_last_exit_status(char **result, char **ptr);
 uint32_t	expand_environment_variable(char ***env, char **ptr, char **result);
 uint32_t	append_non_expandable_str(char **ptr, char **result);
 uint32_t	strjoin_and_replace(char **s1, char **s2, uint8_t is_s2_heap);
+
+// here-documents
+int			handle_heredocs(t_command **cmd, char ***env, t_command *current);
+int			is_n_heredocs_reasonable(t_command *cmd);
+void		exit_too_many_heredocs(t_command **cmd, char ***env);
+void		init_heredoc_struct(t_heredoc *heredoc, t_command *cmd, int *flag);
+int			open_temp_file(t_heredoc *heredoc, size_t *i);
 uint32_t	rebuild_expandable_heredoc_line(char **line, char ***env);
+void		exit_heredocs_malloc_failure(t_command **cmd, char ***env);
+void		abort_heredocs_sigint_detected_or_open_failed(t_command **cmd);
+void		prepare_heredoc_cleaning(t_heredoc *heredoc);
+
+// Redirection functions
+int			setup_redirections(t_command *cmd);
 
 // exit code
 int			last_exit_code(int set, int value);
@@ -131,10 +144,6 @@ void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
 int			wait_for_children(pid_t pid, size_t n_of_children);
 void		check_if_directory(char **path, t_command **cmd, char ***env);
-
-// Redirection functions
-int			setup_redirections(t_command *cmd);
-int			handle_heredocs(t_command **cmd, char ***env, t_command *current);
 
 // free
 void		free_cmd(t_command **cmd);

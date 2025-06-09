@@ -138,11 +138,12 @@ int			last_exit_code(int set, int value);
 int			exec_single_command(t_command *cmd, char ***env);
 int			find_in_path(char **env, char *cmd, char **path);
 int			execute_pipeline(t_command *cmd, char ***env);
-void		handle_execve_error(char *str, char *path, t_command **cmd, char ***env);
+void		handle_execve_error(char *str, char **path, t_command **cmd,
+				char ***env);
 int			setup_pipe(int *pipefd);
 void		prepare_child(t_command *cmd, int prev_fd, int *pipefd);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
-int			wait_for_children(pid_t pid, size_t n_of_children);
+int			wait_for_children(pid_t pid, size_t n_children, t_command *cmd);
 void		check_if_directory(char **path, t_command **cmd, char ***env);
 
 // free
@@ -156,6 +157,7 @@ int			cleanup_heredocs(t_command *cmd);
 void		free_rest(char **path, t_command **cmd, char ***env);
 void		cleaning_after_exec(char *input, t_token *tokens, t_command *cmd);
 void		final_cleaning(char **env);
+void		cleanup_child_process(t_command **cmd, char **path, char ***env);
 
 // builtin commands
 void		copy_env(char **envp, char ***env_copy);

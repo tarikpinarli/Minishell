@@ -145,7 +145,7 @@ void	exec_single_cmd_child(t_command **cmd, char ***env)
 		path = extract_path(path, current, cmd, env);
 	check_if_directory(&path, cmd, env);
 	if (execve(path, current->argv, *env) == -1)
-		handle_execve_error(current->argv[0], path, cmd, env);
+		handle_execve_error(current->argv[0], &path, cmd, env);
 	free_rest(&path, cmd, env);
 	exit(0);
 }

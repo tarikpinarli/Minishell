@@ -95,13 +95,11 @@ int	is_n_heredocs_reasonable(t_command *cmd)
 {
 	size_t		i;
 	t_redir		*in;
-	t_command	*head;
 
 	i = 0;
-	head = cmd;
-	in = cmd->in_redir;
 	while (cmd && i <= 16)
 	{
+		in = cmd->in_redir;
 		while (in)
 		{
 			if (in->type == REDIR_HEREDOC)

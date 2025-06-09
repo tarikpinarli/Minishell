@@ -12,12 +12,6 @@
 
 #include "../minishell.h"
 
-// TESTING: Try stuff like :	1. echo hello | '' > file1
-//								2. echo hello | '' > file2 | echo hi
-//								3. echo hello | cat Makefile | "" > file4
-//						also:	4. > file1 ''
-//								5. > file2 '' echo
-
 void	exec_cmd_child_logic(t_command *current, t_command **cmd, char ***env)
 {
 	char	*path;
@@ -44,12 +38,12 @@ void	exec_cmd_child_logic(t_command *current, t_command **cmd, char ***env)
 	if (is_builtin(current->argv[0]))
 	{
 		ret = execute_builtin(current, 1, env);
-		free_rest(&path, cmd, env);
 		if (ret == -1)
 		{
 			cleanup_child_process(cmd, &path, env);
 			exit (1);
 		}
+		cleanup_child_process(cmd, &path, env);
 		exit (ret);
 	}
 	if (current->argv[0][0] == '/' || !ft_strncmp(current->argv[0], "./", 2)
@@ -97,9 +91,7 @@ int	launch_child_process(t_command *current, t_command **cmd, int prev_fd, int *
 			exit (1);
 		}
 		prepare_child(current, prev_fd, p_fd);
-		// TODO: we are hereeeee: take care of this current function from this point onwards
-		exec_cmd_child_logic(current, cmd, env); // TODO : handle the malloc() failures (and others?)
-		// NOTE: close fds? cleaup_heredocs() ? exit() ?? free_rest()?? to be done
+		exec_cmd_child_logic(current, cmd, env);
 	}
 	return (0);
 }

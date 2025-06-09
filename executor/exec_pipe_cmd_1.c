@@ -20,19 +20,19 @@ void	exec_cmd_child_logic(t_command *current, t_command **cmd, char ***env)
 	path = NULL;
 	if (!setup_redirections(current))
 	{
-		cleanup_child_process(cmd, &path, env);
+		free_rest(&path, cmd, env);
 		exit(1);
 	}
 	if (!current->argv)
 	{
-		cleanup_child_process(cmd, &path, env);
+		free_rest(&path, cmd, env);
 		exit (0);
 	}
 	// WARN: If you delete from above this control structure the check for "if (!current->argv)", put it back at the start of the next if statement!!!
 	if (current->argv[0] && !current->argv[0][0])
 	{
 		ft_putendl_fd("Command '' not found", 2);
-		cleanup_child_process(cmd, &path, env);
+		free_rest(&path, cmd, env);
 		exit (127);
 	}
 	if (is_builtin(current->argv[0]))
@@ -40,10 +40,10 @@ void	exec_cmd_child_logic(t_command *current, t_command **cmd, char ***env)
 		ret = execute_builtin(current, 1, env);
 		if (ret == -1)
 		{
-			cleanup_child_process(cmd, &path, env);
+			free_rest(&path, cmd, env);
 			exit (1);
 		}
-		cleanup_child_process(cmd, &path, env);
+		free_rest(&path, cmd, env);
 		exit (ret);
 	}
 	if (current->argv[0][0] == '/' || !ft_strncmp(current->argv[0], "./", 2)
@@ -52,20 +52,20 @@ void	exec_cmd_child_logic(t_command *current, t_command **cmd, char ***env)
 		path = ft_strdup(current->argv[0]);
 		if (!path)
 		{
-			cleanup_child_process(cmd, &path, env);
+			free_rest(&path, cmd, env);
 			exit(1); // malloc() failure exits: always 1
 		}
 	}
 	else if (find_in_path(*env, current->argv[0], &path) == -1)
 	{
-		cleanup_child_process(cmd, &path, env);
+		free_rest(&path, cmd, env);
 		exit(1); // malloc() failure exits: always 1
 	}
 	if (!path)
 	{
 		ft_putstr_fd(current->argv[0], 2);
 		ft_putendl_fd(": command not found", 2);
-		cleanup_child_process(cmd, &path, env);
+		free_rest(&path, cmd, env);
 		exit(127);
 	}
 	check_if_directory(&path, cmd, env);
@@ -87,7 +87,7 @@ int	launch_child_process(t_command *current, t_command **cmd, int prev_fd, int *
 		if (setup_signal_handling(0) == -1) // sigaction() failed
 		{
 			perror("sigaction");
-			cleanup_child_process(cmd, NULL, env);
+			free_rest(NULL, cmd, env);
 			exit (1);
 		}
 		prepare_child(current, prev_fd, p_fd);
@@ -123,7 +123,6 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	n_children = 0;
 	while (current)
 	{
-		// current_pipefd = NULL;
 		if (current->next)
 		{
 			flag = setup_pipe(pipefd); // pipe() failed. flag == 0
@@ -134,15 +133,15 @@ int	execute_pipeline(t_command *cmd, char ***env)
 			}
 			curr_pipefd = pipefd;
 		}
-		if (launch_child_process(current, &cmd, prev_fd, curr_pipefd, env, &pid) == -1) // fork() failed, we do not increment the children count
+		if (launch_child_process(current, &cmd, prev_fd, curr_pipefd, env, &pid) == -1) // fork() failed, we do not continue the process
 		{
 			cleanup_heredocs(cmd);
-			return (1);
+			break ;
 		}
 		if (pid > 0)
 		n_children++;
 
-		if (prev_fd != -1) // Question to Tarik: should this be before or after the check for an empty argument?
+		if (prev_fd != -1)
 			close(prev_fd);
 		update_prev_fd(current, &prev_fd, pipefd);
 		current = current->next;

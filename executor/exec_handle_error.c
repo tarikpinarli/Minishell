@@ -25,30 +25,38 @@ void	free_rest(char **path, t_command **cmd, char ***env)
 		free_cmd(cmd);
 }
 
-void	handle_execve_error(char *str, char *path, t_command **cmd, char ***env)
+void	cleanup_child_process(t_command **cmd, char **path, char ***env)
+{
+	cleanup_heredocs(*cmd);
+	free_rest(path, cmd, env);
+}
+
+void	handle_execve_error(char *str, char **path, t_command **cmd,
+			char ***env)
 {
 	if (errno == EISDIR)
 	{
-		ft_putstr_fd(path, 2);
+		ft_putstr_fd(*path, 2);
 		ft_putendl_fd(": Is a directory", 2);
-		free_rest(&path, cmd, env);
+		cleanup_child_process(cmd, path, env);
 		exit(126);
 	}
 	else if (errno == EACCES)
 	{
-		ft_putstr_fd(path, 2);
+		ft_putstr_fd(*path, 2);
 		ft_putendl_fd(": Permission denied", 2);
-		free_rest(&path, cmd, env);
+		cleanup_child_process(cmd, path, env);
 		exit(126);
 	}
 	else if (errno == ENOENT)
 	{
-		ft_putstr_fd(path, 2);
+		ft_putstr_fd(*path, 2);
 		ft_putendl_fd(": No such file or directory", 2);
-		free_rest(&path, cmd, env);
+		cleanup_child_process(cmd, path, env);
 		exit(127);
 	}
 	perror(str);
+	cleanup_child_process(cmd, path, env);
 	exit(1);
 }
 

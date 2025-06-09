@@ -61,13 +61,10 @@ static void	process_command(char *input, char ***env, int *loop_control_flag)
 		return ;
 	}
 	free_tokens_and_input(&tokens, &input);
-	if (cmd->in_redir)
+	if (!handle_heredocs(&cmd, env, cmd))
 	{
-		if (!handle_heredocs(&cmd, env, cmd))
-		{
-//			*loop_control_flag = CONTINUE; // NOTE: This line is only necessary if in main() there is still need for the "continue"
-			return ;
-		}
+//		*loop_control_flag = CONTINUE; // NOTE: This line is only necessary if in main() there is still need for the "continue"
+		return ;
 	}
 	if (cmd->next)
 		execute_pipeline(cmd, env);

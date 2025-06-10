@@ -72,8 +72,6 @@ static int	readline_aftermath(t_heredoc *heredoc)
 	if (heredoc->line)
 		free(heredoc->line);
 	close(heredoc->fd);
-	// printf("before freeing: heredoc->in->filename is:	<%s>\n", heredoc->in->filename);
-	// printf("and............ heredoc->heredoc_filename is:	<%s>\n\n", heredoc->heredoc_filename);
 	free(heredoc->in->filename);
 	heredoc->in->filename = heredoc->heredoc_filename;
 	(void)last_exit_code(1, 0);

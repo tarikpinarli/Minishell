@@ -14,7 +14,7 @@
 
 static uint32_t	index_and_expand_line(char ***env, char **ptr, char **result);
 static uint32_t	expand_environment_variable_heredoc(char ***env, char **ptr,
-				char **result);
+					char **result);
 
 /*
 * returns 0 upon malloc() failure;

@@ -57,9 +57,11 @@ int	handle_out_redir(t_command *current)
 	while (out)
 	{
 		if (out->type == REDIR_OUT)
-			fd = open(out->filename, O_WRONLY | O_CREAT | O_TRUNC, 0777); // WARN: this should be reviewed a little?
+			fd = open(out->filename, O_WRONLY | O_CREAT | O_TRUNC,
+				S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // this corresponds to permissions: 644
 		else if (out->type == REDIR_APPEND)
-			fd = open(out->filename, O_WRONLY | O_CREAT | O_APPEND, 0777); // WARN: this should be reviewed a little?
+			fd = open(out->filename, O_WRONLY | O_CREAT | O_APPEND,
+				S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // this corresponds to permissions: 644
 		if (fd < 0)
 		{
 			perror(out->filename);

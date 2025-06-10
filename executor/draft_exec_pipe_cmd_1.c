@@ -1,17 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exec_pipe_cmd_1.c                                  :+:      :+:    :+:   */
+/*   draft_exec_pipe_cmd_1.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/04/11 10:30:32 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/09 12:20:20 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/10 11:44:26 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
+// TODO: refactor me this!
 void	exec_cmd_child_logic(t_command *current, t_command **cmd, char ***env)
 {
 	char	*path;
@@ -71,18 +72,21 @@ void	exec_cmd_child_logic(t_command *current, t_command **cmd, char ***env)
 	check_if_directory(&path, cmd, env);
 	if (execve(path, current->argv, *env) == -1)
 		handle_execve_error(current->argv[0], &path, cmd, env);
+	free_rest(path, cmd, env);
 	exit(0);
 }
 
-int	launch_child_process(t_command *current, t_command **cmd, int prev_fd, int *p_fd, char ***env, pid_t *pid)
+static int	launch_child_process(t_pipeline *pipeline, t_command *current,
+		t_command **cmd, char ***env)
 {
-	*pid = fork();
-	if (*pid == -1) // fork() failed
+	pipeline->pid = fork();
+	if (pipeline->pid == -1) // fork() failed
 	{
 		perror("fork");
-		return (1);
+		cleanup_heredocs(*cmd);
+		return (-1);
 	}
-	if (*pid == 0)
+	if (pipeline->pid == 0)
 	{
 		if (setup_signal_handling(0) == -1) // sigaction() failed
 		{
@@ -90,13 +94,13 @@ int	launch_child_process(t_command *current, t_command **cmd, int prev_fd, int *
 			free_rest(NULL, cmd, env);
 			exit (1);
 		}
-		prepare_child(current, prev_fd, p_fd);
+		prepare_child(current, pipeline->prev_fd, pipeline->curr_pipefd);
 		exec_cmd_child_logic(current, cmd, env);
 	}
 	return (0);
 }
 
-static void	init_pipeline(t_pipeline *pipeline);
+static void	init_pipeline(t_pipeline *pipeline)
 {
 	ft_bzero(pipeline, sizeof(t_pipeline));
 	pipeline->prev_fd = -1;
@@ -113,59 +117,27 @@ static void	init_pipeline(t_pipeline *pipeline);
 */
 int	execute_pipeline(t_command *cmd, char ***env)
 {
-	typedef struct	s_pipeline
-	{
-		int			pipefd[2];
-		int			*curr_pipefd;
-		int			prev_fd;
-		pid_t		pid;
-		pid_t		wpid;
-		size_t		n_children;
-	}	t_pipeline;
-
-
 	t_pipeline	pipeline;
 	t_command	*current;
 
 	init_pipeline(&pipeline);
 	current = cmd;
-	/*
-	int			pipefd[2];
-	int			*curr_pipefd;
-	int			prev_fd;
-	t_command	*current;
-	pid_t		pid;
-	size_t		n_children;
-
-	prev_fd = -1;
-	curr_pipefd = NULL;
-	pid = 0;
-	n_children = 0;
-	current = cmd;
-	*/
 	while (current)
 	{
 		if (current->next)
 		{
-			if (!setup_pipe(pipefd)) // pipe() failed
-			{
-				cleanup_heredocs(cmd);
+			if (!setup_pipe(pipeline.pipefd, cmd)) // pipe() failed
 				break ;
-			}
-			curr_pipefd = pipefd;
+			pipeline.curr_pipefd = pipeline.pipefd;
 		}
-		if (launch_child_process(current, &cmd, prev_fd, curr_pipefd, env, &pid) == -1) // fork() failed, we do not continue the process
-		{
-			cleanup_heredocs(cmd);
+		if (launch_child_process(&pipeline, current, &cmd, env) == -1) // fork() failed, we do not continue executing more pipes, but we wait for all processes
 			break ;
-		}
-		if (pid > 0)
-		n_children++;
-
-		if (prev_fd != -1)
-			close(prev_fd);
-		update_prev_fd(current, &prev_fd, pipefd);
+		if (pipeline.pid > 0)
+			pipeline.n_children++;
+		if (pipeline.prev_fd != -1)
+			close(pipeline.prev_fd);
+		update_prev_fd(current, &pipeline.prev_fd, pipeline.pipefd);
 		current = current->next;
 	}
-	return (wait_for_children(pid, n_children, cmd));
+	return (wait_for_children(pipeline.pid, pipeline.n_children, cmd));
 }

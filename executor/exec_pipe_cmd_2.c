@@ -12,6 +12,19 @@
 
 #include "../minishell.h"
 
+
+int	setup_pipe(int *pipefd, t_command *cmd)
+{
+	if (pipe(pipefd) == -1)
+	{
+		perror("pipe");
+		cleanup_heredocs(cmd);
+		return (0);
+	}
+	return (1);
+}
+
+/* WARN: if the above version works, delete this one
 int	setup_pipe(int *pipefd)
 {
 	if (pipe(pipefd) == -1)
@@ -21,6 +34,7 @@ int	setup_pipe(int *pipefd)
 	}
 	return (1);
 }
+*/
 
 void	prepare_child(t_command *current, int prev_fd, int *pipefd)
 {

@@ -35,7 +35,6 @@ Exiting this shell for precaution\n"
 
 extern volatile sig_atomic_t	g_signal_status;
 
-
 typedef enum e_loop_control
 {
 	BREAK,
@@ -161,24 +160,24 @@ int			setup_redirections(t_command *cmd);
 int			last_exit_code(int set, int value);
 
 // exec_single_cmd_3.c
-void	save_curr_std(int *saved_stdin, int *saved_stdout);
-void	setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out);
-void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out);
-void	exec_isolated_builtin(t_command *cmd, char ***env);
-int		prepare_heredoc_and_builtin(t_command *cmd, char ***env);
+void		save_curr_std(int *saved_stdin, int *saved_stdout);
+void		setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out);
+void		exit_isolated_builtin(char ***env, t_command *cmd, int in, int out);
+void		exec_isolated_builtin(t_command *cmd, char ***env);
+int			prepare_heredoc_and_builtin(t_command *cmd, char ***env);
 
 // exec_single_cmd_2.c
-void	exec_single_cmd_child(t_command **cmd, char ***env);
-char	*copy_path(char *path, t_command *curr, t_command **cmd, char ***env);
-char	*extract_path(char *path, t_command *curr, t_command **cmd, char ***env);
-void	free_and_exit(char *path, t_command **cmd, char ***env, int exit_code);
+void		exec_single_cmd_child(t_command **cmd, char ***env);
+char		*copy_path(char *path, t_command *curr, t_command **cmd, char ***env);
+char		*extract_path(char *path, t_command *curr, t_command **cmd, char ***env);
+void		free_and_exit(char *path, t_command **cmd, char ***env, int exit_code);
 
 // exec_single_cmd.c
-int		run_parent_process(t_command *cmd);
-int		waitpid_error_check(t_command *cmd, pid_t wpid);
-int		handle_children_exit(int status, t_command *cmd, int *loop_control_flag);
-void	run_child_process(t_command *cmd, char ***env);
-int		exec_single_command(t_command *cmd, char ***env);
+int			run_parent_process(t_command *cmd);
+int			waitpid_error_check(t_command *cmd, pid_t wpid);
+int			handle_children_exit(int status, t_command *cmd, int *loop_control_flag);
+void		run_child_process(t_command *cmd, char ***env);
+int			exec_single_command(t_command *cmd, char ***env);
 
 // executor functions
 int			find_in_path(char **env, char *cmd, char **path);

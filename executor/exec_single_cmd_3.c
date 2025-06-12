@@ -101,7 +101,7 @@ void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
 {
 	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 	free_two_dimensional_array(env);
-	cleanup_heredocs(cmd->in_redir);
+	cleanup_heredocs(cmd);
 	free_cmd(&cmd);
 	close(in);
 	close(out);
@@ -167,6 +167,8 @@ void	exec_isolated_builtin(t_command *cmd, char ***env)
  *   0 → Built-in executed successfully without fork
  *  -1 → Not a built-in; continue with normal execution flow
  */
+/*
+ * WARN: we do not use this function finally, heredoc and builtin is done separately....
 int	prepare_heredoc_and_builtin(t_command *cmd, char ***env)
 {
 	if (cmd->in_redir)
@@ -180,3 +182,4 @@ int	prepare_heredoc_and_builtin(t_command *cmd, char ***env)
 	}
 	return (-1);
 }
+*/

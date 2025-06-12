@@ -164,7 +164,6 @@ void		save_curr_std(int *saved_stdin, int *saved_stdout);
 void		setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out);
 void		exit_isolated_builtin(char ***env, t_command *cmd, int in, int out);
 void		exec_isolated_builtin(t_command *cmd, char ***env);
-int			prepare_heredoc_and_builtin(t_command *cmd, char ***env);
 
 // exec_single_cmd_2.c
 void		exec_single_cmd_child(t_command **cmd, char ***env);

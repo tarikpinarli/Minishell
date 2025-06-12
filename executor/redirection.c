@@ -12,7 +12,14 @@
 
 #include "../minishell.h"
 
-int	handle_in_redir(t_command *current)
+static void	handle_dup_two_error(int fd)
+{
+	close(fd);
+	perror("dup2");
+	(void)last_exit_code(1, 1);
+}
+
+static int	handle_in_redir(t_command *current)
 {
 	struct stat	st;
 	t_redir		*in;
@@ -36,9 +43,7 @@ int	handle_in_redir(t_command *current)
 		{
 			if (dup2(fd, STDIN_FILENO) == -1)
 			{
-				close(fd);
-				perror("dup2");
-				(void)last_exit_code(1, 1);
+				handle_dup_two_error(fd);
 				return (0);
 			}
 		}
@@ -48,7 +53,7 @@ int	handle_in_redir(t_command *current)
 	return (1);
 }
 
-int	handle_out_redir(t_command *current)
+static int	handle_out_redir(t_command *current)
 {
 	t_redir	*out;
 	int		fd;
@@ -71,9 +76,7 @@ int	handle_out_redir(t_command *current)
 		{
 			if (dup2(fd, STDOUT_FILENO) == -1)
 			{
-				close(fd);
-				perror("dup2");
-				(void)last_exit_code(1, 1);
+				handle_dup_two_error(fd);
 				return (0);
 			}
 		}

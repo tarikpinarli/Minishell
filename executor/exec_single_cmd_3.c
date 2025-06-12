@@ -26,7 +26,7 @@
  * - Closes any successfully duplicated file descriptors to avoid leaks.
  * - Sets the last exit code to 1 and returns early.
  */
-void	save_curr_std(int *saved_stdin, int *saved_stdout)
+static void	save_curr_std(int *saved_stdin, int *saved_stdout)
 {
 	*saved_stdin = dup(STDIN_FILENO);
 	*saved_stdout = dup(STDOUT_FILENO);
@@ -59,7 +59,7 @@ void	save_curr_std(int *saved_stdin, int *saved_stdout)
  * - Closes the saved file descriptors.
  * - Sets last exit code to 1 and returns without executing the built-in.
  */
-void	setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out)
+static void	setup_isolated_builtin_redirs(t_command *cmd, int *in, int *out)
 {
 	if (!setup_redirections(cmd))
 	{
@@ -97,7 +97,7 @@ void	setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out)
  * - Clears readline history to free associated memory.
  * - Exits the process with status code 1.
  */
-void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
+static void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
 {
 	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 	free_two_dimensional_array(env);
@@ -113,9 +113,8 @@ void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
  * Executes a built-in command in the current process without forking.
  *
  * This is used when the command is a built-in (e.g., `cd`, `export`)
- * and needs to modify the
- * shell's state (like environment variables), which wouldn't
- * persist if done in a child process.
+ * and needs to modify the shell's state (like environment variables),
+ * which wouldn't persist if done in a child process.
  *
  * Steps:
  * 1. Saves current stdin and stdout file descriptors.
@@ -125,14 +124,14 @@ void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
  * 5. Restores original stdin and stdout after execution.
  * 6. Updates global exit code based on the command’s return value.
  */
-void	exec_isolated_builtin(t_command *cmd, char ***env)
+static void	exec_isolated_builtin(t_command *cmd, char ***env)
 {
 	int	saved_stdin;
 	int	saved_stdout;
 	int	ret;
 
 	save_curr_std(&saved_stdin, &saved_stdout);
-	setup_isolated_builtin_redirections(cmd, &saved_stdin, &saved_stdout);
+	setup_isolated_builtin_redirs(cmd, &saved_stdin, &saved_stdout);
 	ret = execute_builtin(cmd, 1, env);
 	if (ret == -1)
 		exit_isolated_builtin(env, cmd, saved_stdin, saved_stdout);
@@ -150,6 +149,17 @@ void	exec_isolated_builtin(t_command *cmd, char ***env)
 	close(saved_stdin);
 	close(saved_stdout);
 	(void)last_exit_code(1, ret);
+}
+
+int	prepare_builtin(t_command *cmd, char ***env)
+{
+	if (cmd->argv && is_builtin(cmd->argv[0]))
+	{
+		exec_isolated_builtin(cmd, env);
+		cleanup_heredocs(cmd);
+		return (0);
+	}
+	return (-1);
 }
 
 /*

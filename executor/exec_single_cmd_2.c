@@ -13,39 +13,15 @@
 #include "../minishell.h"
 
 /*
- * run_child_process - Handles execution flow for the child process after fork.
- *
- * This function is called in the child process created by fork().
- * It first sets up custom signal handling (e.g., for SIGINT and SIGQUIT).
- * If signal setup fails, it frees allocated memory and exits with code 1.
- * Then it proceeds to execute the command via exec_single_cmd_child(),
- * which handles redirections, path resolution, and the actual execve call.
- *
- * Parameters:
- *   cmd - The command structure to be executed.
- *   env - The environment variables used by the child process.
- */
-void	run_child_process(t_command *cmd, char ***env)
-{
-	if (setup_signal_handling(0) == -1)
-	{
-		free_rest(NULL, &cmd, env);
-		perror("sigaction");
-		exit (1);
-	}
-	exec_single_cmd_child(&cmd, env);
-}
-
-/*
  * Copies the command path directly from the user input
  * (used for absolute or relative paths).
  * - If memory allocation fails during duplication,
  *   prints an error, cleans up, and exits with code 1.
  * Returns the duplicated path string if successful.
  */
-char	*copy_path(char *path, t_command *curr, t_command **cmd, char ***env)
+static char	*copy_path(char *path, t_command *cur, t_command **cmd, char ***env)
 {
-	path = ft_strdup(curr->argv[0]);
+	path = ft_strdup(cur->argv[0]);
 	if (!path)
 	{
 		write(2, "memory allocation failure in child process\n",
@@ -64,7 +40,8 @@ char	*copy_path(char *path, t_command *curr, t_command **cmd, char ***env)
  *   and exits with code 127.
  * Returns the full path to the executable if successful.
  */
-char	*extract_path(char *path, t_command *curr, t_command **cmd, char ***env)
+static char	*extract_path(char *path, t_command *curr, t_command **cmd,
+				char ***env)
 {
 	if (find_in_path(*env, curr->argv[0], &path) == -1)
 	{
@@ -84,11 +61,39 @@ char	*extract_path(char *path, t_command *curr, t_command **cmd, char ***env)
 }
 
 /*
- * Frees all allocated resources and exits the process with the given exit code.
- * Used in child processes when an error occurs and cleanup is required.
+ * Executes a single external command in the child process.
+ *
+ * Steps:
+ * - Applies redirections. If it fails, exits with code 1.
+ * - If the command is empty, exits with code 0.
+ * - Resolves the path of the command:
+ *     - If it's an absolute or relative path (e.g., "./a.out"), use it directly.
+ *     - Otherwise, search for it in the system's PATH.
+ * - Checks if the path points to a directory (which is not executable).
+ * - Calls execve() to run the command. If it fails, handles the error.
+ * - Cleans up and exits if execve() does not succeed.
+ *
+ * This function never returns; it always ends with exit().
  */
-void	free_and_exit(char *path, t_command **cmd, char ***env, int exit_code)
+void	exec_single_cmd_child(t_command **cmd, char ***env)
 {
+	char		*path;
+	t_command	*current;
+
+	path = NULL;
+	current = *cmd;
+	if (!setup_redirections(current))
+		free_and_exit(&path, cmd, env, 1);
+	if (!current->argv || !current->argv[0] || !current->argv[0][0])
+		free_and_exit(&path, cmd, env, 0);
+	if (current->argv[0][0] == '/' || !ft_strncmp(current->argv[0], "./", 2)
+		|| !ft_strncmp(current->argv[0], "../", 3))
+		path = copy_path(path, current, cmd, env);
+	else
+		path = extract_path(path, current, cmd, env);
+	check_if_directory(&path, cmd, env);
+	if (execve(path, current->argv, *env) == -1)
+		handle_execve_error(current->argv[0], &path, cmd, env);
 	free_rest(&path, cmd, env);
-	exit(exit_code);
+	exit(0);
 }

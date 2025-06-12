@@ -13,11 +13,11 @@
 #include "../minishell.h"
 
 /*
-* to be called when a child process has encountered some error, has to free the
-* heap allocated memory and exit - with the value of 'exit_status'.
-*/
-static void	free_and_exit(char **path, t_command **cmd, char ***env,
-				int exit_status)
+ * Frees all allocated resources and exits the process with the given exit code.
+ * Used in child processes when an error occurs and cleanup is required.
+ */
+void	free_and_exit(char **path, t_command **cmd, char ***env,
+			int exit_status)
 {
 	free_rest(path, cmd, env);
 	exit (exit_status);

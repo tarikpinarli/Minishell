@@ -42,11 +42,11 @@ static void	analyze_path_of_command(char **path, char ***env, t_command **cmd,
 		|| !ft_strncmp(current->argv[0], "../", 3))
 	{
 		*path = ft_strdup(current->argv[0]);
-		if (!*path) // malloc() failure exits: always 1
+		if (!*path)
 			free_and_exit(path, cmd, env, 1);
 	}
 	else if (find_in_path(*env, current->argv[0], path) == -1)
-		free_and_exit(path, cmd, env, 1); // malloc() failure exits: always 1
+		free_and_exit(path, cmd, env, 1);
 	if (!*path)
 	{
 		ft_putstr_fd(current->argv[0], 2);

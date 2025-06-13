@@ -161,35 +161,3 @@ int	prepare_builtin(t_command *cmd, char ***env)
 	}
 	return (-1);
 }
-
-/*
- * Handles heredoc input and checks if the command is a built-in.
- *
- * - If heredocs are present, processes them before execution.
- * - If the command is a built-in, executes it without forking
- * 	 in an isolated environment.
- *
- * Return values:
- *   1 → Failure during heredoc (e.g., SIGINT, open() error)
- *   2 → Not used in this function, but reserved for “command not found”
- *   in other flow
- *   3 → Not used here, but returned by child process on sigaction() failure
- *   0 → Built-in executed successfully without fork
- *  -1 → Not a built-in; continue with normal execution flow
- */
-/*
- * WARN: we do not use this function finally, heredoc and builtin is done separately....
-int	prepare_heredoc_and_builtin(t_command *cmd, char ***env)
-{
-	if (cmd->in_redir)
-		if (!run_heredocs(&cmd, env, &cmd))
-			return (1);
-	if (cmd->argv && is_builtin(cmd->argv[0]))
-	{
-		exec_isolated_builtin(cmd, env);
-		cleanup_heredocs(cmd->in_redir);
-		return (0);
-	}
-	return (-1);
-}
-*/

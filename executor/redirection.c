@@ -67,22 +67,6 @@ static int	handle_in_redir(t_command *current)
 		fd = open(in->filename, O_RDONLY);
 		if (!handle_error_and_redirect_file(fd, in, 0))
 			return (0);
-
-		/*
-		if (fd < 0)
-		{
-			perror(in->filename);
-			return (0);
-		}
-		if (!in->next)
-		{
-			if (dup2(fd, STDIN_FILENO) == -1)
-			{
-				handle_dup_two_error(fd);
-				return (0);
-			}
-		}
-		*/
 		close(fd);
 		in = in->next;
 	}
@@ -99,28 +83,12 @@ static int	handle_out_redir(t_command *current)
 	{
 		if (out->type == REDIR_OUT)
 			fd = open(out->filename, O_WRONLY | O_CREAT | O_TRUNC,
-					S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // this corresponds to permissions: 644
+					S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		else if (out->type == REDIR_APPEND)
 			fd = open(out->filename, O_WRONLY | O_CREAT | O_APPEND,
-					S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH); // this corresponds to permissions: 644
+					S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		if (!handle_error_and_redirect_file(fd, out, 1))
 			return (0);
-
-		/*
-		if (fd < 0)
-		{
-			perror(out->filename);
-			return (0);
-		}
-		if (out->next == NULL)
-		{
-			if (dup2(fd, STDOUT_FILENO) == -1)
-			{
-				handle_dup_two_error(fd);
-				return (0);
-			}
-		}
-		*/
 		close(fd);
 		out = out->next;
 	}

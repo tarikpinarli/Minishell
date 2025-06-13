@@ -31,7 +31,7 @@ static int	launch_child_process(t_pipeline *pipeline, t_command *current,
 		t_command **cmd, char ***env)
 {
 	pipeline->pid = fork();
-	if (pipeline->pid == -1) // fork() failed
+	if (pipeline->pid == -1)
 	{
 		perror("fork");
 		cleanup_heredocs(*cmd);
@@ -39,7 +39,7 @@ static int	launch_child_process(t_pipeline *pipeline, t_command *current,
 	}
 	if (pipeline->pid == 0)
 	{
-		if (setup_signal_handling(0) == -1) // sigaction() failed
+		if (setup_signal_handling(0) == -1)
 		{
 			perror("sigaction");
 			free_rest(NULL, cmd, env);
@@ -79,11 +79,11 @@ int	execute_pipeline(t_command *cmd, char ***env)
 	{
 		if (current->next)
 		{
-			if (!setup_pipe(pipeline.pipefd, cmd)) // pipe() failed
+			if (!setup_pipe(pipeline.pipefd, cmd))
 				break ;
 			pipeline.curr_pipefd = pipeline.pipefd;
 		}
-		if (launch_child_process(&pipeline, current, &cmd, env) == -1) // fork() failed, we do not continue executing more pipes, but we wait for all processes
+		if (launch_child_process(&pipeline, current, &cmd, env) == -1)
 			break ;
 		if (pipeline.pid > 0)
 			pipeline.n_children++;

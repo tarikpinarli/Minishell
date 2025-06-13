@@ -153,13 +153,13 @@ void		exit_heredocs_malloc_failure(t_command **cmd, char ***env);
 void		abort_heredocs_sigint_detected_or_open_failed(t_command **cmd);
 void		prepare_heredoc_cleaning(t_heredoc *heredoc);
 
-// Redirection functions
+// redirection
 int			setup_redirections(t_command *cmd);
 
 // exit code
 int			last_exit_code(int set, int value);
 
-// exec_single_cmd.c
+// single command execution
 int			exec_single_command(t_command *cmd, char ***env);
 int			prepare_builtin(t_command *cmd, char ***env);
 void		exec_single_cmd_child(t_command **cmd, char ***env);
@@ -203,13 +203,16 @@ char		*get_env_value(char **env, char *key);
 int			builtin_cd(char **argv, char ***env);
 int			update_env_var(char ***env, const char *key, const char *value);
 int			update_pwd_vars(char ***env, const char *oldpwd, const char *newpwd);
+
 // builtin_export
 int			builtin_export(char **argv, char ***env);
 int			valid_identifier(char *str);
 void		sort_and_print_env(char **env);
+
 // builtin export and unset utils
 int			var_exist(char *arg, char **env);
 int			remove_env_var(char ***env, int index);
+
 // helpers
 void		mute_args(int argc, char **argv);
 

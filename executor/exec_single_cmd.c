@@ -99,6 +99,7 @@ static int	waitpid_error_check(t_command *cmd, pid_t wpid)
 		if (errno != ECHILD)
 		{
 			perror("waitpid");
+			(void)last_exit_code(1, 1);
 			cleanup_heredocs(cmd);
 			return (0);
 		}

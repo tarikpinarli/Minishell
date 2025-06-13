@@ -86,9 +86,6 @@ int	main(int argc, char **argv, char **envp)
 		if (loop_control_flag == CONTINUE)
 			continue ;
 		process_command(input, &env, &loop_control_flag);
-		// WARN: check if in all scnearios these next two are done before arriving here (especially if everything is successful!!)
-		// cleanup_heredocs() ???
-		// free_cmd(cmd)??
 	}
 	final_cleaning(env);
 	return (0);

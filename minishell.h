@@ -168,12 +168,12 @@ void		free_and_exit(char **path, t_command **cmd, char ***env,
 
 // executor functions
 int			find_in_path(char **env, char *cmd, char **path);
-int			execute_pipeline(t_command *cmd, char ***env);
+void		execute_pipeline(t_command *cmd, char ***env);
 void		exec_cmd_child(t_command *current, t_command **cmd, char ***env);
 void		handle_execve_error(char *str, char **path, t_command **cmd,
 				char ***env);
 void		update_prev_fd(t_command *cmd, int *prev_fd, int *pipefd);
-int			wait_for_children(pid_t pid, size_t n_children, t_command *cmd);
+void		wait_for_children(pid_t pid, size_t n_children, t_command *cmd);
 void		check_if_directory(char **path, t_command **cmd, char ***env);
 
 // free

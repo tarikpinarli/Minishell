@@ -46,6 +46,7 @@ static void	wait_for_all_children_after_failure(pid_t wpid, int status)
 			{
 				perror("waitpid");
 				wpid = 1;
+				return ;
 			}
 		}
 	}
@@ -72,7 +73,7 @@ static void	process_status_of_last_cmd(int status)
 *  no more subprocesses to wait for)
 * 0, otherwise
 */
-int	wait_for_children(pid_t pid, size_t n_children, t_command *cmd)
+void	wait_for_children(pid_t pid, size_t n_children, t_command *cmd)
 {
 	pid_t	wpid;
 	int		status;
@@ -84,9 +85,10 @@ int	wait_for_children(pid_t pid, size_t n_children, t_command *cmd)
 		{
 			if (errno != ECHILD)
 			{
+				(void)last_exit_code(1, 1);
 				wait_for_all_children_after_failure(wpid, status);
 				cleanup_heredocs(cmd);
-				return (-1);
+				return ;
 			}
 		}
 		if (wpid == pid)
@@ -96,5 +98,4 @@ int	wait_for_children(pid_t pid, size_t n_children, t_command *cmd)
 		n_children--;
 	}
 	cleanup_heredocs(cmd);
-	return (0);
 }

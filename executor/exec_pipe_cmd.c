@@ -34,8 +34,8 @@ static int	launch_child_process(t_pipeline *pipeline, t_command *current,
 	if (pipeline->pid == -1)
 	{
 		perror("fork");
-		cleanup_heredocs(*cmd);
-		return (-1);
+		(void)last_exit_code(1, 1);
+		return (0);
 	}
 	if (pipeline->pid == 0)
 	{
@@ -48,7 +48,7 @@ static int	launch_child_process(t_pipeline *pipeline, t_command *current,
 		prepare_child(current, pipeline->prev_fd, pipeline->curr_pipefd);
 		exec_cmd_child(current, cmd, env);
 	}
-	return (0);
+	return (1);
 }
 
 static int	setup_pipe(int *pipefd, t_command *cmd)
@@ -56,7 +56,7 @@ static int	setup_pipe(int *pipefd, t_command *cmd)
 	if (pipe(pipefd) == -1)
 	{
 		perror("pipe");
-		cleanup_heredocs(cmd);
+		(void)last_exit_code(1, 1);
 		return (0);
 	}
 	return (1);
@@ -68,7 +68,7 @@ static void	init_pipeline(t_pipeline *pipeline)
 	pipeline->prev_fd = -1;
 }
 
-int	execute_pipeline(t_command *cmd, char ***env)
+void	execute_pipeline(t_command *cmd, char ***env)
 {
 	t_pipeline	pipeline;
 	t_command	*current;
@@ -83,7 +83,7 @@ int	execute_pipeline(t_command *cmd, char ***env)
 				break ;
 			pipeline.curr_pipefd = pipeline.pipefd;
 		}
-		if (launch_child_process(&pipeline, current, &cmd, env) == -1)
+		if (!launch_child_process(&pipeline, current, &cmd, env))
 			break ;
 		if (pipeline.pid > 0)
 			pipeline.n_children++;
@@ -92,5 +92,5 @@ int	execute_pipeline(t_command *cmd, char ***env)
 		update_prev_fd(current, &pipeline.prev_fd, pipeline.pipefd);
 		current = current->next;
 	}
-	return (wait_for_children(pipeline.pid, pipeline.n_children, cmd));
+	wait_for_children(pipeline.pid, pipeline.n_children, cmd);
 }

@@ -48,24 +48,18 @@ static void	process_command(char *input, char ***env, int *loop_control_flag)
 	tokens = NULL;
 	cmd = NULL;
 	if (!tokenize(input, &tokens, env))
-	{
-		*loop_control_flag = CONTINUE;
 		return ;
-	}
 	expand_tokens(tokens, input, env);
 	merge_tokens(tokens, input, env);
 	cmd = parse_tokens(tokens, input, env);
 	if (!cmd)
 	{
-		*loop_control_flag = CONTINUE;
+		// WARN: free_cmd(&cmd); ??????? I suppose Tarik's new parse_state_st takes care of it though.
 		return ;
 	}
 	free_tokens_and_input(&tokens, &input);
 	if (!handle_heredocs(&cmd, env, cmd))
-	{
-//		*loop_control_flag = CONTINUE; // NOTE: This line is only necessary if in main() there is still need for the "continue"
 		return ;
-	}
 	if (cmd->next)
 		execute_pipeline(cmd, env);
 	else
@@ -92,7 +86,10 @@ int	main(int argc, char **argv, char **envp)
 		if (loop_control_flag == CONTINUE)
 			continue ;
 		process_command(input, &env, &loop_control_flag);
+		// WARN: check if in all scnearios these next two are done before arriving here (especially if everything is successful!!)
+		// cleanup_heredocs() ???
+		// free_cmd(cmd)??
 	}
-	final_cleaning(env); // I think this should only have free_two_dimensional_array(&env);
+	final_cleaning(env);
 	return (0);
 }

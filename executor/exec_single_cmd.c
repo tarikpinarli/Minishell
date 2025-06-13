@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/13 16:41:27 by ykadosh          ###   ########.fr       */
+/*   Updated: 2025/06/13 16:58:18 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,11 +51,10 @@ static void	run_child_process(t_command *cmd, char ***env)
  * In all cases, tells the parent to stop waiting for more children.
  *
  * Returns:
- * 1 if the child exited with status 1
- * -1 in all other cases (signal or other exit code)
+ * 0 if the child exited with status 1
+ * 1 in all other cases (signal or other exit code)
  */
-static int	handle_children_status(int status, t_command *cmd,
-				int *loop_control_flag)
+static int	handle_children_status(int status, t_command *cmd)
 {
 	if (WIFSIGNALED(status))
 	{
@@ -66,7 +65,6 @@ static int	handle_children_status(int status, t_command *cmd,
 			write(1, "\n", 1);
 		(void)last_exit_code(1, 128 + (WTERMSIG(status)));
 		g_signal_status = 0;
-		*loop_control_flag = BREAK;
 	}
 	else
 	{
@@ -74,13 +72,11 @@ static int	handle_children_status(int status, t_command *cmd,
 		{
 			cleanup_heredocs(cmd);
 			(void)last_exit_code(1, 1);
-			return (1);
+			return (0);
 		}
 		(void)last_exit_code(1, WEXITSTATUS(status));
-		*loop_control_flag = BREAK;
 	}
-	cleanup_heredocs(cmd);
-	return (-1);
+	return (1);
 }
 
 /*
@@ -93,8 +89,8 @@ static int	handle_children_status(int status, t_command *cmd,
  *   which is not treated as a real error in this context.
  *
  * Returns:
- * 1 if waitpid failed due to a real error
- * -1 if no actionable error occurred (e.g., no more child processes)
+ * 0 if waitpid failed due to a real error
+ * 1 if no actionable error occurred (e.g., no more child processes)
  */
 static int	waitpid_error_check(t_command *cmd, pid_t wpid)
 {
@@ -104,10 +100,10 @@ static int	waitpid_error_check(t_command *cmd, pid_t wpid)
 		{
 			perror("waitpid");
 			cleanup_heredocs(cmd);
-			return (1);
+			return (0);
 		}
 	}
-	return (-1);
+	return (1);
 }
 
 /*
@@ -115,73 +111,54 @@ static int	waitpid_error_check(t_command *cmd, pid_t wpid)
  * Detects signals like SIGINT or SIGQUIT and updates the global exit code.
  * Also checks for empty commands (e.g., "") after all children have exited.
  *
- * Returns:
- * 1 if a child exited with error or waitpid failed
- * 2 if the command was an empty string (e.g., "")
- * -1 if all children exited normally and no specific condition was met
+ * This function returns mid-way when:
+ *	- a child exited with an error
+ *	- waitpid failed
  */
-static int	run_parent_process(t_command *cmd)
+static void	run_parent_process(t_command *cmd)
 {
 	pid_t	wpid;
 	int		status;
 	int		loop_control_flag;
-	int		ret;
 
 	while (1)
 	{
 		wpid = waitpid(-1, &status, 0);
-		ret = waitpid_error_check(cmd, wpid);
-		if (ret != -1)
-			return (ret);
-		ret = handle_children_status(status, cmd, &loop_control_flag);
-		if (loop_control_flag == BREAK)
-			break ;
-		if (ret != -1)
-			return (ret);
+		if (!waitpid_error_check(cmd, wpid))
+			return ;
+		if (!handle_children_status(status, cmd))
+			return ;
+		break ;
 	}
 	if (cmd->argv && cmd->argv[0] && !cmd->argv[0][0])
 	{
 		ft_putendl_fd("Command '' not found", 2);
 		(void)last_exit_code(1, 127);
-		cleanup_heredocs(cmd);
-		return (2);
 	}
-	return (-1);
+	cleanup_heredocs(cmd);
 }
 
 /*
  * Executes a single command, either as a builtin or an external program.
  * Handles heredoc setup, forks a child process for execution,
  * and waits in the parent for its completion.
- *
- * Returns:
- * 0 if the command was executed successfully
- * 1 if a system error occurred (e.g., fork, heredoc, or exec failure)
- * 2 if the command was not found (e.g., empty input or missing binary)
  */
-int	exec_single_command(t_command *cmd, char ***env)
+void	exec_single_command(t_command *cmd, char ***env)
 {
 	pid_t	pid;
-	int		ret;
 
 	if (check_if_builtin_and_execute(cmd, env))
-		return (0);
+		return ;
 	pid = fork();
 	if (pid == -1)
 	{
 		perror("fork failed");
 		cleanup_heredocs(cmd);
 		(void)last_exit_code(1, 1);
-		return (1);
+		return ;
 	}
 	if (pid == 0)
 		run_child_process(cmd, env);
 	else
-	{
-		ret = run_parent_process(cmd);
-		if (ret != -1)
-			return (ret);
-	}
-	cleanup_heredocs(cmd);
-	return (0);
+		run_parent_process(cmd);
 }

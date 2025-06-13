@@ -151,6 +151,11 @@ static void	exec_isolated_builtin(t_command *cmd, char ***env)
 	(void)last_exit_code(1, ret);
 }
 
+/*
+* returns 1 if the input's argument corresponds to a builtin command, after that
+* command is executed and the here-documents are cleaned up.
+* If there are no arguments or the argument is not a builtin command, returns 0
+*/
 int	check_if_builtin_and_execute(t_command *cmd, char ***env)
 {
 	if (cmd->argv && is_builtin(cmd->argv[0]))

@@ -151,13 +151,13 @@ static void	exec_isolated_builtin(t_command *cmd, char ***env)
 	(void)last_exit_code(1, ret);
 }
 
-int	prepare_builtin(t_command *cmd, char ***env)
+int	check_if_builtin_and_execute(t_command *cmd, char ***env)
 {
 	if (cmd->argv && is_builtin(cmd->argv[0]))
 	{
 		exec_isolated_builtin(cmd, env);
 		cleanup_heredocs(cmd);
-		return (0);
+		return (1);
 	}
-	return (-1);
+	return (0);
 }

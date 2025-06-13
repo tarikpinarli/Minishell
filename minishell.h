@@ -161,7 +161,7 @@ int			last_exit_code(int set, int value);
 
 // single command execution
 int			exec_single_command(t_command *cmd, char ***env);
-int			prepare_builtin(t_command *cmd, char ***env);
+int			check_if_builtin_and_execute(t_command *cmd, char ***env);
 void		exec_single_cmd_child(t_command **cmd, char ***env);
 void		free_and_exit(char **path, t_command **cmd, char ***env,
 				int exit_status);

@@ -6,7 +6,7 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/22 18:59:42 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/08 14:16:21 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/13 16:41:27 by ykadosh          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,9 +164,8 @@ int	exec_single_command(t_command *cmd, char ***env)
 	pid_t	pid;
 	int		ret;
 
-	ret = prepare_builtin(cmd, env);
-	if (ret != -1)
-		return (ret);
+	if (check_if_builtin_and_execute(cmd, env))
+		return (0);
 	pid = fork();
 	if (pid == -1)
 	{

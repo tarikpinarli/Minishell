@@ -21,7 +21,7 @@
  * - 1 if the pipe is valid and a new command is added
  * - -1 if a syntax error is detected and cleanup is performed
  */
-static int	handle_pipe( t_token *tokens, char *input,
+static int	handle_pipe(t_token *tokens, char *input,
 	t_parse_state *st, char ***env)
 {
 	int	i;

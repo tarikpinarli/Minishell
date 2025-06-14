@@ -12,13 +12,51 @@
 
 #include "../minishell.h"
 
-int	handle_in_redir(t_command *cmd)
+static void	handle_dup_two_error(int fd)
+{
+	close(fd);
+	perror("dup2");
+	(void)last_exit_code(1, 1);
+}
+
+/*
+* for 'id':	pass 0 for: in redirection
+*			pass 1 for: out redirection
+* This affcts whether Minishell assigns the file descriptor to the stdin (in
+* case of a redirected input) or to the stdout (in case of a redirected output).
+*/
+static int	handle_error_and_redirect_file(int fd, t_redir *redir, uint32_t id)
+{
+	int	flag;
+
+	flag = 0;
+	if (fd < 0)
+	{
+		perror(redir->filename);
+		return (0);
+	}
+	if (redir->next == NULL)
+	{
+		if (id == 0)
+			flag = dup2(fd, STDIN_FILENO);
+		else
+			flag = dup2(fd, STDOUT_FILENO);
+		if (flag == -1)
+		{
+			handle_dup_two_error(fd);
+			return (0);
+		}
+	}
+	return (1);
+}
+
+static int	handle_in_redir(t_command *current)
 {
 	struct stat	st;
 	t_redir		*in;
 	int			fd;
 
-	in = cmd->in_redir;
+	in = current->in_redir;
 	while (in)
 	{
 		if (in->type == REDIR_IN && stat(in->filename, &st) == -1)
@@ -27,67 +65,41 @@ int	handle_in_redir(t_command *cmd)
 			return (0);
 		}
 		fd = open(in->filename, O_RDONLY);
-		if (fd < 0)
-		{
-			perror(in->filename);
+		if (!handle_error_and_redirect_file(fd, in, 0))
 			return (0);
-		}
-		if (!in->next)
-		{
-			if (dup2(fd, STDIN_FILENO) == -1)
-			{
-				close(fd);
-				perror("dup2"); // WARN: check that this is only done from the parent!!!
-				// ft_putendl_fd("internal dup function has failed.", 2);
-				(void)last_exit_code(1, 1);
-				return (0); // WARN: is there a child process involved here?
-			}
-		}
 		close(fd);
 		in = in->next;
 	}
 	return (1);
 }
 
-int	handle_out_redir(t_command *cmd)
+static int	handle_out_redir(t_command *current)
 {
 	t_redir	*out;
 	int		fd;
 
-	out = cmd->out_redir;
+	out = current->out_redir;
 	while (out)
 	{
 		if (out->type == REDIR_OUT)
-			fd = open(out->filename, O_WRONLY | O_CREAT | O_TRUNC, 0777);
+			fd = open(out->filename, O_WRONLY | O_CREAT | O_TRUNC,
+					S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
 		else if (out->type == REDIR_APPEND)
-			fd = open(out->filename, O_WRONLY | O_CREAT | O_APPEND, 0777);
-		if (fd < 0)
-		{
-			perror(out->filename);
+			fd = open(out->filename, O_WRONLY | O_CREAT | O_APPEND,
+					S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH);
+		if (!handle_error_and_redirect_file(fd, out, 1))
 			return (0);
-		}
-		if (out->next == NULL)
-		{
-			if (dup2(fd, STDOUT_FILENO) == -1)
-			{
-				close(fd);
-				perror("dup2"); // WARN: protect failure?
-				// ft_putendl_fd("internal dup function has failed.", 2);
-				(void)last_exit_code(1, 1);
-				return (0);
-			}
-		}
 		close(fd);
 		out = out->next;
 	}
 	return (1);
 }
 
-int	setup_redirections(t_command *cmd)
+int	setup_redirections(t_command *current)
 {
-	if (!handle_in_redir(cmd))
+	if (!handle_in_redir(current))
 		return (0);
-	if (!handle_out_redir(cmd))
+	if (!handle_out_redir(current))
 		return (0);
 	return (1);
 }

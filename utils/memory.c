@@ -88,31 +88,24 @@ void	free_deprecated_strings(t_token *tokens, size_t k)
 	}
 }
 
-// NOTE: new version, which unlinks each in_redir list within a single command
-// node - this is supposed to clean up at the end of each and every pipeline!
-int	cleanup_heredocs(t_redir *current_in_redir)
+/*
+* NOTE: cleans up all the heredoc files, no matter in which pipeline they are
+* (as long as a pointer to the head of the 'cmd' list is passed.
+*/
+int	cleanup_heredocs(t_command *cmd)
 {
-	char	*heredoc_file_name;
-	char	*heredoc_number;
-	int		i;
+	t_redir	*current;
 
-	i = 1;
-	while (current_in_redir)
+	while (cmd)
 	{
-		if (current_in_redir->type == REDIR_HEREDOC)
+		current = cmd->in_redir;
+		while (current)
 		{
-			heredoc_number = ft_itoa(i);
-			if (!heredoc_number)
-				return (0);
-			heredoc_file_name = ft_strjoin("heredoc_", heredoc_number);
-			free(heredoc_number);
-			if (!heredoc_file_name)
-				return (0);
-			unlink(heredoc_file_name);
-			free(heredoc_file_name);
-			i++;
+			if (current->type == REDIR_HEREDOC)
+				unlink(current->filename);
+			current = current->next;
 		}
-		current_in_redir = current_in_redir->next;
+		cmd = cmd->next;
 	}
 	return (1);
 }

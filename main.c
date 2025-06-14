@@ -40,7 +40,7 @@ static char	*handle_input(int	*loop_control_flag, char ***env)
 	return (input);
 }
 
-static void	process_command(char *input, char ***env, int *loop_control_flag)
+static void	process_command(char *input, char ***env)
 {
 	t_token		*tokens;
 	t_command	*cmd;
@@ -48,19 +48,15 @@ static void	process_command(char *input, char ***env, int *loop_control_flag)
 	tokens = NULL;
 	cmd = NULL;
 	if (!tokenize(input, &tokens, env))
-	{
-		*loop_control_flag = CONTINUE;
 		return ;
-	}
 	expand_tokens(tokens, input, env);
 	merge_tokens(tokens, input, env);
 	cmd = parse_tokens(tokens, input, env);
 	if (!cmd)
-	{
-		*loop_control_flag = CONTINUE;
 		return ;
-	}
 	free_tokens_and_input(&tokens, &input);
+	if (!handle_heredocs(&cmd, env, cmd))
+		return ;
 	if (cmd->next)
 		execute_pipeline(cmd, env);
 	else
@@ -86,7 +82,7 @@ int	main(int argc, char **argv, char **envp)
 		input = handle_input(&loop_control_flag, &env);
 		if (loop_control_flag == CONTINUE)
 			continue ;
-		process_command(input, &env, &loop_control_flag);
+		process_command(input, &env);
 	}
 	final_cleaning(env);
 	return (0);

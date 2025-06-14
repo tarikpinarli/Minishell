@@ -26,7 +26,7 @@
  * - Closes any successfully duplicated file descriptors to avoid leaks.
  * - Sets the last exit code to 1 and returns early.
  */
-void	save_curr_std(int *saved_stdin, int *saved_stdout)
+static void	save_curr_std(int *saved_stdin, int *saved_stdout)
 {
 	*saved_stdin = dup(STDIN_FILENO);
 	*saved_stdout = dup(STDOUT_FILENO);
@@ -59,7 +59,7 @@ void	save_curr_std(int *saved_stdin, int *saved_stdout)
  * - Closes the saved file descriptors.
  * - Sets last exit code to 1 and returns without executing the built-in.
  */
-void	setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out)
+static int	setup_isolated_builtin_redirs(t_command *cmd, int *in, int *out)
 {
 	if (!setup_redirections(cmd))
 	{
@@ -72,13 +72,14 @@ void	setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out)
 			if (*out != -1)
 				close(*out);
 			(void)last_exit_code(1, 1);
-			return ;
+			return (0);
 		}
 		close(*in);
 		close(*out);
 		(void)last_exit_code(1, 1);
-		return ;
+		return (0);
 	}
+	return (1);
 }
 
 /*
@@ -97,11 +98,11 @@ void	setup_isolated_builtin_redirections(t_command *cmd, int *in, int *out)
  * - Clears readline history to free associated memory.
  * - Exits the process with status code 1.
  */
-void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
+static void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
 {
 	write(2, ALLOCATION_FAILURE, sizeof(ALLOCATION_FAILURE) - 1);
 	free_two_dimensional_array(env);
-	cleanup_heredocs(cmd->in_redir);
+	cleanup_heredocs(cmd);
 	free_cmd(&cmd);
 	close(in);
 	close(out);
@@ -113,9 +114,8 @@ void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
  * Executes a built-in command in the current process without forking.
  *
  * This is used when the command is a built-in (e.g., `cd`, `export`)
- * and needs to modify the
- * shell's state (like environment variables), which wouldn't
- * persist if done in a child process.
+ * and needs to modify the shell's state (like environment variables),
+ * which wouldn't persist if done in a child process.
  *
  * Steps:
  * 1. Saves current stdin and stdout file descriptors.
@@ -125,14 +125,15 @@ void	exit_isolated_builtin(char ***env, t_command *cmd, int in, int out)
  * 5. Restores original stdin and stdout after execution.
  * 6. Updates global exit code based on the command’s return value.
  */
-void	exec_isolated_builtin(t_command *cmd, char ***env)
+static void	exec_isolated_builtin(t_command *cmd, char ***env)
 {
 	int	saved_stdin;
 	int	saved_stdout;
 	int	ret;
 
 	save_curr_std(&saved_stdin, &saved_stdout);
-	setup_isolated_builtin_redirections(cmd, &saved_stdin, &saved_stdout);
+	if (!setup_isolated_builtin_redirs(cmd, &saved_stdin, &saved_stdout))
+		return ;
 	ret = execute_builtin(cmd, 1, env);
 	if (ret == -1)
 		exit_isolated_builtin(env, cmd, saved_stdin, saved_stdout);
@@ -153,30 +154,17 @@ void	exec_isolated_builtin(t_command *cmd, char ***env)
 }
 
 /*
- * Handles heredoc input and checks if the command is a built-in.
- *
- * - If heredocs are present, processes them before execution.
- * - If the command is a built-in, executes it without forking
- * 	 in an isolated environment.
- *
- * Return values:
- *   1 → Failure during heredoc (e.g., SIGINT, open() error)
- *   2 → Not used in this function, but reserved for “command not found”
- *   in other flow
- *   3 → Not used here, but returned by child process on sigaction() failure
- *   0 → Built-in executed successfully without fork
- *  -1 → Not a built-in; continue with normal execution flow
- */
-int	prepare_heredoc_and_builtin(t_command *cmd, char ***env)
+* returns 1 if the input's argument corresponds to a builtin command, after that
+* command is executed and the here-documents are cleaned up.
+* If there are no arguments or the argument is not a builtin command, returns 0
+*/
+int	check_if_builtin_and_execute(t_command *cmd, char ***env)
 {
-	if (cmd->in_redir)
-		if (!run_heredocs(&cmd, env, &cmd))
-			return (1);
 	if (cmd->argv && is_builtin(cmd->argv[0]))
 	{
 		exec_isolated_builtin(cmd, env);
-		cleanup_heredocs(cmd->in_redir);
-		return (0);
+		cleanup_heredocs(cmd);
+		return (1);
 	}
-	return (-1);
+	return (0);
 }

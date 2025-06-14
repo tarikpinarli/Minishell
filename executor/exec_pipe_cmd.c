@@ -51,7 +51,7 @@ static int	launch_child_process(t_pipeline *pipeline, t_command *current,
 	return (1);
 }
 
-static int	setup_pipe(int *pipefd, t_command *cmd)
+static int	setup_pipe(int *pipefd)
 {
 	if (pipe(pipefd) == -1)
 	{
@@ -79,7 +79,7 @@ void	execute_pipeline(t_command *cmd, char ***env)
 	{
 		if (current->next)
 		{
-			if (!setup_pipe(pipeline.pipefd, cmd))
+			if (!setup_pipe(pipeline.pipefd))
 				break ;
 			pipeline.curr_pipefd = pipeline.pipefd;
 		}

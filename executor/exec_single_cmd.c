@@ -120,7 +120,6 @@ static void	run_parent_process(t_command *cmd)
 {
 	pid_t	wpid;
 	int		status;
-	int		loop_control_flag;
 
 	while (1)
 	{

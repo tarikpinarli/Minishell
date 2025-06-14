@@ -189,7 +189,6 @@ void		free_deprecated_strings(t_token *tokens, size_t k);
 void		free_tokens(t_token **tokens);
 int			cleanup_heredocs(t_command *cmd);
 void		free_rest(char **path, t_command **cmd, char ***env);
-void		cleaning_after_exec(char *input, t_token *tokens, t_command *cmd);
 void		final_cleaning(char **env);
 
 // builtin commands

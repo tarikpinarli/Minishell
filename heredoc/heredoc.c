@@ -55,7 +55,7 @@ static int	readline_aftermath(t_heredoc *heredoc)
 {
 	if (g_signal_status == SIGINT)
 	{
-		(void)last_exit_code(1, 128 + g_signal_status); // WARN: check this on Linux, is it necessary in case of SIGINT during heredocs???? on Mac it returns 1 which is odd
+		(void)last_exit_code(1, 128 + g_signal_status);
 		g_signal_status = 0;
 		free(heredoc->in->filename);
 		heredoc->in->filename = heredoc->heredoc_filename;

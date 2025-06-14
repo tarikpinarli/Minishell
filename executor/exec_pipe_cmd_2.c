@@ -67,12 +67,6 @@ static void	process_status_of_last_cmd(int status)
 		(void)last_exit_code(1, WEXITSTATUS(status));
 }
 
-/*
-* return values:
-* -1 when waitpid() fails (and that failure does not occur because there are
-*  no more subprocesses to wait for)
-* 0, otherwise
-*/
 void	wait_for_children(pid_t pid, size_t n_children, t_command *cmd)
 {
 	pid_t	wpid;

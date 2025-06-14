@@ -59,7 +59,7 @@ static void	save_curr_std(int *saved_stdin, int *saved_stdout)
  * - Closes the saved file descriptors.
  * - Sets last exit code to 1 and returns without executing the built-in.
  */
-static void	setup_isolated_builtin_redirs(t_command *cmd, int *in, int *out)
+static int	setup_isolated_builtin_redirs(t_command *cmd, int *in, int *out)
 {
 	if (!setup_redirections(cmd))
 	{
@@ -72,13 +72,14 @@ static void	setup_isolated_builtin_redirs(t_command *cmd, int *in, int *out)
 			if (*out != -1)
 				close(*out);
 			(void)last_exit_code(1, 1);
-			return ;
+			return (0);
 		}
 		close(*in);
 		close(*out);
 		(void)last_exit_code(1, 1);
-		return ;
+		return (0);
 	}
+	return (1);
 }
 
 /*
@@ -131,7 +132,8 @@ static void	exec_isolated_builtin(t_command *cmd, char ***env)
 	int	ret;
 
 	save_curr_std(&saved_stdin, &saved_stdout);
-	setup_isolated_builtin_redirs(cmd, &saved_stdin, &saved_stdout);
+	if (!setup_isolated_builtin_redirs(cmd, &saved_stdin, &saved_stdout))
+		return ;
 	ret = execute_builtin(cmd, 1, env);
 	if (ret == -1)
 		exit_isolated_builtin(env, cmd, saved_stdin, saved_stdout);

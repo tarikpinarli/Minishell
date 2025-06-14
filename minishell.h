@@ -37,7 +37,6 @@ extern volatile sig_atomic_t	g_signal_status;
 
 typedef enum e_loop_control
 {
-	BREAK,
 	RESET,
 	CONTINUE
 }	t_loop_control;

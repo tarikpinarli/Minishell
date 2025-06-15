@@ -67,7 +67,6 @@ SRC = main.c \
 	builtins/builtin_export.c \
 	builtins/builtin_export_2.c \
 	builtins/builtin_export_3.c \
-	builtins/builtin_export_4.c \
 	builtins/builtin_pwd.c \
 	builtins/builtin_unset.c \
 	utils/signals.c \

@@ -214,7 +214,4 @@ void		sort_and_print_env(char **env);
 // builtin export and unset utils
 int			var_exist(char *arg, char **env);
 
-// helpers
-void		mute_args(int argc, char **argv);
-
 #endif

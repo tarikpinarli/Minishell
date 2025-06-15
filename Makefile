@@ -74,8 +74,7 @@ SRC = main.c \
 	utils/env_utils.c \
 	utils/memory.c \
 	utils/memory_2.c \
-	utils/status.c \
-	utils/helpers.c
+	utils/status.c
 
 OBJ = $(addprefix $(OBJ_DIR)/, $(SRC:.c=.o))
 

@@ -41,7 +41,7 @@ static int64_t	ft_atol(const char *str)
 	return ((int64_t)(result * sign));
 }
 
-uint64_t	is_too_big(const char *str)
+static uint64_t	is_too_big(const char *str)
 {
 	uint64_t	num;
 	int			isneg;

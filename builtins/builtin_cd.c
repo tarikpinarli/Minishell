@@ -41,7 +41,7 @@ static char	*cd_get_target(char **argv, char **env)
 	return (argv[1]);
 }
 
-int	update_pwd_vars(char ***env, const char *oldpwd, const char *newpwd)
+static int	update_pwd_vars(char ***env, const char *oldpwd, const char *newpwd)
 {
 	if (!update_env_var(env, "OLDPWD", oldpwd))
 		return (0);

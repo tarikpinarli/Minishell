@@ -186,7 +186,6 @@ void		free_tokens_and_input(t_token **tokens, char **input);
 void		free_all(char **input, t_token **tokens, t_command **cmd);
 void		free_two_dimensional_array(char ***arr);
 void		free_deprecated_strings(t_token *tokens, size_t k);
-void		free_tokens(t_token **tokens);
 int			cleanup_heredocs(t_command *cmd);
 void		free_rest(char **path, t_command **cmd, char ***env);
 void		final_cleaning(char **env);
@@ -206,8 +205,6 @@ char		*get_env_value(char **env, char *key);
 // builtin_cd
 int			builtin_cd(char **argv, char ***env);
 int			update_env_var(char ***env, const char *key, const char *value);
-int			update_pwd_vars(char ***env, const char *oldpwd,
-				const char *newpwd);
 
 // builtin_export
 int			builtin_export(char **argv, char ***env);
@@ -216,9 +213,5 @@ void		sort_and_print_env(char **env);
 
 // builtin export and unset utils
 int			var_exist(char *arg, char **env);
-int			remove_env_var(char ***env, int index);
-
-// helpers
-void		mute_args(int argc, char **argv);
 
 #endif

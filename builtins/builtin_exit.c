@@ -31,17 +31,13 @@ static int64_t	ft_atol(const char *str)
 	}
 	while (str[i] >= '0' && str[i] <= '9')
 	{
-		if (sign == -1 && (result * sign > 0))
-			return (0);
-		if (sign == 1 && (result * sign < 0))
-			return (-1);
 		result = result * 10 + (str[i] - '0');
 		i++;
 	}
 	return ((int64_t)(result * sign));
 }
 
-uint64_t	is_too_big(const char *str)
+static uint64_t	is_too_big(const char *str)
 {
 	uint64_t	num;
 	int			isneg;

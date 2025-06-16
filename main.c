@@ -12,6 +12,16 @@
 
 #include "minishell.h"
 
+static void	mute_args(int argc, char **argv)
+{
+	if (argc > 1)
+	{
+		(void)argv;
+		write(2, "Too many arguments\n", sizeof("Too many arguments\n") - 1);
+		exit (last_exit_code(0, 0));
+	}
+}
+
 static char	*handle_input(int	*loop_control_flag, char ***env)
 {
 	char	*input;

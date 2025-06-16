@@ -36,7 +36,7 @@ int	find_and_remove(char ***env, int count, int index, char **new_env)
 	return (1);
 }
 
-int	remove_env_var(char ***env, int index)
+static int	remove_env_var(char ***env, int index)
 {
 	int		ret;
 	int		count;

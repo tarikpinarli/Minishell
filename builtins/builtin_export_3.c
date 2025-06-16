@@ -12,43 +12,65 @@
 
 #include "../minishell.h"
 
-static int	match_env_key(char *key, char **env)
+void	print_export_err(char *str)
 {
-	int		i;
-	char	*eq;
-
-	i = 0;
-	while (env[i])
-	{
-		eq = ft_strchr(env[i], '=');
-		if (eq)
-			*eq = '\0';
-		if (ft_strcmp(env[i], key) == 0)
-		{
-			if (eq)
-				*eq = '=';
-			return (i);
-		}
-		if (eq)
-			*eq = '=';
-		i++;
-	}
-	return (-1);
+	ft_putstr_fd("export: `", 2);
+	ft_putstr_fd(str, 2);
+	ft_putendl_fd("': not a valid identifier", 2);
 }
 
-int	var_exist(char *arg, char **env)
+static int	is_valid_key(char *key)
 {
-	int		index;
+	if (!ft_isalpha(*key) && *key != '_')
+	{
+		print_export_err(key);
+		return (0);
+	}
+	while (*key)
+	{
+		if (!ft_isalnum(*key) && *key != '_')
+		{
+			print_export_err(key);
+			return (0);
+		}
+		key++;
+	}
+	return (1);
+}
+
+static int	check_with_equal(char *str, char *eq)
+{
+	char	*head;
+
+	head = str;
+	*eq = '\0';
+	if (!ft_isalpha(*str) && *str != '_')
+	{
+		print_export_err(str);
+		*eq = '=';
+		return (0);
+	}
+	while (*str)
+	{
+		if (!ft_isalnum(*str) && *str != '_')
+		{
+			print_export_err(head);
+			*eq = '=';
+			return (0);
+		}
+		str++;
+	}
+	*eq = '=';
+	return (1);
+}
+
+int	valid_identifier(char *str)
+{
 	char	*eq;
 
-	eq = ft_strchr(arg, '=');
+	eq = ft_strchr(str, '=');
 	if (eq)
-	{
-		*eq = '\0';
-		index = match_env_key(arg, env);
-		*eq = '=';
-		return (index);
-	}
+		return (check_with_equal(str, eq));
 	else
-		return (match_env_key(arg, env));
+		return (is_valid_key(str));
 }

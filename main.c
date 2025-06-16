@@ -30,7 +30,7 @@ static char	*handle_input(int	*loop_control_flag, char ***env)
 	input = readline("\001\033[38;5;117m\002minishell$ \001\033[0m\002");
 	if (!input)
 	{
-		printf("exit\n");
+		write(2, "exit\n", ft_strlen("exit\n"));
 		close(STDIN_FILENO);
 		close(STDOUT_FILENO);
 		close(STDERR_FILENO);

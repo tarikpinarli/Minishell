@@ -107,7 +107,7 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 	if (arg_count > 2)
 		return (ft_putendl_fd("exit\nexit: too many arguments", 2), 1);
 	if (pid_flag)
-		ft_putendl_fd("exit", 1);
+		ft_putendl_fd("exit", 2);
 	if (arg_count >= 2 && (!is_numeric(argv[1]) || is_too_big(argv[1])))
 	{
 		ft_putstr_fd("exit: ", 2);

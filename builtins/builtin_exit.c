@@ -12,13 +12,11 @@
 
 #include "../minishell.h"
 
-#include "../minishell.h"
-
-long	ft_atol(const char *str)
+static int64_t	ft_atol(const char *str)
 {
-	int		i;
-	long		sign;
-	long		result;
+	int			i;
+	int64_t		sign;
+	uint64_t	result;
 
 	i = 0;
 	sign = 1;
@@ -40,14 +38,14 @@ long	ft_atol(const char *str)
 		result = result * 10 + (str[i] - '0');
 		i++;
 	}
-	return (result * sign);
+	return ((int64_t)(result * sign));
 }
 
 uint64_t	is_too_big(const char *str)
 {
 	uint64_t	num;
-	int				isneg;
-	int				i;
+	int			isneg;
+	int			i;
 
 	num = 0;
 	isneg = 1;
@@ -62,15 +60,13 @@ uint64_t	is_too_big(const char *str)
 	}
 	while (str[i] >= '0' && str[i] <= '9')
 	{
-		printf("%lu\n", num);
 		num = (num * 10) + (str[i] - '0');
 		if ((num == (uint64_t)LONG_MAX + 1 && isneg > 0)
-			|| num > (uint64_t)LONG_MAX + 1)
-			return(1);
+			|| num > (uint64_t)LONG_MAX + 1
+			|| (num == (uint64_t)LONG_MAX + 1 && ft_isdigit(str[i + 1])))
+			return (1);
 		i++;
 	}
-	printf("%lu\n", num);
-	printf("%lu\n", (uint64_t)LONG_MAX + 1);
 	return (0);
 }
 
@@ -107,11 +103,9 @@ void	close_and_free(char **env, t_command *cmd)
 int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 {
 	int		arg_count;
-	long	exit_code;
+	int64_t	exit_code;
 
 	arg_count = 0;
-	printf("%ld\n", LONG_MAX);
-	printf("%ld\n", LONG_MIN);
 	while (argv[arg_count])
 		arg_count++;
 	if (arg_count > 2)

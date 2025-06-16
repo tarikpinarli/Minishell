@@ -6,11 +6,9 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 12:48:37 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/16 14:50:14 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/16 15:30:33 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
-
-#include "../minishell.h"
 
 #include "../minishell.h"
 
@@ -62,15 +60,13 @@ uint64_t	is_too_big(const char *str)
 	}
 	while (str[i] >= '0' && str[i] <= '9')
 	{
-		printf("%lu\n", num);
 		num = (num * 10) + (str[i] - '0');
-		if ((num == (uint64_t)LONG_MAX + 1 && isneg > 0)
-			|| num > (uint64_t)LONG_MAX + 1)
+		if (num == (uint64_t)LONG_MAX + 1 && isneg > 0)
+			return (1);
+		if (num * (-1) < 0)
 			return(1);
 		i++;
 	}
-	printf("%lu\n", num);
-	printf("%lu\n", (uint64_t)LONG_MAX + 1);
 	return (0);
 }
 

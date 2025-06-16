@@ -49,9 +49,9 @@ static void	print_arguments(char **argv, int start_index)
 	i = start_index;
 	while (argv[i])
 	{
-		printf("%s", argv[i]);
+		write(1, argv[i], ft_strlen(argv[i]));
 		if (argv[i + 1])
-			printf(" ");
+			write(1, " ", 1);
 		i++;
 	}
 }
@@ -64,6 +64,6 @@ int	builtin_echo(char **argv)
 	i = skip_n_flags(argv, &next_line);
 	print_arguments(argv, i);
 	if (next_line)
-		printf("\n");
+		write(1, "\n", 1);
 	return (0);
 }

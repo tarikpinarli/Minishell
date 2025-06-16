@@ -6,29 +6,72 @@
 /*   By: tpinarli <tpinarli@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/05/07 12:48:37 by tpinarli          #+#    #+#             */
-/*   Updated: 2025/06/04 18:34:17 by tpinarli         ###   ########.fr       */
+/*   Updated: 2025/06/16 14:50:14 by tpinarli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int	is_too_big(const char *str)
-{
-	int	len;
-	int	i;
+#include "../minishell.h"
 
-	len = 0;
+long	ft_atol(const char *str)
+{
+	int		i;
+	long		sign;
+	long		result;
+
 	i = 0;
-	if (!str)
-		return (1);
-	if (str[0] == '-' || str[0] == '+')
+	sign = 1;
+	result = 0;
+	while ((str[i] >= '\t' && str[i] <= '\r') || str[i] == ' ')
 		i++;
-	while (str[i])
+	if (str[i] == '-' || str[i] == '+')
 	{
-		len++;
+		if (str[i] == '-')
+			sign = -1;
 		i++;
 	}
-	return (len > 19);
+	while (str[i] >= '0' && str[i] <= '9')
+	{
+		if (sign == -1 && (result * sign > 0))
+			return (0);
+		if (sign == 1 && (result * sign < 0))
+			return (-1);
+		result = result * 10 + (str[i] - '0');
+		i++;
+	}
+	return (result * sign);
+}
+
+uint64_t	is_too_big(const char *str)
+{
+	uint64_t	num;
+	int				isneg;
+	int				i;
+
+	num = 0;
+	isneg = 1;
+	i = 0;
+	while (ft_isspace(str[i]))
+		i++;
+	if (str[i] == '+' || str[i] == '-')
+	{
+		if (str[i] == '-')
+			isneg *= -1;
+		i++;
+	}
+	while (str[i] >= '0' && str[i] <= '9')
+	{
+		printf("%lu\n", num);
+		num = (num * 10) + (str[i] - '0');
+		if ((num == (uint64_t)LONG_MAX + 1 && isneg > 0)
+			|| num > (uint64_t)LONG_MAX + 1)
+			return(1);
+		i++;
+	}
+	printf("%lu\n", num);
+	printf("%lu\n", (uint64_t)LONG_MAX + 1);
+	return (0);
 }
 
 static int	is_numeric(const char *str)
@@ -63,10 +106,12 @@ void	close_and_free(char **env, t_command *cmd)
 
 int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 {
-	int	arg_count;
-	int	exit_code;
+	int		arg_count;
+	long	exit_code;
 
 	arg_count = 0;
+	printf("%ld\n", LONG_MAX);
+	printf("%ld\n", LONG_MIN);
 	while (argv[arg_count])
 		arg_count++;
 	if (arg_count > 2)
@@ -82,7 +127,7 @@ int	builtin_exit(char **argv, t_command *cmd, int pid_flag, char ***env)
 		exit(2);
 	}
 	if (arg_count == 2)
-		exit_code = ft_atoi(argv[1]);
+		exit_code = ft_atol(argv[1]);
 	else
 		exit_code = last_exit_code(0, 0);
 	close_and_free(*env, cmd);

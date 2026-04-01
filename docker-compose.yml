@@ -1,0 +1,9 @@
+services:
+  minishell:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: minishell
+    stdin_open: true
+    tty: true
+    restart: "no"

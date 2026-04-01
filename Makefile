@@ -123,4 +123,14 @@ fsanitize: all
 mac:
 	$(MAKE) CFLAGS="$(MAC_CFLAGS)" LDFLAGS="$(MAC_LDFLAGS)" all
 
-.PHONY: all clean fclean re libft valgrind fsanitize mac
+# Docker targets
+docker-build:
+	docker compose build
+
+docker-run:
+	docker compose run --rm minishell
+
+docker-down:
+	docker compose down --rmi local
+
+.PHONY: all clean fclean re libft valgrind fsanitize mac docker-build docker-run docker-down
